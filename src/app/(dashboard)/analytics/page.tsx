@@ -117,46 +117,46 @@ export default function Analytics() {
                     >
                       <stop
                         offset="0%"
-                        stopColor="oklch(0.7 0.18 280)"
+                        stopColor="#4A7C2F"
                         stopOpacity={0.3}
                       />
                       <stop
                         offset="100%"
-                        stopColor="oklch(0.7 0.18 280)"
+                        stopColor="#4A7C2F"
                         stopOpacity={0}
                       />
                     </linearGradient>
                   </defs>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="oklch(0.3 0.01 285)"
+                    stroke="#1E2916"
                   />
                   <XAxis
                     dataKey="label"
-                    tick={{ fill: "oklch(0.65 0 0)", fontSize: 11 }}
+                    tick={{ fill: "#6B6B6B", fontSize: 11 }}
                     tickLine={false}
                     axisLine={false}
                     interval="preserveStartEnd"
                   />
                   <YAxis
-                    tick={{ fill: "oklch(0.65 0 0)", fontSize: 11 }}
+                    tick={{ fill: "#6B6B6B", fontSize: 11 }}
                     tickLine={false}
                     axisLine={false}
                     width={45}
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "oklch(0.18 0.005 285)",
-                      border: "1px solid oklch(0.3 0.01 285)",
-                      borderRadius: "8px",
-                      color: "#fafafa",
+                      backgroundColor: "#131A0E",
+                      border: "1px solid #1E2916",
+                      borderRadius: "0px",
+                      color: "#C8C8C8",
                       fontSize: 13,
                     }}
                   />
                   <Area
                     type="monotone"
                     dataKey="impressions"
-                    stroke="oklch(0.7 0.18 280)"
+                    stroke="#4A7C2F"
                     strokeWidth={2}
                     fill="url(#impressionsGrad)"
                     name="Impresiones"
@@ -180,34 +180,34 @@ export default function Analytics() {
                 <BarChart data={chartData}>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="oklch(0.3 0.01 285)"
+                    stroke="#1E2916"
                   />
                   <XAxis
                     dataKey="label"
-                    tick={{ fill: "oklch(0.65 0 0)", fontSize: 11 }}
+                    tick={{ fill: "#6B6B6B", fontSize: 11 }}
                     tickLine={false}
                     axisLine={false}
                     interval="preserveStartEnd"
                   />
                   <YAxis
-                    tick={{ fill: "oklch(0.65 0 0)", fontSize: 11 }}
+                    tick={{ fill: "#6B6B6B", fontSize: 11 }}
                     tickLine={false}
                     axisLine={false}
                     width={35}
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "oklch(0.18 0.005 285)",
-                      border: "1px solid oklch(0.3 0.01 285)",
-                      borderRadius: "8px",
-                      color: "#fafafa",
+                      backgroundColor: "#131A0E",
+                      border: "1px solid #1E2916",
+                      borderRadius: "0px",
+                      color: "#C8C8C8",
                       fontSize: 13,
                     }}
                   />
                   <Bar
                     dataKey="engagementRate"
-                    fill="oklch(0.65 0.15 200)"
-                    radius={[4, 4, 0, 0]}
+                    fill="#6AAF3D"
+                    radius={[0, 0, 0, 0]}
                     name="Engagement %"
                   />
                 </BarChart>
@@ -230,17 +230,17 @@ export default function Analytics() {
               <LineChart data={chartData}>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="oklch(0.3 0.01 285)"
+                  stroke="#1E2916"
                 />
                 <XAxis
                   dataKey="label"
-                  tick={{ fill: "oklch(0.65 0 0)", fontSize: 11 }}
+                  tick={{ fill: "#6B6B6B", fontSize: 11 }}
                   tickLine={false}
                   axisLine={false}
                   interval="preserveStartEnd"
                 />
                 <YAxis
-                  tick={{ fill: "oklch(0.65 0 0)", fontSize: 11 }}
+                  tick={{ fill: "#6B6B6B", fontSize: 11 }}
                   tickLine={false}
                   axisLine={false}
                   width={50}
@@ -248,17 +248,17 @@ export default function Analytics() {
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "oklch(0.18 0.005 285)",
-                    border: "1px solid oklch(0.3 0.01 285)",
-                    borderRadius: "8px",
-                    color: "#fafafa",
+                    backgroundColor: "#131A0E",
+                    border: "1px solid #1E2916",
+                    borderRadius: "0px",
+                    color: "#C8C8C8",
                     fontSize: 13,
                   }}
                 />
                 <Line
                   type="monotone"
                   dataKey="followers"
-                  stroke="oklch(0.7 0.15 150)"
+                  stroke="#6AAF3D"
                   strokeWidth={2}
                   dot={false}
                   name="Seguidores"

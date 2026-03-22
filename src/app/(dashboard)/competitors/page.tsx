@@ -1,15 +1,21 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import {
   Competitor,
   CompetitorPlatform,
   mockCompetitors,
   platformLabels,
 } from "@/lib/mock-competitors";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DbCompetitor,
+  fetchCompetitors,
+  createCompetitor,
+  deleteCompetitor,
+} from "@/lib/supabase/competitors";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { GlowButton } from "@/components/ui/glow-button";
 import {
   Dialog,
   DialogContent,
@@ -33,13 +39,6 @@ type SortKey =
   | "avgEngagement"
   | "postsPerWeek";
 
-const sortLabels: Record<SortKey, string> = {
-  followers: "Seguidores",
-  followersChange: "Crecimiento",
-  avgEngagement: "Engagement",
-  postsPerWeek: "Frecuencia",
-};
-
 const platformDotColors: Record<CompetitorPlatform, string> = {
   instagram: "bg-purple-400",
   youtube: "bg-red-400",
@@ -52,9 +51,24 @@ const platformBadgeColors: Record<CompetitorPlatform, string> = {
   tiktok: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
 };
 
+function dbToLocal(db: DbCompetitor): Competitor {
+  return {
+    id: db.id,
+    handle: db.handle,
+    name: db.name,
+    platform: db.platform,
+    followers: db.followers,
+    followersChange: db.followers_change,
+    avgEngagement: db.avg_engagement,
+    postsPerWeek: db.posts_per_week,
+    recentPosts: [],
+  };
+}
+
 export default function CompetitorTracker() {
-  const [competitors, setCompetitors] =
-    useState<Competitor[]>(mockCompetitors);
+  const [competitors, setCompetitors] = useState<Competitor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("followers");
   const [sortAsc, setSortAsc] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -63,6 +77,23 @@ export default function CompetitorTracker() {
   const [newName, setNewName] = useState("");
   const [newPlatform, setNewPlatform] =
     useState<CompetitorPlatform>("instagram");
+
+  const loadCompetitors = useCallback(async () => {
+    try {
+      const data = await fetchCompetitors();
+      setCompetitors(
+        data.length > 0 ? data.map(dbToLocal) : mockCompetitors
+      );
+    } catch {
+      setCompetitors(mockCompetitors);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadCompetitors();
+  }, [loadCompetitors]);
 
   const sorted = useMemo(() => {
     return [...competitors].sort((a, b) => {
@@ -80,29 +111,36 @@ export default function CompetitorTracker() {
     }
   }
 
-  function handleAdd() {
+  async function handleAdd() {
     if (!newHandle.trim() || !newName.trim()) return;
-    const comp: Competitor = {
-      id: crypto.randomUUID(),
-      handle: newHandle.startsWith("@") ? newHandle : `@${newHandle}`,
-      name: newName,
-      platform: newPlatform,
-      followers: 0,
-      followersChange: 0,
-      avgEngagement: 0,
-      postsPerWeek: 0,
-      recentPosts: [],
-    };
-    setCompetitors((prev) => [...prev, comp]);
-    setNewHandle("");
-    setNewName("");
-    setNewPlatform("instagram");
-    setDialogOpen(false);
+    try {
+      const db = await createCompetitor({
+        handle: newHandle,
+        name: newName,
+        platform: newPlatform,
+      });
+      setCompetitors((prev) => [dbToLocal(db), ...prev]);
+      setNewHandle("");
+      setNewName("");
+      setNewPlatform("instagram");
+      setDialogOpen(false);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Error agregando competidor";
+      setError(message);
+    }
   }
 
-  function handleRemove(id: string) {
-    setCompetitors((prev) => prev.filter((c) => c.id !== id));
-    if (expandedId === id) setExpandedId(null);
+  async function handleRemove(id: string) {
+    try {
+      await deleteCompetitor(id);
+      setCompetitors((prev) => prev.filter((c) => c.id !== id));
+      if (expandedId === id) setExpandedId(null);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Error eliminando competidor";
+      setError(message);
+    }
   }
 
   function SortHeader({
@@ -137,6 +175,20 @@ export default function CompetitorTracker() {
     );
   }
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="flex items-center gap-3 text-muted-foreground">
+          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          Cargando competidores...
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -150,8 +202,10 @@ export default function CompetitorTracker() {
           </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-            + Agregar competidor
+          <DialogTrigger className="relative flex h-min w-fit flex-col items-center overflow-visible rounded-full border border-[#1E2916] bg-[#0D1008] p-px transition-all duration-300 hover:border-[#4A7C2F]">
+            <span className="z-10 w-auto rounded-full bg-[#131A0E] px-6 py-2.5 text-xs tracking-[0.15em] uppercase text-[#C8C8C8] transition-colors duration-300 hover:text-[#6AAF3D]">
+              + Agregar competidor
+            </span>
           </DialogTrigger>
           <DialogContent className="bg-card border-border sm:max-w-md">
             <DialogHeader>
@@ -199,24 +253,29 @@ export default function CompetitorTracker() {
                 </Select>
               </div>
               <div className="flex justify-end gap-3 pt-2">
-                <Button
+                <GlowButton
                   variant="ghost"
                   onClick={() => setDialogOpen(false)}
                 >
                   Cancelar
-                </Button>
-                <Button
+                </GlowButton>
+                <GlowButton
                   onClick={handleAdd}
                   disabled={!newHandle.trim() || !newName.trim()}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   Agregar
-                </Button>
+                </GlowButton>
               </div>
             </div>
           </DialogContent>
         </Dialog>
       </div>
+
+      {error && (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -344,30 +403,16 @@ export default function CompetitorTracker() {
                       </td>
                       <td className="py-3 pl-2 pr-4 text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-muted-foreground hover:text-foreground h-7 px-2 text-xs"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setExpandedId(
-                                expandedId === comp.id ? null : comp.id
-                              );
-                            }}
-                          >
-                            {expandedId === comp.id ? "Cerrar" : "Ver posts"}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-muted-foreground hover:text-destructive h-7 px-2 text-xs"
-                            onClick={(e) => {
+                          <GlowButton
+                            variant="danger"
+                            className="px-4 py-1 text-[10px]"
+                            onClick={(e: React.MouseEvent) => {
                               e.stopPropagation();
                               handleRemove(comp.id);
                             }}
                           >
                             Quitar
-                          </Button>
+                          </GlowButton>
                         </div>
                       </td>
                     </tr>

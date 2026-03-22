@@ -8,7 +8,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { GlowButton } from "@/components/ui/glow-button";
 
 const postTypeLabels: Record<string, string> = {
   reel: "Reel",
@@ -75,14 +75,13 @@ export function PostCard({
           )}
           <p>Creado: {post.createdAt}</p>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-muted-foreground hover:text-destructive"
+        <GlowButton
+          variant="danger"
+          className="px-4 py-1.5 text-[10px]"
           onClick={() => onDelete(post.id)}
         >
           Eliminar
-        </Button>
+        </GlowButton>
       </CardFooter>
     </Card>
   );

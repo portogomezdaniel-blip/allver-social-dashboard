@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Platform, calendarPosts, platformConfig } from "@/lib/mock-calendar";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { Platform, CalendarPost, platformConfig, calendarPosts as mockCalendarPosts } from "@/lib/mock-calendar";
+import { fetchCalendarPosts } from "@/lib/supabase/calendar";
 import { CalendarGrid } from "@/components/calendar/calendar-grid";
 import { PlatformFilter } from "@/components/calendar/platform-filter";
-import { Button } from "@/components/ui/button";
+import { GlowButton } from "@/components/ui/glow-button";
 
 const MONTH_NAMES = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -14,13 +15,32 @@ const MONTH_NAMES = [
 const allPlatforms: Platform[] = ["instagram", "youtube", "tiktok", "linkedin"];
 
 export default function ContentCalendar() {
-  const [year, setYear] = useState(2026);
-  const [month, setMonth] = useState(2); // March (0-indexed)
+  const now = new Date();
+  const [year, setYear] = useState(now.getFullYear());
+  const [month, setMonth] = useState(now.getMonth());
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(allPlatforms);
+  const [posts, setPosts] = useState<CalendarPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadPosts = useCallback(async () => {
+    try {
+      const dbPosts = await fetchCalendarPosts();
+      // If there are real posts, use them. Otherwise fallback to mock.
+      setPosts(dbPosts.length > 0 ? dbPosts : mockCalendarPosts);
+    } catch {
+      setPosts(mockCalendarPosts);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadPosts();
+  }, [loadPosts]);
 
   const filteredPosts = useMemo(
-    () => calendarPosts.filter((p) => selectedPlatforms.includes(p.platform)),
-    [selectedPlatforms]
+    () => posts.filter((p) => selectedPlatforms.includes(p.platform)),
+    [selectedPlatforms, posts]
   );
 
   const monthPosts = useMemo(
@@ -72,18 +92,18 @@ export default function ContentCalendar() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         {/* Month navigation */}
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" onClick={prevMonth} className="border-border">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          </Button>
+          <GlowButton onClick={prevMonth} className="px-3 py-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </GlowButton>
           <h2 className="text-lg font-semibold text-foreground min-w-[180px] text-center">
             {MONTH_NAMES[month]} {year}
           </h2>
-          <Button variant="outline" size="sm" onClick={nextMonth} className="border-border">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-          </Button>
-          <Button variant="ghost" size="sm" onClick={goToday} className="text-primary text-xs">
+          <GlowButton onClick={nextMonth} className="px-3 py-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </GlowButton>
+          <GlowButton variant="ghost" onClick={goToday} className="px-4 py-1.5 text-[10px]">
             Hoy
-          </Button>
+          </GlowButton>
         </div>
 
         {/* Platform filter */}
@@ -110,7 +130,19 @@ export default function ContentCalendar() {
       </div>
 
       {/* Calendar grid */}
-      <CalendarGrid year={year} month={month} posts={monthPosts} />
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="flex items-center gap-3 text-muted-foreground">
+            <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            Cargando calendario...
+          </div>
+        </div>
+      ) : (
+        <CalendarGrid year={year} month={month} posts={monthPosts} />
+      )}
     </div>
   );
 }

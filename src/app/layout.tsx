@@ -1,14 +1,19 @@
 import type { Metadata } from "next";
-import { Sidebar } from "@/components/sidebar";
 import "./globals.css";
 import { Geist } from "next/font/google";
+import { Barlow_Condensed } from "next/font/google";
 import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
+const barlow = Barlow_Condensed({
+  subsets: ["latin"],
+  weight: ["700"],
+  variable: "--font-heading",
+});
 
 export const metadata: Metadata = {
-  title: "Allver Social Dashboard",
-  description: "Personal content management dashboard",
+  title: "FTP by LLVR",
+  description: "Creator command system",
 };
 
 export default function RootLayout({
@@ -17,11 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={cn("dark", "font-sans", geist.variable)}>
-      <body className="flex h-screen overflow-hidden">
-        <Sidebar />
-        <main className="flex-1 overflow-y-auto p-8">{children}</main>
-      </body>
+    <html lang="en" className={cn("dark", geist.variable, barlow.variable)}>
+      <body>{children}</body>
     </html>
   );
 }

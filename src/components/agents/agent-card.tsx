@@ -3,7 +3,7 @@
 import { Agent, AgentStatus } from "@/lib/mock-agents";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { GlowButton } from "@/components/ui/glow-button";
 
 const statusConfig: Record<
   AgentStatus,
@@ -115,17 +115,17 @@ export function AgentCard({
         )}
 
         {/* Trigger button */}
-        <Button
-          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-          size="sm"
+        <GlowButton
+          containerClassName="w-full"
+          className="w-full text-center"
           disabled={isRunning}
-          onClick={(e) => {
+          onClick={(e: React.MouseEvent) => {
             e.stopPropagation();
             onTrigger();
           }}
         >
           {isRunning ? (
-            <span className="flex items-center gap-2">
+            <span className="flex items-center justify-center gap-2">
               <svg
                 className="animate-spin h-3.5 w-3.5"
                 viewBox="0 0 24 24"
@@ -150,7 +150,7 @@ export function AgentCard({
           ) : (
             "Ejecutar ahora"
           )}
-        </Button>
+        </GlowButton>
       </CardContent>
     </Card>
   );

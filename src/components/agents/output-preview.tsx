@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Agent, AgentOutput, OutputStatus } from "@/lib/mock-agents";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { GlowButton } from "@/components/ui/glow-button";
 
 const outputStatusConfig: Record<
   OutputStatus,
@@ -156,21 +156,23 @@ export function OutputPreview({
         {/* Approve / Reject */}
         {output.status === "pending" && (
           <div className="flex items-center gap-3 pt-2">
-            <Button
-              className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700"
+            <GlowButton
+              containerClassName="flex-1"
+              className="w-full text-center flex items-center justify-center gap-2"
               onClick={() => onApprove(output.id)}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="mr-2"><path d="M20 6 9 17l-5-5"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 6 9 17l-5-5"/></svg>
               Aprobar
-            </Button>
-            <Button
-              variant="outline"
-              className="flex-1 border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+            </GlowButton>
+            <GlowButton
+              variant="danger"
+              containerClassName="flex-1"
+              className="w-full text-center flex items-center justify-center gap-2"
               onClick={() => onReject(output.id)}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="mr-2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
               Rechazar
-            </Button>
+            </GlowButton>
           </div>
         )}
 

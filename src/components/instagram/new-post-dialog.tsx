@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { InstagramPost, PostStatus, PostType } from "@/lib/types";
-import { Button } from "@/components/ui/button";
+import { PostStatus, PostType } from "@/lib/types";
+import type { Platform } from "@/lib/mock-calendar";
+import { GlowButton } from "@/components/ui/glow-button";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +23,13 @@ import {
 } from "@/components/ui/select";
 
 interface NewPostDialogProps {
-  onAdd: (post: Omit<InstagramPost, "id" | "createdAt">) => void;
+  onAdd: (post: {
+    caption: string;
+    postType: PostType;
+    status: PostStatus;
+    scheduledDate: string | null;
+    platform: Platform;
+  }) => void;
 }
 
 export function NewPostDialog({ onAdd }: NewPostDialogProps) {
@@ -31,6 +38,7 @@ export function NewPostDialog({ onAdd }: NewPostDialogProps) {
   const [postType, setPostType] = useState<PostType>("reel");
   const [status, setStatus] = useState<PostStatus>("draft");
   const [scheduledDate, setScheduledDate] = useState("");
+  const [platform, setPlatform] = useState<Platform>("instagram");
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -41,19 +49,23 @@ export function NewPostDialog({ onAdd }: NewPostDialogProps) {
       postType,
       status,
       scheduledDate: scheduledDate || null,
+      platform,
     });
 
     setCaption("");
     setPostType("reel");
     setStatus("draft");
     setScheduledDate("");
+    setPlatform("instagram");
     setOpen(false);
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-        + Nuevo Post
+      <DialogTrigger className="relative flex h-min w-fit flex-col items-center overflow-visible rounded-full border border-[#1E2916] bg-[#0D1008] p-px transition-all duration-300 hover:border-[#4A7C2F]">
+        <span className="z-10 w-auto rounded-full bg-[#131A0E] px-6 py-2.5 text-xs tracking-[0.15em] uppercase text-[#C8C8C8] transition-colors duration-300 hover:text-[#6AAF3D]">
+          + Nuevo Post
+        </span>
       </DialogTrigger>
       <DialogContent className="bg-card border-border sm:max-w-md">
         <DialogHeader>
@@ -111,6 +123,24 @@ export function NewPostDialog({ onAdd }: NewPostDialogProps) {
           </div>
 
           <div className="space-y-2">
+            <Label>Plataforma</Label>
+            <Select
+              value={platform}
+              onValueChange={(v) => setPlatform(v as Platform)}
+            >
+              <SelectTrigger className="bg-background border-border">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-card border-border">
+                <SelectItem value="instagram">Instagram</SelectItem>
+                <SelectItem value="youtube">YouTube</SelectItem>
+                <SelectItem value="tiktok">TikTok</SelectItem>
+                <SelectItem value="linkedin">LinkedIn</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="date">Fecha programada (opcional)</Label>
             <Input
               id="date"
@@ -122,20 +152,18 @@ export function NewPostDialog({ onAdd }: NewPostDialogProps) {
           </div>
 
           <div className="flex justify-end gap-3 pt-2">
-            <Button
-              type="button"
+            <GlowButton
               variant="ghost"
               onClick={() => setOpen(false)}
             >
               Cancelar
-            </Button>
-            <Button
-              type="submit"
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            </GlowButton>
+            <GlowButton
+              onClick={handleSubmit}
               disabled={!caption.trim()}
             >
               Agregar
-            </Button>
+            </GlowButton>
           </div>
         </form>
       </DialogContent>
