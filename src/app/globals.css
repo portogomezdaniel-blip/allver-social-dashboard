@@ -5,116 +5,86 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-heading: var(--font-heading);
   --font-sans: var(--font-sans);
-  --color-sidebar-active: var(--sidebar-primary);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
+  --font-mono: var(--font-mono);
+  --color-background: var(--bg);
+  --color-foreground: var(--text-primary);
+  --color-card: var(--bg-card);
+  --color-card-foreground: var(--text-primary);
+  --color-popover: var(--bg-card);
+  --color-popover-foreground: var(--text-primary);
+  --color-primary: var(--text-primary);
+  --color-primary-foreground: var(--bg);
+  --color-secondary: var(--bg-hover);
+  --color-secondary-foreground: var(--text-primary);
+  --color-muted: var(--bg-hover);
+  --color-muted-foreground: var(--text-secondary);
+  --color-accent: var(--bg-hover);
+  --color-accent-foreground: var(--text-primary);
+  --color-destructive: var(--red);
   --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-2xl: 0px;
-  --radius-3xl: 0px;
-  --radius-4xl: 0px;
+  --color-input: var(--border);
+  --color-ring: var(--text-tertiary);
+  --color-sidebar: #232325;
+  --color-sidebar-foreground: var(--text-secondary);
+  --color-sidebar-active: var(--text-primary);
+  --color-sidebar-primary: var(--text-primary);
+  --color-sidebar-primary-foreground: var(--bg);
+  --color-sidebar-accent: rgba(255,255,255,0.05);
+  --color-sidebar-accent-foreground: var(--text-primary);
+  --color-sidebar-border: var(--border);
+  --color-sidebar-ring: var(--text-tertiary);
+  --color-chart-1: var(--green);
+  --color-chart-2: var(--blue);
+  --color-chart-3: var(--amber);
+  --color-chart-4: var(--purple);
+  --color-chart-5: var(--red);
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 14px;
+  --radius-3xl: 16px;
+  --radius-4xl: 20px;
 }
 
 :root {
-  --background: #0D1008;
-  --foreground: #C8C8C8;
-  --card: #131A0E;
-  --card-foreground: #C8C8C8;
-  --popover: #131A0E;
-  --popover-foreground: #C8C8C8;
-  --primary: #4A7C2F;
-  --primary-foreground: #C8C8C8;
-  --secondary: #1E2916;
-  --secondary-foreground: #C8C8C8;
-  --muted: #1E2916;
-  --muted-foreground: #6B6B6B;
-  --accent: #1E2916;
-  --accent-foreground: #C8C8C8;
-  --destructive: #8B2020;
-  --border: #1E2916;
-  --input: #1E2916;
-  --ring: #4A7C2F;
-  --chart-1: #4A7C2F;
-  --chart-2: #6AAF3D;
-  --chart-3: #3D6B28;
-  --chart-4: #2E5520;
-  --chart-5: #1E3A14;
-  --radius: 0px;
-  --sidebar: #0A0D07;
-  --sidebar-foreground: #6B6B6B;
-  --sidebar-primary: #4A7C2F;
-  --sidebar-primary-foreground: #C8C8C8;
-  --sidebar-accent: #1E2916;
-  --sidebar-accent-foreground: #C8C8C8;
-  --sidebar-border: #1E2916;
-  --sidebar-ring: #4A7C2F;
+  --bg: #1c1c1e;
+  --bg-card: #2c2c2e;
+  --bg-hover: #38383a;
+  --border: #3a3a3c;
+  --border-focus: #4a4a4c;
+  --text-primary: #f2f2f2;
+  --text-secondary: #a1a1a6;
+  --text-tertiary: #6e6e73;
+  --green: #34c759;
+  --green-bg: rgba(52,199,89,0.12);
+  --amber: #f0a030;
+  --amber-bg: rgba(240,160,48,0.12);
+  --red: #ff453a;
+  --red-bg: rgba(255,69,58,0.10);
+  --blue: #64a0ff;
+  --blue-bg: rgba(100,160,255,0.12);
+  --purple: #bf5af2;
+  --purple-bg: rgba(191,90,242,0.12);
+  --satin: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.02) 100%);
+  --radius: 10px;
 }
 
 .dark {
-  --background: #0D1008;
-  --foreground: #C8C8C8;
-  --card: #131A0E;
-  --card-foreground: #C8C8C8;
-  --popover: #131A0E;
-  --popover-foreground: #C8C8C8;
-  --primary: #4A7C2F;
-  --primary-foreground: #C8C8C8;
-  --secondary: #1E2916;
-  --secondary-foreground: #C8C8C8;
-  --muted: #1E2916;
-  --muted-foreground: #6B6B6B;
-  --accent: #1E2916;
-  --accent-foreground: #C8C8C8;
-  --destructive: #8B2020;
-  --border: #1E2916;
-  --input: #1E2916;
-  --ring: #4A7C2F;
-  --chart-1: #4A7C2F;
-  --chart-2: #6AAF3D;
-  --chart-3: #3D6B28;
-  --chart-4: #2E5520;
-  --chart-5: #1E3A14;
-  --sidebar: #0A0D07;
-  --sidebar-foreground: #6B6B6B;
-  --sidebar-primary: #4A7C2F;
-  --sidebar-primary-foreground: #C8C8C8;
-  --sidebar-accent: #1E2916;
-  --sidebar-accent-foreground: #C8C8C8;
-  --sidebar-border: #1E2916;
-  --sidebar-ring: #4A7C2F;
+  --bg: #1c1c1e;
+  --bg-card: #2c2c2e;
+  --bg-hover: #38383a;
+  --border: #3a3a3c;
+  --border-focus: #4a4a4c;
+  --text-primary: #f2f2f2;
+  --text-secondary: #a1a1a6;
+  --text-tertiary: #6e6e73;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @layer base {
@@ -122,11 +92,14 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    font-family: var(--font-sans), -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading), system-ui, sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-family: var(--font-sans), -apple-system, sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.03em;
   }
 }

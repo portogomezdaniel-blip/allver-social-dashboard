@@ -4,40 +4,45 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import {
+  LayoutDashboard,
+  PenSquare,
+  Calendar,
+  Newspaper,
+  Radar,
+  Zap,
+  LayoutTemplate,
+  Bot,
+  Settings,
+  LogOut,
+} from "lucide-react";
 
-const sections = [
-  { name: "Content", href: "/instagram", icon: "Instagram" },
-  { name: "Analytics", href: "/analytics", icon: "BarChart3" },
-  { name: "Calendar", href: "/calendar", icon: "Calendar" },
-  { name: "Recon", href: "/competitors", icon: "Users" },
-  { name: "Intel", href: "/news", icon: "Newspaper" },
-  { name: "Agents", href: "/agents", icon: "Bot" },
-  { name: "Config", href: "/settings", icon: "Settings" },
+const navSections = [
+  {
+    label: "Principal",
+    items: [
+      { name: "Dashboard", href: "/", icon: LayoutDashboard },
+      { name: "Content", href: "/instagram", icon: PenSquare },
+      { name: "Calendar", href: "/calendar", icon: Calendar },
+      { name: "Intel", href: "/news", icon: Newspaper },
+    ],
+  },
+  {
+    label: "Analisis",
+    items: [
+      { name: "Recon", href: "/competitors", icon: Radar },
+      { name: "Hooks", href: "/hooks", icon: Zap },
+      { name: "Templates", href: "/templates", icon: LayoutTemplate },
+    ],
+  },
+  {
+    label: "Sistema",
+    items: [
+      { name: "Agents", href: "/agents", icon: Bot },
+      { name: "Settings", href: "/settings", icon: Settings },
+    ],
+  },
 ];
-
-const icons: Record<string, React.ReactNode> = {
-  Instagram: (
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="0" ry="0"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-  ),
-  BarChart3: (
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-  ),
-  Calendar: (
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="0"/><path d="M3 10h18"/></svg>
-  ),
-  Users: (
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-  ),
-  Newspaper: (
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
-  ),
-  Bot: (
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="0"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
-  ),
-  Settings: (
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-  ),
-};
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -59,62 +64,99 @@ export function Sidebar() {
   }
 
   const initial = userEmail ? userEmail[0].toUpperCase() : "?";
+  const displayName = userEmail ? userEmail.split("@")[0] : "...";
 
   return (
-    <aside className="flex flex-col w-56 min-h-screen bg-sidebar border-r border-border">
-      <div className="px-5 py-6">
-        <h1 className="text-base font-bold tracking-[0.15em] text-foreground">
-          FTP
-        </h1>
-        <p className="text-[10px] text-muted-foreground tracking-[0.2em] mt-0.5">
-          BY LLVR
-        </p>
+    <aside
+      className="flex flex-col w-[220px] min-h-screen border-r border-[var(--border)]"
+      style={{
+        background: "#232325",
+        backgroundImage: "var(--satin)",
+      }}
+    >
+      {/* Logo */}
+      <div className="px-6 pt-7 pb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-7 h-7 rounded-[7px] bg-[var(--text-primary)] flex items-center justify-center">
+            <span className="text-[10px] font-semibold text-[var(--bg)] tracking-wider">
+              FTP
+            </span>
+          </div>
+          <div>
+            <p className="text-[14px] font-medium tracking-[-0.02em] text-[var(--text-primary)]">
+              FTP
+            </p>
+            <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-[0.06em]">
+              by LLVR
+            </p>
+          </div>
+        </div>
       </div>
-      <nav className="flex-1 px-2 space-y-0.5">
-        {sections.map((section) => {
-          const isActive = pathname === section.href;
-          return (
-            <Link
-              key={section.href}
-              href={section.href}
-              className={`flex items-center gap-3 px-3 py-2.5 text-xs tracking-[0.1em] uppercase transition-colors border-l-2 ${
-                isActive
-                  ? "border-primary text-primary bg-primary/5"
-                  : "border-transparent text-sidebar-foreground hover:border-border hover:text-foreground"
-              }`}
-            >
-              <span className={isActive ? "text-primary" : "opacity-50"}>
-                {icons[section.icon]}
-              </span>
-              {section.name}
-            </Link>
-          );
-        })}
+
+      {/* Nav */}
+      <nav className="flex-1 space-y-5">
+        {navSections.map((section) => (
+          <div key={section.label}>
+            <p className="text-[10px] font-medium tracking-[0.08em] uppercase text-[var(--text-tertiary)] px-6 mb-1.5">
+              {section.label}
+            </p>
+            <div className="space-y-0.5">
+              {section.items.map((item) => {
+                const isActive =
+                  item.href === "/"
+                    ? pathname === "/"
+                    : pathname.startsWith(item.href);
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`relative flex items-center gap-2.5 px-6 py-2 text-[13px] transition-all duration-150 ${
+                      isActive
+                        ? "text-[var(--text-primary)] font-medium bg-[rgba(255,255,255,0.05)]"
+                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+                    }`}
+                  >
+                    {isActive && (
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-[var(--text-primary)] rounded-r-sm" />
+                    )}
+                    <Icon
+                      size={16}
+                      className={
+                        isActive ? "opacity-75" : "opacity-45"
+                      }
+                    />
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
-      {/* User info */}
-      <div className="px-2 py-3 border-t border-border">
+      {/* Footer */}
+      <div className="border-t border-[var(--border)] p-4">
         <Link
           href="/settings"
-          className="flex items-center gap-3 px-3 py-2 hover:bg-muted/30 transition-colors"
+          className="flex items-center gap-3 px-2 py-2 rounded-[6px] hover:bg-[var(--bg-hover)] transition-colors"
         >
-          <div className="w-8 h-8 flex items-center justify-center bg-[rgba(74,124,47,0.15)] text-[#C8C8C8] text-xs font-bold shrink-0">
+          <div className="w-7 h-7 rounded-full bg-[rgba(255,255,255,0.08)] flex items-center justify-center text-[11px] font-medium text-[var(--text-primary)]">
             {initial}
           </div>
-          <span className="text-[11px] text-muted-foreground truncate">
-            {userEmail || "..."}
-          </span>
+          <div className="min-w-0">
+            <p className="text-[12px] font-medium text-[var(--text-primary)] truncate">
+              {displayName}
+            </p>
+            <p className="text-[11px] text-[var(--text-tertiary)]">Creator</p>
+          </div>
         </Link>
-      </div>
-
-      {/* Logout */}
-      <div className="px-2 pb-4">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 w-full px-3 py-2 text-xs tracking-[0.1em] uppercase text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-2 w-full px-2 py-1.5 mt-1 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-          Salir
+          <LogOut size={13} className="opacity-45" />
+          Cerrar sesion
         </button>
       </div>
     </aside>

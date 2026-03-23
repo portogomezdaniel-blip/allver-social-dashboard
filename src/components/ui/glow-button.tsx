@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
 
 function GlowButton({
@@ -16,72 +16,34 @@ function GlowButton({
     as?: React.ElementType;
     containerClassName?: string;
     className?: string;
-    variant?: "default" | "danger" | "ghost";
+    variant?: "default" | "primary" | "danger" | "ghost";
     disabled?: boolean;
   } & React.HTMLAttributes<HTMLElement>
 >) {
-  const [hovered, setHovered] = useState(false);
-  const isHovered = hovered && !disabled;
-
-  const borderColor =
-    variant === "danger"
-      ? isHovered
-        ? "border-[#8B2020]"
-        : "border-[#1E2916]"
-      : isHovered
-        ? "border-[#4A7C2F]"
-        : "border-[#1E2916]";
-
-  const textColor =
-    variant === "danger"
-      ? isHovered
-        ? "text-[#CC4444]"
-        : "text-[#6B6B6B]"
-      : variant === "ghost"
-        ? isHovered
-          ? "text-[#C8C8C8]"
-          : "text-[#6B6B6B]"
-        : isHovered
-          ? "text-[#6AAF3D]"
-          : "text-[#C8C8C8]";
-
-  const glowColor =
-    variant === "danger"
-      ? "rgba(139, 32, 32, 0.12)"
-      : "rgba(74, 124, 47, 0.12)";
+  const variants = {
+    default:
+      "bg-[var(--bg-card)] text-[var(--text-primary)] border-[var(--border)] hover:border-[var(--border-focus)] hover:bg-[var(--bg-hover)]",
+    primary:
+      "bg-[var(--text-primary)] text-[var(--bg)] border-[var(--text-primary)] hover:opacity-90",
+    danger:
+      "bg-[var(--red-bg)] text-[var(--red)] border-[var(--border)] hover:border-[var(--red)]",
+    ghost:
+      "bg-transparent text-[var(--text-secondary)] border-transparent hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]",
+  };
 
   return (
     <Element
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       disabled={disabled}
       className={cn(
-        "relative flex h-min w-fit flex-col flex-nowrap content-center items-center justify-center overflow-visible rounded-none border bg-[#0D1008] p-px transition-all duration-300",
-        borderColor,
+        "inline-flex items-center justify-center rounded-[6px] border px-3.5 py-[7px] text-xs font-medium transition-all duration-150",
+        variants[variant],
         disabled && "opacity-40 cursor-not-allowed",
-        containerClassName
+        containerClassName,
+        className
       )}
       {...props}
     >
-      <div
-        className={cn(
-          "z-10 w-auto rounded-none bg-[#131A0E] px-6 py-2.5 text-xs tracking-[0.15em] uppercase transition-colors duration-300",
-          textColor,
-          className
-        )}
-      >
-        {children}
-      </div>
-      <div
-        className={cn(
-          "absolute inset-0 z-0 rounded-none opacity-0 transition-opacity duration-300",
-          isHovered && "opacity-100"
-        )}
-        style={{
-          background: `radial-gradient(75% 181% at 50% 50%, ${glowColor} 0%, transparent 100%)`,
-        }}
-      />
-      <div className="absolute inset-[1px] z-[1] rounded-none bg-[#131A0E]" />
+      {children}
     </Element>
   );
 }
