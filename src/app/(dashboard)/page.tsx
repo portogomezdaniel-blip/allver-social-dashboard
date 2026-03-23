@@ -11,7 +11,9 @@ import { fetchAgentRuns, type AgentRun } from "@/lib/supabase/agent-runs";
 import { fetchLatestReport, type AnalyticsReport } from "@/lib/supabase/analytics";
 import { DbPost, fetchPosts } from "@/lib/supabase/posts";
 import { fetchTodayEntry, type JournalEntry } from "@/lib/supabase/journal";
+import { fetchTopHotNews, type DailyNews } from "@/lib/supabase/daily-news";
 import { Textarea } from "@/components/ui/textarea";
+import { createPost } from "@/lib/supabase/posts";
 
 const dayNames = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
 const monthNames = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
@@ -89,6 +91,7 @@ export default function CommandCenter() {
   const [ideaInput, setIdeaInput] = useState("");
   const [ideaGenerating, setIdeaGenerating] = useState(false);
   const [ideaResult, setIdeaResult] = useState<{ hooks: { text: string; category: string }[]; ideas: { title: string; format: string; description: string }[] } | null>(null);
+  const [hotNews, setHotNews] = useState<DailyNews[]>([]);
 
   const now = new Date();
   const dateStr = `${dayNames[now.getDay()]}, ${now.getDate()} ${monthNames[now.getMonth()]}`;
@@ -105,10 +108,12 @@ export default function CommandCenter() {
       fetchAgentRuns(5).catch(() => []),
       fetchPosts().catch(() => []),
       fetchTodayEntry().catch(() => null),
-    ]).then(([r, s, a, p, j]) => {
+      fetchTopHotNews(3).catch(() => []),
+    ]).then(([r, s, a, p, j, hn]) => {
       setReport(r);
       setSuggestion(s);
       setJournalEntry(j as JournalEntry | null);
+      setHotNews((hn as DailyNews[]) || []);
       setRuns(a);
       setPosts(p);
       setLoading(false);
@@ -265,6 +270,79 @@ export default function CommandCenter() {
           <ContentScore score={report?.ai_content_score || 0} />
         </div>
       </div>
+
+      {/* Hot News */}
+      {hotNews.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Noticias HOT de hoy</CardTitle>
+            <CardAction><Link href="/news" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">Ver todas →</Link></CardAction>
+          </CardHeader>
+          <CardContent className="p-0 divide-y divide-[var(--border)]">
+            {hotNews.map((item) => (
+              <div key={item.id} className="px-5 py-3 flex items-start gap-3">
+                <span className={`shrink-0 mt-1.5 w-2 h-2 rounded-full ${item.urgency === "hot" ? "bg-[var(--red)]" : item.urgency === "warm" ? "bg-[var(--amber)]" : "bg-[var(--green)]"}`} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-medium truncate">{item.title}</p>
+                  <p className="text-[11px] italic text-[var(--text-secondary)] mt-0.5 truncate">"{item.suggested_hook}"</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    {item.suggested_format && <span className={`inline-flex items-center px-1 py-0.5 text-[8px] font-medium rounded-[2px] ${item.suggested_format === "reel" ? "bg-[var(--purple-bg)] text-[var(--purple)]" : item.suggested_format === "carousel" ? "bg-[var(--blue-bg)] text-[var(--blue)]" : "bg-[var(--amber-bg)] text-[var(--amber)]"}`}>{(item.suggested_format || "").toUpperCase()}</span>}
+                    <span className="text-[10px] text-[var(--text-tertiary)]">{item.source}</span>
+                  </div>
+                </div>
+                <GlowButton className="shrink-0 text-[10px]" onClick={() => createPost({ caption: item.suggested_hook, post_type: (item.suggested_format || "single") as "reel" | "carousel" | "single", status: "draft", scheduled_date: null, platform: "instagram" })}>
+                  Crear →
+                </GlowButton>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Funnel */}
+      {posts.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Funnel de contenido</CardTitle>
+            <CardAction><span className="text-[10px] text-[var(--text-tertiary)]">Esta semana</span></CardAction>
+          </CardHeader>
+          <CardContent>
+            {(() => {
+              const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+              const weekPosts = posts.filter((p) => p.status === "published" && new Date(p.created_at) >= weekAgo);
+              const totalEng = weekPosts.reduce((s, p) => { const x = p as unknown as Record<string, unknown>; return s + (Number(x.likes_count) || 0) + (Number(x.comments_count) || 0); }, 0);
+              const reach = weekPosts.reduce((s, p) => { const x = p as unknown as Record<string, unknown>; return s + (Number(x.reach) || Number(x.impressions) || 0); }, 0);
+              const estimatedDMs = Math.round(totalEng * 0.05);
+              const estimatedClients = Math.round(estimatedDMs * 0.35);
+              const maxVal = Math.max(weekPosts.length, 1);
+
+              const funnelData = [
+                { label: "Publicaciones", value: weekPosts.length, pct: 100 },
+                { label: "Alcance total", value: reach || Math.round(totalEng * 8), pct: reach > 0 ? Math.round((reach / (maxVal * 5000)) * 100) : 72 },
+                { label: "Engagement", value: totalEng, pct: totalEng > 0 ? Math.min(Math.round((totalEng / (reach || 1)) * 100), 100) : 38 },
+                { label: "DMs estimados", value: estimatedDMs, pct: Math.min(Math.round((estimatedDMs / Math.max(totalEng, 1)) * 100), 100) },
+                { label: "Potenciales clientes", value: estimatedClients, pct: Math.min(Math.round((estimatedClients / Math.max(estimatedDMs, 1)) * 100), 100) },
+              ];
+
+              return (
+                <div className="space-y-3">
+                  {funnelData.map((item, i) => (
+                    <div key={i}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] text-[var(--text-tertiary)]">{item.label}</span>
+                        <span className="text-[12px] font-mono font-medium">{item.value.toLocaleString()}</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-[var(--bg-hover)] rounded-full overflow-hidden">
+                        <div className="h-full bg-[var(--text-primary)] rounded-full transition-all" style={{ width: `${Math.max(item.pct, 2)}%`, opacity: 1 - (i * 0.15) }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
+          </CardContent>
+        </Card>
+      )}
 
       {/* AI Insights + Format Performance */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
