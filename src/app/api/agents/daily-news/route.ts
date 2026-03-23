@@ -1,74 +1,114 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { fetchAllNews } from "@/lib/news-fetcher";
 import { callClaude } from "../_shared/call-claude";
 import { getIdentity } from "../_shared/get-identity";
 import { logAgentRun } from "../_shared/log-run";
-
-const nicheKeywords: Record<string, string[]> = {
-  strength_coach: ["powerlifting", "entrenamiento fuerza", "squat", "deadlift", "fitness trends", "Instagram fitness"],
-  functional_coach: ["crossfit", "entrenamiento funcional", "HIIT", "movilidad", "fitness trends"],
-  wellness_coach: ["yoga", "meditacion", "bienestar", "mindfulness", "wellness trends"],
-  nutrition_coach: ["nutricion deportiva", "suplementos", "dieta", "proteina", "food trends"],
-  running_coach: ["running", "maraton", "triatlon", "resistencia", "running trends"],
-  general_fitness: ["fitness", "gym", "entrenamiento", "salud", "fitness trends"],
-};
 
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await req.json();
     if (!userId) return NextResponse.json({ error: "userId required" }, { status: 400 });
 
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-    const identity = await getIdentity(userId);
-    const niche = identity?.niche || "general_fitness";
-    const city = identity?.city || "LATAM";
-    const keywords = nicheKeywords[niche] || nicheKeywords.general_fitness;
-
-    const realNews = await fetchAllNews(niche, city, keywords);
-    if (realNews.length === 0) return NextResponse.json({ error: "No news found" }, { status: 404 });
-
-    const newsForAnalysis = realNews.map((n, i) => `${i + 1}. "${n.title}" (${n.source})\n${n.summary}\nCategoria: ${n.category}`).join("\n\n");
-
-    const { text, tokensUsed, durationMs } = await callClaude(
-      `Eres el estratega de contenido de un ${niche} en ${city}.\n${identity?.compiled_prompt || ""}`,
-      `${realNews.length} noticias reales de hoy:\n\n${newsForAnalysis}\n\nPara CADA noticia genera hook, formato, relevancia, angulo unico, urgencia (hot/warm/evergreen).\nTambien genera 2 CONEXIONES entre noticias y 1 THREAD de 5 posts.\n\nJSON:\n{"analyzed_news":[{"original_index":0,"hook":"","format":"reel","relevance":"","unique_angle":"","urgency":"hot","content_idea":""}],"connections":[{"news_indices":[0,1],"combined_idea":"","format":"carousel","hook":""}],"thread_idea":{"title":"","posts":["","","","",""]}}`,
-      4000
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    let analysisData;
+    const identity = await getIdentity(userId);
+    if (!identity) return NextResponse.json({ error: "No identity found" }, { status: 404 });
+
+    const start = Date.now();
+
+    const result = await callClaude(
+      `Eres un curador de noticias para un ${identity.niche || "fitness"} en ${identity.city || "LATAM"}. ${identity.compiledPrompt || ""}`,
+      `Busca 3 noticias REALES de hoy o esta semana relevantes para un creador de contenido de ${identity.niche || "fitness"}.
+
+REGLAS:
+- Solo noticias REALES y recientes. No inventes.
+- Cada noticia debe ser relevante para el nicho del creador.
+- Genera un hook en la voz del creador para cada una.
+
+Las 3 noticias deben ser:
+
+1. HOT — Algo urgente que debe publicar HOY. Una noticia que si no la comenta hoy, pierde relevancia.
+2. WARM — Algo relevante para publicar esta semana. Un estudio, tendencia, o evento del nicho.
+3. EVERGREEN — Algo atemporal que puede publicar cuando quiera. Un insight, dato, o reflexion del sector.
+
+Responde SOLO en JSON sin markdown:
+{
+  "news": [
+    {
+      "title": "Titulo de la noticia",
+      "source": "Nombre del medio",
+      "source_url": "URL real si la conoces, sino dejar vacio",
+      "summary": "Resumen en 2 oraciones maximo",
+      "urgency": "hot",
+      "suggested_hook": "Hook en la voz del creador, publicable como primera linea de un post",
+      "suggested_format": "reel|carousel|single"
+    },
+    {
+      "title": "...",
+      "source": "...",
+      "source_url": "",
+      "summary": "...",
+      "urgency": "warm",
+      "suggested_hook": "...",
+      "suggested_format": "..."
+    },
+    {
+      "title": "...",
+      "source": "...",
+      "source_url": "",
+      "summary": "...",
+      "urgency": "evergreen",
+      "suggested_hook": "...",
+      "suggested_format": "..."
+    }
+  ]
+}`,
+      2000
+    );
+
+    let newsData;
     try {
-      const clean = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-      const match = clean.match(/\{[\s\S]*"analyzed_news"[\s\S]*\}/);
-      analysisData = JSON.parse(match ? match[0] : clean);
-    } catch { analysisData = { analyzed_news: [], connections: [], thread_idea: null }; }
+      const clean = result.text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      const match = clean.match(/\{[\s\S]*"news"[\s\S]*\}/);
+      newsData = JSON.parse(match ? match[0] : clean);
+    } catch {
+      return NextResponse.json({ error: "Failed to parse news", raw: result.text }, { status: 500 });
+    }
 
     const today = new Date().toISOString().split("T")[0];
 
-    for (let i = 0; i < realNews.length; i++) {
-      const news = realNews[i];
-      const analysis = (analysisData.analyzed_news || [])[i] || {};
-      await supabase.from("daily_news").upsert({
-        user_id: userId, news_date: today, title: news.title, source: news.source,
-        source_url: news.sourceUrl, summary: news.summary,
-        relevance: analysis.relevance || "", suggested_hook: analysis.hook || news.title,
-        suggested_format: analysis.format || "single", category: news.category,
-        unique_angle: analysis.unique_angle || "", urgency: analysis.urgency || "warm",
-        content_idea: analysis.content_idea || "", image_url: news.imageUrl || null,
-      }, { onConflict: "user_id,news_date,title" });
+    for (const item of newsData.news || []) {
+      await supabase.from("daily_news").upsert(
+        {
+          user_id: userId,
+          news_date: today,
+          title: item.title,
+          source: item.source || "",
+          source_url: item.source_url || "",
+          summary: item.summary || "",
+          relevance: "",
+          suggested_hook: item.suggested_hook || "",
+          suggested_format: item.suggested_format || "single",
+          urgency: item.urgency || "warm",
+        },
+        { onConflict: "user_id,news_date,title" }
+      );
     }
 
-    if (analysisData.connections || analysisData.thread_idea) {
-      await supabase.from("daily_news_meta").upsert({
-        user_id: userId, meta_date: today,
-        connections: analysisData.connections || [], thread_idea: analysisData.thread_idea || null,
-      }, { onConflict: "user_id,meta_date" });
-    }
+    await logAgentRun({
+      userId,
+      agentName: "daily-news",
+      inputSummary: `3 noticias para ${identity.niche}`,
+      outputData: newsData,
+      tokensUsed: result.tokensUsed,
+      durationMs: Date.now() - start,
+    });
 
-    await logAgentRun({ userId, agentName: "daily-news", inputSummary: `${realNews.length} noticias reales para ${niche}`, outputData: { newsCount: realNews.length, connections: (analysisData.connections || []).length }, tokensUsed, durationMs });
-
-    return NextResponse.json({ success: true, newsCount: realNews.length, connections: (analysisData.connections || []).length, hasThread: !!analysisData.thread_idea });
-  } catch (err: unknown) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : "Error" }, { status: 500 });
+    return NextResponse.json({ success: true, news: newsData.news });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Error" }, { status: 500 });
   }
 }

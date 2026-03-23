@@ -271,33 +271,41 @@ export default function CommandCenter() {
         </div>
       </div>
 
-      {/* Hot News */}
-      {hotNews.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Noticias HOT de hoy</CardTitle>
-            <CardAction><Link href="/news" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">Ver todas →</Link></CardAction>
-          </CardHeader>
-          <CardContent className="p-0 divide-y divide-[var(--border)]">
-            {hotNews.map((item) => (
-              <div key={item.id} className="px-5 py-3 flex items-start gap-3">
-                <span className={`shrink-0 mt-1.5 w-2 h-2 rounded-full ${item.urgency === "hot" ? "bg-[var(--red)]" : item.urgency === "warm" ? "bg-[var(--amber)]" : "bg-[var(--green)]"}`} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-[12px] font-medium truncate">{item.title}</p>
-                  <p className="text-[11px] italic text-[var(--text-secondary)] mt-0.5 truncate">"{item.suggested_hook}"</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    {item.suggested_format && <span className={`inline-flex items-center px-1 py-0.5 text-[8px] font-medium rounded-[2px] ${item.suggested_format === "reel" ? "bg-[var(--purple-bg)] text-[var(--purple)]" : item.suggested_format === "carousel" ? "bg-[var(--blue-bg)] text-[var(--blue)]" : "bg-[var(--amber-bg)] text-[var(--amber)]"}`}>{(item.suggested_format || "").toUpperCase()}</span>}
-                    <span className="text-[10px] text-[var(--text-tertiary)]">{item.source}</span>
+      {/* Intel de hoy */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Intel de hoy</CardTitle>
+          <CardAction><Link href="/news" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">Ver todas →</Link></CardAction>
+        </CardHeader>
+        <CardContent className="p-0">
+          {hotNews.length > 0 ? (
+            <div className="divide-y divide-[var(--border)]">
+              {hotNews.map((item) => {
+                const urgEmoji = item.urgency === "hot" ? "🔴 HOT" : item.urgency === "warm" ? "🟡 WARM" : "🟢 EVER";
+                const fmtLabel = (item.suggested_format || "single").charAt(0).toUpperCase() + (item.suggested_format || "single").slice(1);
+                return (
+                  <div key={item.id} className="px-5 py-3 flex items-center gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-medium font-mono shrink-0">{urgEmoji}</span>
+                        <p className="text-[12px] italic text-[var(--text-secondary)] truncate">&ldquo;{item.suggested_hook}&rdquo;</p>
+                      </div>
+                      <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5 ml-[52px]">{fmtLabel} · {item.source}</p>
+                    </div>
+                    <GlowButton className="shrink-0 text-[10px]" onClick={() => createPost({ caption: item.suggested_hook, post_type: (item.suggested_format || "single") as "reel" | "carousel" | "single", status: "draft", scheduled_date: null, platform: "instagram" })}>
+                      Crear post →
+                    </GlowButton>
                   </div>
-                </div>
-                <GlowButton className="shrink-0 text-[10px]" onClick={() => createPost({ caption: item.suggested_hook, post_type: (item.suggested_format || "single") as "reel" | "carousel" | "single", status: "draft", scheduled_date: null, platform: "instagram" })}>
-                  Crear →
-                </GlowButton>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+                );
+              })}
+            </div>
+          ) : (
+            <div className="px-5 py-6 text-center">
+              <p className="text-[12px] text-[var(--text-tertiary)]">Sin noticias para hoy</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Funnel */}
       {posts.length > 0 && (
