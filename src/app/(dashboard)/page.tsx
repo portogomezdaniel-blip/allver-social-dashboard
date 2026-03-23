@@ -220,26 +220,35 @@ export default function CommandCenter() {
         </CardContent>
       </Card>
 
-      {/* Journal Preview */}
+      {/* Journal / Briefing Preview */}
       <Card>
-        <CardContent className="pt-4 pb-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <BookOpen size={16} className="text-[var(--purple)]" />
-            {journalEntry?.status === "completed" && journalEntry.generated_content?.quote_of_the_day ? (
-              <div>
-                <p className="text-[13px] font-medium italic">"{journalEntry.generated_content.quote_of_the_day}"</p>
-                <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5">Frase del dia · {journalEntry.mood ? `${journalEntry.mood}` : ""}</p>
-              </div>
-            ) : (
-              <div>
-                <p className="text-[13px] text-[var(--text-secondary)]">Tienes 3 preguntas esperandote</p>
-                <p className="text-[10px] text-[var(--text-tertiary)]">Tu reflexion diaria alimenta tu contenido mas autentico</p>
-              </div>
-            )}
+        <CardContent className="pt-4 pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <BookOpen size={16} className="text-[var(--purple)]" />
+              {journalEntry?.status === "completed" && journalEntry.generated_content ? (
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">Briefing de hoy</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    {journalEntry.mood && <span className="text-sm">{({"reflective":"🪞","fired_up":"🔥","frustrated":"😤","grateful":"🙏","philosophical":"🌌","determined":"💪","vulnerable":"🫣"} as Record<string,string>)[journalEntry.mood] || ""}</span>}
+                    {(journalEntry.generated_content as Record<string,unknown>)?.content_plan ? <span className="text-[11px] text-[var(--text-secondary)]">3 posts sugeridos</span> : null}
+                    {((journalEntry.generated_content as Record<string,unknown>)?.hooks_bank as unknown[] | undefined)?.length ? <span className="text-[11px] text-[var(--text-secondary)]">· {String(((journalEntry.generated_content as Record<string,unknown>).hooks_bank as unknown[]).length)} hooks</span> : null}
+                  </div>
+                  {(journalEntry.generated_content as Record<string,unknown>)?.quote_of_the_day ? (
+                    <p className="text-[12px] italic text-[var(--text-secondary)] mt-1">{`"${String((journalEntry.generated_content as Record<string,unknown>).quote_of_the_day)}"`}</p>
+                  ) : null}
+                </div>
+              ) : (
+                <div>
+                  <p className="text-[13px] text-[var(--text-secondary)]">3 preguntas esperandote</p>
+                  <p className="text-[10px] text-[var(--text-tertiary)]">Genera tu briefing de contenido</p>
+                </div>
+              )}
+            </div>
+            <Link href="/journal" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">
+              {journalEntry?.status === "completed" ? "Ver briefing →" : "Abrir diario →"}
+            </Link>
           </div>
-          <Link href="/journal" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">
-            {journalEntry?.status === "completed" ? "Ver →" : "Abrir diario →"}
-          </Link>
         </CardContent>
       </Card>
 
