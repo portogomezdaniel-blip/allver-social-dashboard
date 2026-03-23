@@ -54,3 +54,25 @@ export async function getWeekSchedule(userId: string) {
 
   return data ?? [];
 }
+
+export async function getKnowledgeContext(userId: string, limit: number = 10): Promise<string> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { data: fragments } = await supabase
+    .from("creator_knowledge")
+    .select("category, content")
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .order("content_potential", { ascending: false })
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (!fragments || fragments.length === 0) return "";
+
+  const block = fragments.map((f) => `[${f.category.toUpperCase()}] ${f.content}`).join("\n");
+
+  return `\n\nCONOCIMIENTO PROFUNDO DEL CREADOR (de sus reflexiones personales):\n${block}\n\nUSA estos fragmentos para hacer el contenido mas autentico. Referencia historias reales, usa su vocabulario natural, refleja sus creencias genuinas.`;
+}

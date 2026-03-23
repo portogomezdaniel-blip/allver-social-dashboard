@@ -78,6 +78,11 @@ export default function JournalPage() {
       const data = await res.json();
       if (data.content) {
         setEntry({ ...entry, answer_1: a1, answer_2: a2, answer_3: a3, status: "completed", generated_content: data.content, mood: data.content.mood, themes: data.content.themes });
+        // Extract knowledge in background
+        fetch("/api/agents/extract-knowledge", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId, journalEntryId: entry.id }),
+        }).catch(() => {});
       }
     } catch {}
     setAnalyzing(false);

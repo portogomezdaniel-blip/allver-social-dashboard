@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { callClaude } from "../_shared/call-claude";
-import { getIdentity } from "../_shared/get-identity";
+import { getIdentity, getKnowledgeContext } from "../_shared/get-identity";
 import { logAgentRun } from "../_shared/log-run";
 
 export async function POST(req: NextRequest) {
@@ -24,9 +24,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const knowledgeCtx = await getKnowledgeContext(userId);
+
     const systemPrompt = `Eres el copywriter de ${identity.niche || "un creador de fitness"} en ${identity.city || "Medellin"}.
 
-${identity.compiled_prompt}
+${identity.compiled_prompt}${knowledgeCtx}
 
 Tu tarea: escribir el caption COMPLETO listo para publicar en Instagram.
 
