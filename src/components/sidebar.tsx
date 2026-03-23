@@ -8,10 +8,13 @@ import {
   LayoutDashboard,
   PenSquare,
   Calendar,
+  Sparkles,
+  BookOpen,
   Newspaper,
   Radar,
   Zap,
   LayoutTemplate,
+  BarChart3,
   Bot,
   Settings,
   LogOut,
@@ -24,22 +27,30 @@ const navSections = [
       { name: "Dashboard", href: "/", icon: LayoutDashboard },
       { name: "Content", href: "/instagram", icon: PenSquare },
       { name: "Calendar", href: "/calendar", icon: Calendar },
-      { name: "Intel", href: "/news", icon: Newspaper },
+    ],
+  },
+  {
+    label: "Crear",
+    items: [
+      { name: "Ideas", href: "/ideas", icon: Sparkles },
+      { name: "Journal", href: "/journal", icon: BookOpen },
     ],
   },
   {
     label: "Analisis",
     items: [
+      { name: "Intel", href: "/news", icon: Newspaper },
       { name: "Recon", href: "/competitors", icon: Radar },
       { name: "Hooks", href: "/hooks", icon: Zap },
       { name: "Templates", href: "/templates", icon: LayoutTemplate },
+      { name: "Analytics", href: "/analytics", icon: BarChart3 },
     ],
   },
   {
     label: "Sistema",
     items: [
       { name: "Agents", href: "/agents", icon: Bot },
-      { name: "Settings", href: "/settings", icon: Settings },
+      { name: "Config", href: "/settings", icon: Settings },
     ],
   },
 ];

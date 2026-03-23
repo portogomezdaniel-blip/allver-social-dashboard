@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { RefreshCw, TrendingUp, TrendingDown, Loader2 } from "lucide-react";
+import { RefreshCw, TrendingUp, TrendingDown, Loader2, Sparkles, BookOpen } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardAction } from "@/components/ui/card";
 import { GlowButton } from "@/components/ui/glow-button";
@@ -10,6 +10,8 @@ import { fetchTodaySuggestion, type DailySuggestion } from "@/lib/supabase/daily
 import { fetchAgentRuns, type AgentRun } from "@/lib/supabase/agent-runs";
 import { fetchLatestReport, type AnalyticsReport } from "@/lib/supabase/analytics";
 import { DbPost, fetchPosts } from "@/lib/supabase/posts";
+import { fetchTodayEntry, type JournalEntry } from "@/lib/supabase/journal";
+import { Textarea } from "@/components/ui/textarea";
 
 const dayNames = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
 const monthNames = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
@@ -83,6 +85,10 @@ export default function CommandCenter() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [journalEntry, setJournalEntry] = useState<JournalEntry | null>(null);
+  const [ideaInput, setIdeaInput] = useState("");
+  const [ideaGenerating, setIdeaGenerating] = useState(false);
+  const [ideaResult, setIdeaResult] = useState<{ hooks: { text: string; category: string }[]; ideas: { title: string; format: string; description: string }[] } | null>(null);
 
   const now = new Date();
   const dateStr = `${dayNames[now.getDay()]}, ${now.getDate()} ${monthNames[now.getMonth()]}`;
@@ -98,9 +104,11 @@ export default function CommandCenter() {
       fetchTodaySuggestion().catch(() => null),
       fetchAgentRuns(5).catch(() => []),
       fetchPosts().catch(() => []),
-    ]).then(([r, s, a, p]) => {
+      fetchTodayEntry().catch(() => null),
+    ]).then(([r, s, a, p, j]) => {
       setReport(r);
       setSuggestion(s);
+      setJournalEntry(j as JournalEntry | null);
       setRuns(a);
       setPosts(p);
       setLoading(false);
@@ -130,6 +138,17 @@ export default function CommandCenter() {
       if (data.suggestion) setSuggestion(data.suggestion);
     } catch {}
     setGenerating(false);
+  }
+
+  async function handleIdeaGenerate() {
+    if (!userId || !ideaInput.trim()) return;
+    setIdeaGenerating(true);
+    try {
+      const res = await fetch("/api/agents/idea-generator", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId, input: ideaInput.trim() }) });
+      const data = await res.json();
+      if (data.hooks || data.ideas) setIdeaResult({ hooks: data.hooks || [], ideas: data.ideas || [] });
+    } catch {}
+    setIdeaGenerating(false);
   }
 
   const publishedThisMonth = posts.filter((p) => {
@@ -167,6 +186,62 @@ export default function CommandCenter() {
           </GlowButton>
         </div>
       </div>
+
+      {/* Idea Bar */}
+      <Card>
+        <CardContent className="pt-5 pb-5">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles size={16} className="text-[var(--amber)]" />
+            <p className="text-[14px] font-medium">Que tienes en mente hoy?</p>
+          </div>
+          <div className="flex gap-2">
+            <Textarea value={ideaInput} onChange={(e) => setIdeaInput(e.target.value)} placeholder="Ej: hoy un alumno me pregunto por que le duele la espalda al hacer peso muerto..." className="bg-[var(--bg)] border-[var(--border)] text-[14px] min-h-[44px] flex-1" rows={1} />
+            <GlowButton variant="primary" onClick={handleIdeaGenerate} disabled={!ideaInput.trim() || ideaGenerating} className="shrink-0 self-end">
+              {ideaGenerating ? <Loader2 size={14} className="animate-spin" /> : "Generar →"}
+            </GlowButton>
+          </div>
+          {ideaResult && (
+            <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-[var(--border)]">
+              <div className="space-y-2">
+                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">Hooks</p>
+                {ideaResult.hooks.slice(0, 3).map((h, i) => (
+                  <p key={i} className="text-[12px] text-[var(--text-secondary)]">· {h.text}</p>
+                ))}
+              </div>
+              <div className="space-y-2">
+                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">Ideas</p>
+                {ideaResult.ideas.slice(0, 3).map((idea, i) => (
+                  <p key={i} className="text-[12px] text-[var(--text-secondary)]">· [{idea.format}] {idea.title}</p>
+                ))}
+              </div>
+              <Link href="/ideas" className="col-span-2 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">Ver todas las ideas →</Link>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Journal Preview */}
+      <Card>
+        <CardContent className="pt-4 pb-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <BookOpen size={16} className="text-[var(--purple)]" />
+            {journalEntry?.status === "completed" && journalEntry.generated_content?.quote_of_the_day ? (
+              <div>
+                <p className="text-[13px] font-medium italic">"{journalEntry.generated_content.quote_of_the_day}"</p>
+                <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5">Frase del dia · {journalEntry.mood ? `${journalEntry.mood}` : ""}</p>
+              </div>
+            ) : (
+              <div>
+                <p className="text-[13px] text-[var(--text-secondary)]">Tienes 3 preguntas esperandote</p>
+                <p className="text-[10px] text-[var(--text-tertiary)]">Tu reflexion diaria alimenta tu contenido mas autentico</p>
+              </div>
+            )}
+          </div>
+          <Link href="/journal" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">
+            {journalEntry?.status === "completed" ? "Ver →" : "Abrir diario →"}
+          </Link>
+        </CardContent>
+      </Card>
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
