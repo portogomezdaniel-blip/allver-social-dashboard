@@ -1,38 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { scrapeInstagramPosts, type ApifyInstagramPost } from "@/lib/apify";
 import { callClaude } from "../../agents/_shared/call-claude";
 import { logAgentRun } from "../../agents/_shared/log-run";
 
-interface ScrapedPost {
-  caption?: string;
-  likesCount?: number;
-  commentsCount?: number;
-  type?: string;
-  timestamp?: string;
-  url?: string;
+function categorizeHook(text: string): string {
+  const lower = text.toLowerCase();
+  if (lower.includes("?") || lower.startsWith("por qu") || lower.startsWith("como")) return "question";
+  if (lower.includes("no es") || lower.includes("no significa") || lower.includes("error")) return "controversy";
+  if (/\d/.test(text) && (lower.includes("kg") || lower.includes("rep") || lower.includes("%"))) return "data";
+  if (lower.includes("historia") || lower.includes("cuando") || lower.includes("empec")) return "story";
+  if (lower.includes("reto") || lower.includes("intenta") || lower.includes("prueba")) return "challenge";
+  return "data";
 }
 
-async function scrapeWithApify(handle: string): Promise<ScrapedPost[]> {
-  const token = process.env.APIFY_API_TOKEN;
-  if (!token) return [];
-
-  const cleanHandle = handle.replace("@", "").trim();
-  const res = await fetch(
-    `https://api.apify.com/v2/acts/apify~instagram-profile-scraper/run-sync-get-dataset-items?token=${token}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        directUrls: [`https://www.instagram.com/${cleanHandle}/`],
-        resultsLimit: 30,
-        resultsType: "posts",
-      }),
-    }
-  );
-
-  if (!res.ok) return [];
-  const data = await res.json();
-  return Array.isArray(data) ? data : [];
+function mapType(type: string): "reel" | "carousel" | "single" | "story" {
+  const t = type.toLowerCase();
+  if (t.includes("video") || t.includes("reel")) return "reel";
+  if (t.includes("sidecar") || t.includes("carousel")) return "carousel";
+  return "single";
 }
 
 export async function POST(req: NextRequest) {
@@ -47,22 +33,42 @@ export async function POST(req: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const cleanHandle = handle ? handle.replace("@", "").trim() : "";
-    let posts: ScrapedPost[] = [];
+    const cleanHandle = handle ? handle.replace("@", "").trim() : "manual";
+    let posts: ApifyInstagramPost[] = [];
+    let profileData: { fullName: string; biography: string; followersCount: number; profilePicUrl: string } | null = null;
 
-    // Try Apify first
+    // Try Apify scraping
     if (handle && process.env.APIFY_API_TOKEN) {
-      posts = await scrapeWithApify(cleanHandle);
+      try {
+        const result = await scrapeInstagramPosts(cleanHandle, 30);
+        posts = result.posts;
+        if (result.profile) {
+          profileData = {
+            fullName: result.profile.fullName,
+            biography: result.profile.biography,
+            followersCount: result.profile.followersCount,
+            profilePicUrl: result.profile.profilePicUrl,
+          };
+        }
+      } catch {
+        // Apify failed, fall through to manual
+      }
     }
 
-    // If no posts from Apify, use manual captions
+    // Fallback to manual captions
     if (posts.length === 0 && manualCaptions && manualCaptions.length > 0) {
       posts = manualCaptions.map((caption: string, i: number) => ({
+        id: `manual-${i}`,
+        shortCode: `manual-${i}`,
         caption,
-        likesCount: 0,
         commentsCount: 0,
-        type: "Image",
+        likesCount: 0,
         timestamp: new Date(Date.now() - i * 86400000 * 3).toISOString(),
+        type: "Image",
+        url: "",
+        displayUrl: "",
+        hashtags: [],
+        ownerUsername: cleanHandle,
       }));
     }
 
@@ -74,13 +80,13 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Insert posts into DB
+    // Insert posts
     const postRows = posts
       .filter((p) => p.caption && p.caption.trim().length > 0)
       .map((p) => ({
         user_id: userId,
-        caption: p.caption!.slice(0, 5000),
-        post_type: mapPostType(p.type),
+        caption: p.caption.slice(0, 5000),
+        post_type: mapType(p.type),
         status: "published",
         platform: "instagram",
         scheduled_date: p.timestamp ? p.timestamp.split("T")[0] : null,
@@ -90,17 +96,22 @@ export async function POST(req: NextRequest) {
       await supabase.from("posts").insert(postRows);
     }
 
-    // Extract hooks (first sentence of each caption)
+    // Extract hooks
+    const avgEngagement =
+      posts.reduce((sum, p) => sum + p.likesCount + p.commentsCount, 0) / Math.max(posts.length, 1);
+
     const hookRows = posts
       .filter((p) => p.caption && p.caption.trim().length > 10)
       .map((p) => {
-        const firstSentence = p.caption!.split(/[.!?\n]/)[0].trim();
+        const firstSentence = p.caption.split(/[.!?\n]/)[0].trim();
+        const eng = p.likesCount + p.commentsCount;
         return {
           user_id: userId,
           text: firstSentence,
           source: "extracted" as const,
-          category: "extracted",
-          engagement_score: (p.likesCount || 0) + (p.commentsCount || 0),
+          category: categorizeHook(firstSentence),
+          engagement_score: eng,
+          is_favorite: eng > avgEngagement,
         };
       })
       .filter((h) => h.text.length >= 10);
@@ -113,57 +124,42 @@ export async function POST(req: NextRequest) {
     const captionsForAnalysis = posts
       .filter((p) => p.caption)
       .slice(0, 20)
-      .map((p, i) => `Post ${i + 1} (${p.likesCount || 0} likes, ${p.commentsCount || 0} comments):\n"${p.caption!.slice(0, 500)}"`)
+      .map(
+        (p, i) =>
+          `Post ${i + 1} (${p.likesCount} likes, ${p.commentsCount} comments, tipo: ${p.type}):\n"${p.caption.slice(0, 500)}"`
+      )
       .join("\n\n");
 
-    const analysisPrompt = `Analiza estos posts de Instagram de un creador de contenido fitness:
+    const { text: analysisText, tokensUsed, durationMs } = await callClaude(
+      "Eres un analista experto de contenido de redes sociales para creadores fitness en LATAM.",
+      `Analiza estos ${Math.min(posts.length, 20)} posts de Instagram de un creador de contenido fitness:
 
 ${captionsForAnalysis}
 
 A partir de estos posts, identifica:
+1. NICHO: strength_coach, functional_coach, wellness_coach, nutrition_coach, running_coach, general_fitness
+2. FILOSOFIA: principios, diferenciador, metodo
+3. VOZ Y TONO: como habla, vocabulario frecuente, que nunca dice
+4. AUDIENCIA: cliente ideal, frustraciones, rango de edad
+5. COMPILED PROMPT: system prompt de 200-300 palabras que capture su identidad
 
-1. NICHO: Que tipo de entrenador/coach es? (strength_coach, functional_coach, wellness_coach, nutrition_coach, running_coach, general_fitness)
-2. FILOSOFIA: Cuales son sus principios? Que lo diferencia? Cual es su metodo?
-3. VOZ Y TONO: Como habla? Que palabras usa? Que NUNCA usa? Formal o informal?
-4. AUDIENCIA: A quien le habla? Edad, nivel, frustraciones?
-5. COMPILED PROMPT: Escribe un system prompt de 200-300 palabras que capture completamente la identidad de este creador.
-
-Responde SOLO en JSON valido, sin markdown:
+Responde SOLO en JSON valido sin markdown:
 {
-  "niche": "strength_coach",
-  "experience_estimate": 10,
-  "philosophy": {
-    "core_principles": ["..."],
-    "what_differentiates": "...",
-    "training_approach": "...",
-    "signature_method": "..."
-  },
-  "voice_profile": {
-    "tone": "...",
-    "key_vocabulary": ["..."],
-    "never_says": ["..."],
-    "language_style": "...",
-    "formality": "informal_professional"
-  },
-  "audience_profile": {
-    "ideal_client": "...",
-    "frustrations": ["..."],
-    "goals": ["..."],
-    "age_range": "25-40"
-  },
-  "content_goals": ["more_clients", "authority"],
-  "compiled_prompt": "..."
-}`;
-
-    const { text: analysisText, tokensUsed, durationMs } = await callClaude(
-      "Eres un analista de marketing digital especializado en fitness creators en LATAM.",
-      analysisPrompt,
+  "niche": "",
+  "experience_estimate": 0,
+  "philosophy": { "core_principles": [], "what_differentiates": "", "signature_method": "" },
+  "voice_profile": { "tone": "", "key_vocabulary": [], "never_says": [], "language_style": "" },
+  "audience_profile": { "ideal_client": "", "frustrations": [], "age_range": "" },
+  "content_goals": [],
+  "compiled_prompt": ""
+}`,
       3000
     );
 
     let analysis;
     try {
-      analysis = JSON.parse(analysisText);
+      const cleanJson = analysisText.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      analysis = JSON.parse(cleanJson);
     } catch {
       analysis = { niche: "general_fitness", compiled_prompt: analysisText };
     }
@@ -191,13 +187,15 @@ Responde SOLO en JSON valido, sin markdown:
     await logAgentRun({
       userId,
       agentName: "instagram-import",
-      inputSummary: `Importado @${cleanHandle}: ${postRows.length} posts, ${hookRows.length} hooks`,
-      outputData: { postsImported: postRows.length, hooksExtracted: hookRows.length, analysis },
+      inputSummary: `Importado @${cleanHandle}: ${postRows.length} posts, ${hookRows.length} hooks (Apify: ${!!profileData})`,
+      outputData: { postsImported: postRows.length, hooksExtracted: hookRows.length, hadApify: !!profileData },
       tokensUsed,
       durationMs,
     });
 
     return NextResponse.json({
+      success: true,
+      profile: profileData,
       postsImported: postRows.length,
       hooksExtracted: hookRows.length,
       analysis,
@@ -206,12 +204,4 @@ Responde SOLO en JSON valido, sin markdown:
     const message = err instanceof Error ? err.message : "Internal error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
-}
-
-function mapPostType(type?: string): "reel" | "carousel" | "single" | "story" {
-  if (!type) return "single";
-  const t = type.toLowerCase();
-  if (t.includes("video") || t.includes("reel")) return "reel";
-  if (t.includes("sidecar") || t.includes("carousel")) return "carousel";
-  return "single";
 }

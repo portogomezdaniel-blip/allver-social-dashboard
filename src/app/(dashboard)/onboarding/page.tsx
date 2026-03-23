@@ -29,11 +29,11 @@ const nicheLabels: Record<string, string> = {
 };
 
 const loadingMessages = [
-  "Buscando tu perfil...",
-  "Descargando posts...",
+  "Conectando con Instagram...",
+  "Descargando tus posts...",
   "Analizando tu contenido...",
-  "Extrayendo tu voz y tono...",
-  "Construyendo tu identidad...",
+  "Construyendo tu identidad con IA...",
+  "Casi listo...",
 ];
 
 export default function OnboardingPage() {
@@ -75,7 +75,7 @@ export default function OnboardingPage() {
     if (!importing) return;
     const interval = setInterval(() => {
       setLoadingMsg((prev) => (prev < loadingMessages.length - 1 ? prev + 1 : prev));
-    }, 3000);
+    }, 8000);
     return () => clearInterval(interval);
   }, [importing]);
 
