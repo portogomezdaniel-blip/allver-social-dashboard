@@ -21,10 +21,16 @@ export default function RegisterPage() {
 
     const supabase = createClient();
     const { data, error: signUpError } = await supabase.auth.signUp({
-      email, password, options: { data: { full_name: fullName } },
+      email,
+      password,
+      options: { data: { full_name: fullName } },
     });
 
-    if (signUpError) { setError(signUpError.message); setLoading(false); return; }
+    if (signUpError) {
+      setError(signUpError.message);
+      setLoading(false);
+      return;
+    }
 
     if (data.user) {
       await supabase.from("creators").insert({ id: data.user.id, email, full_name: fullName });
@@ -35,36 +41,72 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="w-full max-w-sm rounded-[12px] border border-[var(--border)] bg-[var(--bg-card)] p-8" style={{ backgroundImage: "var(--satin)" }}>
-      <div className="text-center mb-8">
-        <div className="w-10 h-10 rounded-[10px] bg-[var(--text-primary)] flex items-center justify-center mx-auto mb-4">
-          <span className="text-[11px] font-semibold text-[var(--bg)] tracking-wider">FTP</span>
-        </div>
-        <h1 className="text-lg font-medium tracking-[-0.03em] text-[var(--text-primary)]">Crear cuenta</h1>
-        <p className="text-xs text-[var(--text-tertiary)] mt-1">Registrate para acceder al command center</p>
+    <div className="w-full max-w-sm space-y-8">
+      {/* Logo */}
+      <div className="text-center">
+        <h1 className="text-[48px] font-bold tracking-[-0.04em] text-[var(--text-primary)]">FTP</h1>
+        <p className="text-[12px] font-mono font-light tracking-[0.2em] text-[var(--text-tertiary)] mt-1">BY LLVR</p>
+        <p className="text-[14px] text-[var(--text-tertiary)] mt-4">Tu sistema operativo de contenido</p>
       </div>
+
+      {/* Form */}
       <form onSubmit={handleRegister} className="space-y-4">
         <div className="space-y-1.5">
           <label className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">Nombre</label>
-          <Input type="text" placeholder="Tu nombre" value={fullName} onChange={(e) => setFullName(e.target.value)} required className="bg-[var(--bg)] border-[var(--border)] h-9 text-[13px]" />
+          <Input
+            type="text"
+            placeholder="Tu nombre"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+            className="bg-[var(--bg-card)] border-[var(--border)] h-11 text-[14px] rounded-[8px]"
+          />
         </div>
         <div className="space-y-1.5">
           <label className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">Email</label>
-          <Input type="email" placeholder="tu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-[var(--bg)] border-[var(--border)] h-9 text-[13px]" />
+          <Input
+            type="email"
+            placeholder="tu@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="bg-[var(--bg-card)] border-[var(--border)] h-11 text-[14px] rounded-[8px]"
+          />
         </div>
         <div className="space-y-1.5">
           <label className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">Password</label>
-          <Input type="password" placeholder="Min. 6 caracteres" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="bg-[var(--bg)] border-[var(--border)] h-9 text-[13px]" />
+          <Input
+            type="password"
+            placeholder="Min. 6 caracteres"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={6}
+            className="bg-[var(--bg-card)] border-[var(--border)] h-11 text-[14px] rounded-[8px]"
+          />
         </div>
         {error && <p className="text-xs text-[var(--red)]">{error}</p>}
-        <button type="submit" disabled={loading} className="w-full h-9 rounded-[6px] bg-[var(--text-primary)] text-[var(--bg)] text-xs font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full h-11 rounded-[8px] bg-[var(--text-primary)] text-[var(--bg)] text-[13px] font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+        >
           {loading ? "Creando..." : "Registrarse"}
         </button>
-        <p className="text-center text-xs text-[var(--text-tertiary)]">
+        <p className="text-center text-[13px] text-[var(--text-tertiary)]">
           Ya tienes cuenta?{" "}
-          <Link href="/login" className="text-[var(--text-primary)] hover:underline">Acceder</Link>
+          <Link href="/login" className="text-[var(--text-primary)] hover:underline">
+            Acceder
+          </Link>
         </p>
       </form>
+
+      {/* Quote */}
+      <div className="pt-4 border-t border-[var(--border)]">
+        <p className="text-[13px] italic text-[var(--text-tertiary)] text-center leading-relaxed">
+          &ldquo;Convertimos tu autoridad en presencia digital que genera clientes mientras entrenas.&rdquo;
+        </p>
+      </div>
     </div>
   );
 }

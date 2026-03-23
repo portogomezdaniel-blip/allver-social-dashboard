@@ -10,8 +10,7 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    // Don't redirect if already on onboarding or settings
-    if (pathname === "/onboarding" || pathname === "/settings") {
+    if (pathname === "/settings") {
       setChecked(true);
       return;
     }
@@ -29,9 +28,7 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
         .eq("user_id", data.user.id)
         .single();
 
-      if (!identity || identity.onboarding_status === "not_started") {
-        router.push("/onboarding");
-      } else if (identity.onboarding_status === "in_progress") {
+      if (!identity || identity.onboarding_status !== "completed") {
         router.push("/onboarding");
       } else {
         setChecked(true);
@@ -39,7 +36,7 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
     });
   }, [pathname, router]);
 
-  if (!checked && pathname !== "/onboarding" && pathname !== "/settings") {
+  if (!checked) {
     return (
       <div className="flex items-center justify-center h-64 text-[var(--text-tertiary)] text-sm">
         Verificando...
