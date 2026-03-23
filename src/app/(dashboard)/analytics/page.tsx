@@ -1,335 +1,212 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
-import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Area,
-  AreaChart,
-} from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { dailyMetrics, topPosts, summaryStats } from "@/lib/mock-analytics";
-import { DateRangePicker } from "@/components/analytics/date-range-picker";
-import { StatsCard } from "@/components/analytics/stats-card";
+import { useState, useEffect } from "react";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import { Card, CardContent, CardHeader, CardTitle, CardAction } from "@/components/ui/card";
+import { GlowButton } from "@/components/ui/glow-button";
+import { fetchLatestReport, fetchReportHistory, type AnalyticsReport } from "@/lib/supabase/analytics";
+import { fetchPosts, type DbPost } from "@/lib/supabase/posts";
+import { createClient } from "@/lib/supabase/client";
+import { TrendingUp, TrendingDown } from "lucide-react";
 
-export default function Analytics() {
-  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
-    from: new Date("2026-02-19"),
-    to: new Date("2026-03-21"),
-  });
+const insightIcons: Record<string, string> = { trending_up: "📈", trending_down: "📉", lightbulb: "💡", warning: "⚠️", star: "⭐" };
+const insightColors: Record<string, string> = { positive: "text-[var(--green)]", negative: "text-[var(--red)]", opportunity: "text-[var(--blue)]", neutral: "text-[var(--text-tertiary)]" };
 
-  const filteredMetrics = useMemo(() => {
-    const fromStr = dateRange.from.toISOString().split("T")[0];
-    const toStr = dateRange.to.toISOString().split("T")[0];
-    return dailyMetrics.filter((d) => d.date >= fromStr && d.date <= toStr);
-  }, [dateRange]);
+export default function AnalyticsPage() {
+  const [report, setReport] = useState<AnalyticsReport | null>(null);
+  const [history, setHistory] = useState<AnalyticsReport[]>([]);
+  const [posts, setPosts] = useState<DbPost[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [reportType, setReportType] = useState<"weekly" | "monthly">("weekly");
 
-  const filteredStats = useMemo(() => {
-    if (filteredMetrics.length === 0) return summaryStats;
-    return {
-      totalImpressions: filteredMetrics.reduce(
-        (sum, d) => sum + d.impressions,
-        0
-      ),
-      avgEngagement:
-        Math.round(
-          (filteredMetrics.reduce((sum, d) => sum + d.engagementRate, 0) /
-            filteredMetrics.length) *
-            100
-        ) / 100,
-      currentFollowers: filteredMetrics[filteredMetrics.length - 1].followers,
-      followerGrowth:
-        filteredMetrics[filteredMetrics.length - 1].followers -
-        filteredMetrics[0].followers,
-    };
-  }, [filteredMetrics]);
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => { if (data.user) setUserId(data.user.id); });
+    Promise.all([
+      fetchLatestReport(reportType).catch(() => null),
+      fetchReportHistory(4).catch(() => []),
+      fetchPosts().catch(() => []),
+    ]).then(([r, h, p]) => { setReport(r); setHistory(h); setPosts(p); setLoading(false); });
+  }, [reportType]);
 
-  const chartData = filteredMetrics.map((d) => ({
-    ...d,
-    label: format(new Date(d.date), "dd MMM", { locale: es }),
-  }));
+  async function handleGenerate() {
+    if (!userId) return;
+    setGenerating(true);
+    try {
+      const res = await fetch("/api/analytics/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId, type: reportType }) });
+      const data = await res.json();
+      if (data.report) { setReport(data.report); setHistory((prev) => [data.report, ...prev.slice(0, 3)]); }
+    } catch {}
+    setGenerating(false);
+  }
+
+  // Format breakdown chart data
+  const formatData = report?.format_breakdown
+    ? Object.entries(report.format_breakdown).map(([fmt, d]) => ({ name: fmt.toUpperCase(), engagement: d.avg_engagement, posts: d.count, likes: d.avg_likes }))
+    : [];
+
+  const scoreColor = (report?.ai_content_score || 0) >= 70 ? "var(--green)" : (report?.ai_content_score || 0) >= 40 ? "var(--amber)" : "var(--red)";
+
+  if (loading) return <div className="flex items-center justify-center h-64 text-[var(--text-tertiary)] text-sm">Cargando analytics...</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-[1000px]">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Metricas de Instagram via Metricool
-          </p>
+          <h1 className="text-[22px] font-medium tracking-[-0.03em]">Analytics</h1>
+          <p className="text-[13px] text-[var(--text-tertiary)] mt-0.5">Analisis inteligente de tu contenido</p>
         </div>
-        <DateRangePicker value={dateRange} onChange={setDateRange} />
+        <div className="flex gap-2">
+          <div className="flex rounded-[6px] border border-[var(--border)] overflow-hidden">
+            <button onClick={() => setReportType("weekly")} className={`px-3 py-1.5 text-[11px] font-medium transition-colors ${reportType === "weekly" ? "bg-[var(--text-primary)] text-[var(--bg)]" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"}`}>Semanal</button>
+            <button onClick={() => setReportType("monthly")} className={`px-3 py-1.5 text-[11px] font-medium transition-colors ${reportType === "monthly" ? "bg-[var(--text-primary)] text-[var(--bg)]" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"}`}>Mensual</button>
+          </div>
+          <GlowButton variant="primary" onClick={handleGenerate} disabled={generating}>
+            {generating ? "Generando..." : "Generar analisis"}
+          </GlowButton>
+        </div>
       </div>
 
-      {/* Summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <StatsCard
-          title="Impresiones totales"
-          value={filteredStats.totalImpressions.toLocaleString("es")}
-          subtitle="En el periodo seleccionado"
-        />
-        <StatsCard
-          title="Engagement promedio"
-          value={`${filteredStats.avgEngagement}%`}
-          subtitle="Tasa de interaccion"
-        />
-        <StatsCard
-          title="Seguidores actuales"
-          value={filteredStats.currentFollowers.toLocaleString("es")}
-          subtitle={`${filteredStats.followerGrowth >= 0 ? "+" : ""}${filteredStats.followerGrowth} en el periodo`}
-        />
-        <StatsCard
-          title="Posts top"
-          value={topPosts.length.toString()}
-          subtitle="Mejor rendimiento"
-        />
-      </div>
+      {report ? (
+        <>
+          {/* Content Score + Summary */}
+          <Card>
+            <CardContent className="pt-6 pb-6 flex items-center gap-8">
+              <div className="relative w-24 h-24 shrink-0">
+                <svg className="w-24 h-24 -rotate-90" viewBox="0 0 36 36">
+                  <path d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--border)" strokeWidth="2.5" />
+                  <path d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={scoreColor} strokeWidth="2.5" strokeDasharray={`${report.ai_content_score}, 100`} strokeLinecap="round" />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-2xl font-medium font-mono" style={{ color: scoreColor }}>{report.ai_content_score}</span>
+                  <span className="text-[9px] text-[var(--text-tertiary)] uppercase">Score</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-[15px] font-medium">{report.ai_summary}</p>
+                <div className="flex gap-6 mt-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] text-[var(--text-tertiary)]">Posts:</span>
+                    <span className="text-[13px] font-mono font-medium">{report.total_posts}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] text-[var(--text-tertiary)]">Likes:</span>
+                    <span className="text-[13px] font-mono font-medium">{report.total_likes}</span>
+                    {report.likes_trend !== null && (
+                      <span className={`text-[10px] ${(report.likes_trend || 0) >= 0 ? "text-[var(--green)]" : "text-[var(--red)]"}`}>
+                        {(report.likes_trend || 0) >= 0 ? "+" : ""}{report.likes_trend}%
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] text-[var(--text-tertiary)]">Engagement:</span>
+                    <span className="text-[13px] font-mono font-medium">{report.avg_engagement_rate}%</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* Charts row */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        {/* Impressions line chart */}
-        <Card className="bg-card border-border">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Impresiones diarias
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[280px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData}>
-                  <defs>
-                    <linearGradient
-                      id="impressionsGrad"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop
-                        offset="0%"
-                        stopColor="#4A7C2F"
-                        stopOpacity={0.3}
-                      />
-                      <stop
-                        offset="100%"
-                        stopColor="#4A7C2F"
-                        stopOpacity={0}
-                      />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="#1E2916"
-                  />
-                  <XAxis
-                    dataKey="label"
-                    tick={{ fill: "#6B6B6B", fontSize: 11 }}
-                    tickLine={false}
-                    axisLine={false}
-                    interval="preserveStartEnd"
-                  />
-                  <YAxis
-                    tick={{ fill: "#6B6B6B", fontSize: 11 }}
-                    tickLine={false}
-                    axisLine={false}
-                    width={45}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#131A0E",
-                      border: "1px solid #1E2916",
-                      borderRadius: "0px",
-                      color: "#C8C8C8",
-                      fontSize: 13,
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="impressions"
-                    stroke="#4A7C2F"
-                    strokeWidth={2}
-                    fill="url(#impressionsGrad)"
-                    name="Impresiones"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+          {/* Format Breakdown Chart */}
+          {formatData.length > 0 && (
+            <Card>
+              <CardHeader><CardTitle>Performance por formato</CardTitle></CardHeader>
+              <CardContent>
+                <div className="h-[200px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={formatData} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                      <XAxis type="number" tick={{ fill: "var(--text-tertiary)", fontSize: 11 }} tickLine={false} axisLine={false} />
+                      <YAxis type="category" dataKey="name" tick={{ fill: "var(--text-secondary)", fontSize: 11 }} tickLine={false} axisLine={false} width={80} />
+                      <Tooltip contentStyle={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "6px", color: "var(--text-primary)", fontSize: 12 }} />
+                      <Bar dataKey="engagement" fill="var(--text-primary)" radius={[0, 4, 4, 0]} name="Engagement avg" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* AI Insights */}
+          {report.ai_insights && report.ai_insights.length > 0 && (
+            <Card>
+              <CardHeader><CardTitle>Insights de IA</CardTitle></CardHeader>
+              <CardContent className="p-0">
+                <div className="divide-y divide-[var(--border)]">
+                  {report.ai_insights.map((insight, i) => (
+                    <div key={i} className="px-5 py-3.5 flex items-start gap-2.5">
+                      <span className={`text-base mt-0.5 ${insightColors[insight.type] || ""}`}>{insightIcons[insight.icon] || "💡"}</span>
+                      <div>
+                        <p className="text-[13px] font-medium">{insight.title}</p>
+                        <p className="text-[12px] text-[var(--text-secondary)] mt-0.5">{insight.detail}</p>
+                        {insight.metric && <p className="text-[11px] font-mono text-[var(--text-tertiary)] mt-1">{insight.metric}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Recommendations */}
+          {report.ai_recommendations && report.ai_recommendations.length > 0 && (
+            <Card>
+              <CardHeader><CardTitle>Recomendaciones</CardTitle></CardHeader>
+              <CardContent className="p-0">
+                <div className="divide-y divide-[var(--border)]">
+                  {report.ai_recommendations.map((rec, i) => (
+                    <div key={i} className="px-5 py-3.5 flex items-start gap-3">
+                      <span className={`shrink-0 inline-flex items-center px-1.5 py-0.5 text-[9px] font-medium rounded-[3px] uppercase ${rec.priority === "high" ? "bg-[var(--red-bg)] text-[var(--red)]" : rec.priority === "medium" ? "bg-[var(--amber-bg)] text-[var(--amber)]" : "bg-[var(--bg-hover)] text-[var(--text-tertiary)]"}`}>{rec.priority}</span>
+                      <div>
+                        <p className="text-[13px] font-medium">{rec.action}</p>
+                        <p className="text-[12px] text-[var(--text-secondary)] mt-0.5">{rec.reason}</p>
+                        <p className="text-[11px] text-[var(--green)] mt-0.5">{rec.expected_impact}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Report History */}
+          {history.length > 1 && (
+            <Card>
+              <CardHeader><CardTitle>Historial de reportes</CardTitle></CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {history.map((h) => (
+                    <div key={h.id} className="flex items-center justify-between p-3 rounded-[6px] border border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors">
+                      <div className="flex items-center gap-3">
+                        <span className="text-[12px] font-mono text-[var(--text-tertiary)]">{h.report_date}</span>
+                        <span className="text-[11px] px-2 py-0.5 rounded-[4px] bg-[var(--bg-hover)] text-[var(--text-secondary)]">{h.report_type}</span>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className="text-[12px] font-mono">{h.total_posts} posts</span>
+                        <span className="text-[12px] font-mono" style={{ color: (h.ai_content_score || 0) >= 70 ? "var(--green)" : (h.ai_content_score || 0) >= 40 ? "var(--amber)" : "var(--red)" }}>
+                          Score: {h.ai_content_score}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      ) : (
+        <Card>
+          <CardContent className="text-center py-16">
+            <p className="text-[15px] text-[var(--text-secondary)]">No hay reportes de analytics todavia</p>
+            <p className="text-[12px] text-[var(--text-tertiary)] mt-1">Genera tu primer analisis para ver insights, tendencias y recomendaciones de IA.</p>
+            <GlowButton variant="primary" className="mt-4" onClick={handleGenerate} disabled={generating}>
+              {generating ? "Generando..." : "Generar primer analisis"}
+            </GlowButton>
           </CardContent>
         </Card>
-
-        {/* Engagement rate bar chart */}
-        <Card className="bg-card border-border">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Tasa de engagement (%)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[280px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="#1E2916"
-                  />
-                  <XAxis
-                    dataKey="label"
-                    tick={{ fill: "#6B6B6B", fontSize: 11 }}
-                    tickLine={false}
-                    axisLine={false}
-                    interval="preserveStartEnd"
-                  />
-                  <YAxis
-                    tick={{ fill: "#6B6B6B", fontSize: 11 }}
-                    tickLine={false}
-                    axisLine={false}
-                    width={35}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#131A0E",
-                      border: "1px solid #1E2916",
-                      borderRadius: "0px",
-                      color: "#C8C8C8",
-                      fontSize: 13,
-                    }}
-                  />
-                  <Bar
-                    dataKey="engagementRate"
-                    fill="#6AAF3D"
-                    radius={[0, 0, 0, 0]}
-                    name="Engagement %"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Follower growth */}
-      <Card className="bg-card border-border">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            Crecimiento de seguidores
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[250px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#1E2916"
-                />
-                <XAxis
-                  dataKey="label"
-                  tick={{ fill: "#6B6B6B", fontSize: 11 }}
-                  tickLine={false}
-                  axisLine={false}
-                  interval="preserveStartEnd"
-                />
-                <YAxis
-                  tick={{ fill: "#6B6B6B", fontSize: 11 }}
-                  tickLine={false}
-                  axisLine={false}
-                  width={50}
-                  domain={["dataMin - 20", "dataMax + 20"]}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#131A0E",
-                    border: "1px solid #1E2916",
-                    borderRadius: "0px",
-                    color: "#C8C8C8",
-                    fontSize: 13,
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="followers"
-                  stroke="#6AAF3D"
-                  strokeWidth={2}
-                  dot={false}
-                  name="Seguidores"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Top performing posts */}
-      <Card className="bg-card border-border">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            Posts con mejor rendimiento
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-muted-foreground">
-                  <th className="text-left py-3 pr-4 font-medium">Post</th>
-                  <th className="text-left py-3 px-4 font-medium">Tipo</th>
-                  <th className="text-right py-3 px-4 font-medium">
-                    Impresiones
-                  </th>
-                  <th className="text-right py-3 px-4 font-medium">Likes</th>
-                  <th className="text-right py-3 px-4 font-medium">
-                    Comentarios
-                  </th>
-                  <th className="text-right py-3 px-4 font-medium">Guardados</th>
-                  <th className="text-right py-3 pl-4 font-medium">
-                    Engagement
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {topPosts.map((post) => (
-                  <tr
-                    key={post.id}
-                    className="border-b border-border/50 hover:bg-muted/30 transition-colors"
-                  >
-                    <td className="py-3 pr-4 max-w-[280px] truncate text-foreground">
-                      {post.caption}
-                    </td>
-                    <td className="py-3 px-4 text-muted-foreground">
-                      {post.postType}
-                    </td>
-                    <td className="py-3 px-4 text-right text-foreground">
-                      {post.impressions.toLocaleString("es")}
-                    </td>
-                    <td className="py-3 px-4 text-right text-foreground">
-                      {post.likes}
-                    </td>
-                    <td className="py-3 px-4 text-right text-foreground">
-                      {post.comments}
-                    </td>
-                    <td className="py-3 px-4 text-right text-foreground">
-                      {post.saves}
-                    </td>
-                    <td className="py-3 pl-4 text-right text-primary font-medium">
-                      {post.engagementRate}%
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+      )}
     </div>
   );
 }
