@@ -1,0 +1,85 @@
+{
+  "name": "FTP - Daily News Generator",
+  "nodes": [
+    {
+      "name": "Cron Trigger",
+      "type": "n8n-nodes-base.cron",
+      "parameters": {
+        "triggerTimes": {
+          "item": [{ "hour": 5, "minute": 30 }]
+        }
+      },
+      "notes": "Se ejecuta a las 5:30 AM Colombia (10:30 UTC)"
+    },
+    {
+      "name": "Get Active Users",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "url": "https://ledkfowjyikhqvyvtsoq.supabase.co/rest/v1/creator_identity?onboarding_status=eq.completed&select=user_id",
+        "method": "GET",
+        "headers": {
+          "apikey": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}",
+          "Authorization": "Bearer ={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+        }
+      },
+      "notes": "Lee todos los usuarios que completaron onboarding"
+    },
+    {
+      "name": "Loop Users",
+      "type": "n8n-nodes-base.splitInBatches",
+      "parameters": { "batchSize": 1 },
+      "notes": "Procesa un usuario a la vez"
+    },
+    {
+      "name": "Check Existing News",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "url": "https://ledkfowjyikhqvyvtsoq.supabase.co/rest/v1/daily_news?user_id=eq.{{$json.user_id}}&news_date=eq.{{$today.format('yyyy-MM-dd')}}&select=id",
+        "method": "GET",
+        "headers": {
+          "apikey": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}",
+          "Authorization": "Bearer ={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+        }
+      }
+    },
+    {
+      "name": "IF No News Yet",
+      "type": "n8n-nodes-base.if",
+      "parameters": {
+        "conditions": {
+          "number": [{ "value1": "={{$json.length}}", "operation": "equal", "value2": 0 }]
+        }
+      }
+    },
+    {
+      "name": "Generate News",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "url": "https://allver-social-dashboard.vercel.app/api/agents/daily-news",
+        "method": "POST",
+        "body": {
+          "userId": "={{$node['Loop Users'].json.user_id}}"
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "x-cron-secret": "={{$env.CRON_SECRET}}"
+        },
+        "timeout": 60000
+      }
+    },
+    {
+      "name": "Wait 5s",
+      "type": "n8n-nodes-base.wait",
+      "parameters": { "amount": 5, "unit": "seconds" }
+    }
+  ],
+  "connections": {
+    "Cron Trigger": { "main": [["Get Active Users"]] },
+    "Get Active Users": { "main": [["Loop Users"]] },
+    "Loop Users": { "main": [["Check Existing News"]] },
+    "Check Existing News": { "main": [["IF No News Yet"]] },
+    "IF No News Yet": { "main": [["Generate News"], []] },
+    "Generate News": { "main": [["Wait 5s"]] },
+    "Wait 5s": { "main": [["Loop Users"]] }
+  }
+}
