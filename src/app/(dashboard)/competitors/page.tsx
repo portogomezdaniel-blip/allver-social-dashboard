@@ -202,8 +202,8 @@ export default function CompetitorTracker() {
           </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger className="relative flex h-min w-fit flex-col items-center overflow-visible rounded-full border border-[#1E2916] bg-[#0D1008] p-px transition-all duration-300 hover:border-[#4A7C2F]">
-            <span className="z-10 w-auto rounded-full bg-[#131A0E] px-6 py-2.5 text-xs tracking-[0.15em] uppercase text-[#C8C8C8] transition-colors duration-300 hover:text-[#6AAF3D]">
+          <DialogTrigger className="relative flex h-min w-fit flex-col items-center overflow-visible border border-[#1E2916] bg-[#0D1008] p-px transition-all duration-300 hover:border-[#4A7C2F]">
+            <span className="z-10 w-auto bg-[#131A0E] px-6 py-2.5 text-xs tracking-[0.15em] uppercase text-[#C8C8C8] transition-colors duration-300 hover:text-[#6AAF3D]">
               + Agregar competidor
             </span>
           </DialogTrigger>
@@ -272,7 +272,7 @@ export default function CompetitorTracker() {
       </div>
 
       {error && (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+        <div className="border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
           {error}
         </div>
       )}
@@ -429,7 +429,7 @@ export default function CompetitorTracker() {
                             {comp.recentPosts.map((post, i) => (
                               <div
                                 key={i}
-                                className="rounded-lg border border-border bg-card p-3"
+                                className="border border-border bg-card p-3"
                               >
                                 <p className="text-sm text-foreground leading-snug mb-2">
                                   {post.caption}

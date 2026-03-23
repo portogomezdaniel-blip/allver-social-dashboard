@@ -26,7 +26,7 @@ export function PlatformFilter({ selected, onChange }: PlatformFilterProps) {
     <div className="flex items-center gap-2">
       <button
         onClick={() => onChange(allPlatforms)}
-        className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
+        className={`border px-3 py-1.5 text-xs font-medium transition-colors ${
           allSelected
             ? "border-primary/50 bg-primary/10 text-primary"
             : "border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -41,7 +41,7 @@ export function PlatformFilter({ selected, onChange }: PlatformFilterProps) {
           <button
             key={platform}
             onClick={() => toggle(platform)}
-            className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`flex items-center gap-1.5 border px-3 py-1.5 text-xs font-medium transition-colors ${
               isActive
                 ? `${config.color}`
                 : "border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"

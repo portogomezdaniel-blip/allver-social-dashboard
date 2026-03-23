@@ -82,19 +82,19 @@ export function AgentCard({
 
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-2 mb-4 text-center">
-          <div className="rounded-md bg-muted/50 p-2">
+          <div className="bg-muted/50 p-2">
             <p className="text-xs text-muted-foreground">Exito</p>
             <p className="text-sm font-semibold text-foreground">
               {agent.successRate}%
             </p>
           </div>
-          <div className="rounded-md bg-muted/50 p-2">
+          <div className="bg-muted/50 p-2">
             <p className="text-xs text-muted-foreground">Runs</p>
             <p className="text-sm font-semibold text-foreground">
               {agent.totalRuns}
             </p>
           </div>
-          <div className="rounded-md bg-muted/50 p-2">
+          <div className="bg-muted/50 p-2">
             <p className="text-xs text-muted-foreground">Ultimo</p>
             <p className="text-[11px] font-medium text-foreground">
               {formatTime(agent.lastRun)}

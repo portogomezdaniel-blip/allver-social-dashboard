@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -11,6 +12,7 @@ const sections = [
   { name: "Recon", href: "/competitors", icon: "Users" },
   { name: "Intel", href: "/news", icon: "Newspaper" },
   { name: "Agents", href: "/agents", icon: "Bot" },
+  { name: "Config", href: "/settings", icon: "Settings" },
 ];
 
 const icons: Record<string, React.ReactNode> = {
@@ -32,11 +34,22 @@ const icons: Record<string, React.ReactNode> = {
   Bot: (
     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="0"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
   ),
+  Settings: (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+  ),
 };
 
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setUserEmail(data.user?.email ?? null);
+    });
+  }, []);
 
   async function handleLogout() {
     const supabase = createClient();
@@ -44,6 +57,8 @@ export function Sidebar() {
     router.push("/login");
     router.refresh();
   }
+
+  const initial = userEmail ? userEmail[0].toUpperCase() : "?";
 
   return (
     <aside className="flex flex-col w-56 min-h-screen bg-sidebar border-r border-border">
@@ -76,7 +91,24 @@ export function Sidebar() {
           );
         })}
       </nav>
-      <div className="px-2 py-4 border-t border-border">
+
+      {/* User info */}
+      <div className="px-2 py-3 border-t border-border">
+        <Link
+          href="/settings"
+          className="flex items-center gap-3 px-3 py-2 hover:bg-muted/30 transition-colors"
+        >
+          <div className="w-8 h-8 flex items-center justify-center bg-[rgba(74,124,47,0.15)] text-[#C8C8C8] text-xs font-bold shrink-0">
+            {initial}
+          </div>
+          <span className="text-[11px] text-muted-foreground truncate">
+            {userEmail || "..."}
+          </span>
+        </Link>
+      </div>
+
+      {/* Logout */}
+      <div className="px-2 pb-4">
         <button
           onClick={handleLogout}
           className="flex items-center gap-2 w-full px-3 py-2 text-xs tracking-[0.1em] uppercase text-muted-foreground hover:text-foreground transition-colors"

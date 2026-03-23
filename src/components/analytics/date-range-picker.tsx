@@ -20,7 +20,7 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors">
+      <PopoverTrigger className="inline-flex items-center gap-2 border border-border bg-card px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="14"

@@ -48,7 +48,7 @@ function CarouselPreview({ output }: { output: AgentOutput }) {
   return (
     <div className="space-y-3">
       {/* Carousel viewer */}
-      <div className="relative rounded-lg overflow-hidden aspect-square max-w-[400px]">
+      <div className="relative overflow-hidden aspect-square max-w-[400px]">
         {/* Slide */}
         <div
           className={`w-full h-full bg-gradient-to-br ${slides[currentSlide].gradient} flex items-center justify-center p-8 transition-all duration-300`}
@@ -97,7 +97,7 @@ function CarouselPreview({ output }: { output: AgentOutput }) {
 
       {/* Caption */}
       {output.caption && (
-        <div className="rounded-lg border border-border bg-background p-4">
+        <div className="border border-border bg-background p-4">
           <p className="text-xs text-muted-foreground mb-1.5 font-medium">
             Caption
           </p>
@@ -114,7 +114,7 @@ function TextPreview({ output }: { output: AgentOutput }) {
   if (!output.textContent) return null;
 
   return (
-    <div className="rounded-lg border border-border bg-background p-4">
+    <div className="border border-border bg-background p-4">
       <p className="text-sm text-foreground whitespace-pre-line leading-relaxed font-mono">
         {output.textContent}
       </p>

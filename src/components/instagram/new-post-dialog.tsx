@@ -62,8 +62,8 @@ export function NewPostDialog({ onAdd }: NewPostDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="relative flex h-min w-fit flex-col items-center overflow-visible rounded-full border border-[#1E2916] bg-[#0D1008] p-px transition-all duration-300 hover:border-[#4A7C2F]">
-        <span className="z-10 w-auto rounded-full bg-[#131A0E] px-6 py-2.5 text-xs tracking-[0.15em] uppercase text-[#C8C8C8] transition-colors duration-300 hover:text-[#6AAF3D]">
+      <DialogTrigger className="relative flex h-min w-fit flex-col items-center overflow-visible border border-[#1E2916] bg-[#0D1008] p-px transition-all duration-300 hover:border-[#4A7C2F]">
+        <span className="z-10 w-auto bg-[#131A0E] px-6 py-2.5 text-xs tracking-[0.15em] uppercase text-[#C8C8C8] transition-colors duration-300 hover:text-[#6AAF3D]">
           + Nuevo Post
         </span>
       </DialogTrigger>

@@ -38,7 +38,7 @@ export function CalendarGrid({ year, month, posts }: CalendarGridProps) {
   }
 
   return (
-    <div className="border border-border rounded-lg overflow-hidden">
+    <div className="border border-border overflow-hidden">
       {/* Header */}
       <div className="grid grid-cols-7 bg-muted/50">
         {WEEKDAYS.map((day) => (

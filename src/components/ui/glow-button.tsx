@@ -56,7 +56,7 @@ function GlowButton({
       onMouseLeave={() => setHovered(false)}
       disabled={disabled}
       className={cn(
-        "relative flex h-min w-fit flex-col flex-nowrap content-center items-center justify-center overflow-visible rounded-full border bg-[#0D1008] p-px transition-all duration-300",
+        "relative flex h-min w-fit flex-col flex-nowrap content-center items-center justify-center overflow-visible rounded-none border bg-[#0D1008] p-px transition-all duration-300",
         borderColor,
         disabled && "opacity-40 cursor-not-allowed",
         containerClassName
@@ -65,7 +65,7 @@ function GlowButton({
     >
       <div
         className={cn(
-          "z-10 w-auto rounded-full bg-[#131A0E] px-6 py-2.5 text-xs tracking-[0.15em] uppercase transition-colors duration-300",
+          "z-10 w-auto rounded-none bg-[#131A0E] px-6 py-2.5 text-xs tracking-[0.15em] uppercase transition-colors duration-300",
           textColor,
           className
         )}
@@ -74,14 +74,14 @@ function GlowButton({
       </div>
       <div
         className={cn(
-          "absolute inset-0 z-0 rounded-full opacity-0 transition-opacity duration-300",
+          "absolute inset-0 z-0 rounded-none opacity-0 transition-opacity duration-300",
           isHovered && "opacity-100"
         )}
         style={{
           background: `radial-gradient(75% 181% at 50% 50%, ${glowColor} 0%, transparent 100%)`,
         }}
       />
-      <div className="absolute inset-[1px] z-[1] rounded-full bg-[#131A0E]" />
+      <div className="absolute inset-[1px] z-[1] rounded-none bg-[#131A0E]" />
     </Element>
   );
 }

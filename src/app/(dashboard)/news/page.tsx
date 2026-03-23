@@ -49,7 +49,7 @@ export default function NewsConsolidator() {
       <div className="flex items-center gap-2">
         <button
           onClick={() => setSelectedTopics(allTopics)}
-          className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
+          className={`border px-3 py-1.5 text-xs font-medium transition-colors ${
             allSelected
               ? "border-primary/50 bg-primary/10 text-primary"
               : "border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -64,7 +64,7 @@ export default function NewsConsolidator() {
             <button
               key={topic}
               onClick={() => toggleTopic(topic)}
-              className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`border px-3 py-1.5 text-xs font-medium transition-colors ${
                 isActive
                   ? config.color
                   : "border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
