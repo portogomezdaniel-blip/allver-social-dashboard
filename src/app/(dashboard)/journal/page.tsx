@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Copy, Loader2, Calendar as CalendarIcon } from "lucide-react";
+import { Copy, Loader2, Calendar as CalendarIcon, ChevronDown, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GlowButton } from "@/components/ui/glow-button";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { type JournalEntry } from "@/lib/supabase/journal";
 import { createHook } from "@/lib/supabase/hooks";
 import { createPost } from "@/lib/supabase/posts";
-import { getTodayQuestions } from "@/lib/journal-questions";
+import { getTodayQuestions, getQuestionsForDay } from "@/lib/journal-questions";
 import Link from "next/link";
 import { useLocale } from "@/lib/locale-context";
 
@@ -30,6 +30,13 @@ function getLocalDateString(): string {
 
 const dayColors: Record<number, string> = { 0: "var(--text-tertiary)", 1: "var(--green)", 2: "var(--blue)", 3: "var(--purple)", 4: "var(--amber)", 5: "var(--red)", 6: "var(--blue)" };
 
+function formatHistoryDate(dateStr: string): string {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  const day = dayNames[date.getDay()];
+  return `${day}, ${d} ${monthNames[m - 1]}`;
+}
+
 export default function JournalPage() {
   const { t } = useLocale();
   const [entry, setEntry] = useState<JournalEntry | null>(null);
@@ -43,6 +50,7 @@ export default function JournalPage() {
   const [generatingCopy, setGeneratingCopy] = useState<string | null>(null);
   const [generatedCopies, setGeneratedCopies] = useState<Record<string, string>>({});
   const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null);
+  const [questionsCollapsed, setQuestionsCollapsed] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const now = new Date();
@@ -59,6 +67,14 @@ export default function JournalPage() {
       const uid = data.user.id; setUserId(uid);
       const todayDate = getLocalDateString();
       const qs = getTodayQuestions();
+
+      // Debug log for rotation verification
+      console.log("Journal Debug:", {
+        today: todayDate,
+        dayOfWeek: new Date().getDay(),
+        dayName: dayNames[new Date().getDay()],
+        questions: qs.questions.map(q => q.text.slice(0, 50))
+      });
 
       // Use maybeSingle to avoid 406 error when entry doesn't exist
       const { data: existing } = await supabase.from("journal_entries").select("*").eq("user_id", uid).eq("entry_date", todayDate).maybeSingle();
@@ -115,8 +131,8 @@ export default function JournalPage() {
   async function handleApplyWeeklyPlan(strategy: Record<string, { format: string; topic: string }>) {
     const days = ["monday", "tuesday", "wednesday", "thursday", "friday"];
     const startDate = new Date();
-    const dayOfWeek = startDate.getDay();
-    const daysUntilMonday = dayOfWeek === 0 ? 1 : dayOfWeek === 1 ? 0 : 8 - dayOfWeek;
+    const dow = startDate.getDay();
+    const daysUntilMonday = dow === 0 ? 1 : dow === 1 ? 0 : 8 - dow;
     startDate.setDate(startDate.getDate() + daysUntilMonday);
 
     for (let i = 0; i < days.length; i++) {
@@ -163,6 +179,7 @@ export default function JournalPage() {
 
   return (
     <div className="space-y-6 max-w-[900px]">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-[22px] font-medium tracking-[-0.03em]">{t("journal.title")}</h1>
@@ -174,61 +191,100 @@ export default function JournalPage() {
         </div>
       </div>
 
-      {/* Day indicator */}
-      <div className="flex items-center gap-2">
-        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: dayColors[dayOfWeek] }} />
-        <span className="text-[12px] font-medium uppercase tracking-[0.04em]" style={{ color: dayColors[dayOfWeek] }}>{dayNames[dayOfWeek]}</span>
-        <span className="text-[11px] text-[var(--text-tertiary)]">· {questionStartNum}, {questionStartNum + 1}, {questionStartNum + 2} / 21</span>
-      </div>
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 1: TUS PREGUNTAS DE HOY                        */}
+      {/* ═══════════════════════════════════════════════════════ */}
 
-      {/* SECTION 1: Questions */}
-      {!isCompleted && (
-        <>
-          {qItems.map((item, i) => (
-            <Card key={i} className={`border-l-2 ${domainColors[item.domain] || ""}`}>
-              <CardContent className="pt-5 pb-5">
+      <div className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden" style={{ backgroundImage: "var(--satin)" }}>
+        {/* Section header */}
+        <div className="px-5 py-4 border-b border-[var(--border)] flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: dayColors[dayOfWeek] }} />
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[12px] font-medium uppercase tracking-[0.04em]" style={{ color: dayColors[dayOfWeek] }}>{dayNames[dayOfWeek]}</span>
+                <span className="text-[11px] text-[var(--text-tertiary)]">· Preguntas {questionStartNum}, {questionStartNum + 1}, {questionStartNum + 2} de 21</span>
+              </div>
+              <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5">Las preguntas cambian cada dia. Manana tendras 3 nuevas.</p>
+            </div>
+          </div>
+          {isCompleted && (
+            <button onClick={() => setQuestionsCollapsed(!questionsCollapsed)} className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] flex items-center gap-1 transition-colors">
+              {questionsCollapsed ? <><ChevronRight size={12} /> Mostrar</> : <><ChevronDown size={12} /> Ocultar</>}
+            </button>
+          )}
+        </div>
+
+        {/* Questions content */}
+        {!questionsCollapsed && (
+          <div className="p-5 space-y-4">
+            {qItems.map((item, i) => (
+              <div key={i} className={`border-l-2 ${domainColors[item.domain] || ""} rounded-[8px] bg-[var(--bg)] p-4`}>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-5 h-5 rounded-full bg-[var(--bg-hover)] flex items-center justify-center text-[10px] font-medium text-[var(--text-tertiary)]">{i + 1}</span>
                   <p className={`text-[10px] uppercase tracking-[0.06em] font-medium ${domainTextColors[item.domain]}`}>{t(domainLabelKeys[item.domain])}</p>
                 </div>
                 <p className="text-[15px] font-medium italic mb-4">"{item.q}"</p>
-                <Textarea value={item.a} onChange={(e) => item.set(e.target.value)} placeholder={t("journal.write_placeholder")} className="bg-[var(--bg)] border-[var(--border)] text-[14px] min-h-[100px]" />
-                {item.a.length > 0 && item.a.length < 20 && <p className="text-[10px] text-[var(--text-tertiary)] mt-1">{20 - item.a.length} caracteres mas</p>}
-              </CardContent>
-            </Card>
-          ))}
-          <div className="flex flex-col items-center gap-2">
-            <GlowButton variant="primary" onClick={handleSubmit} disabled={!canSubmit || analyzing} className="px-8">
-              {analyzing ? <><Loader2 size={14} className="animate-spin mr-1" /> {t("journal.analyzing")}</> : `${t("journal.save_generate")} →`}
-            </GlowButton>
-            {!canSubmit && <p className="text-[10px] text-[var(--text-tertiary)]">{t("journal.min_required")}</p>}
-          </div>
-        </>
-      )}
+                {isCompleted ? (
+                  <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{item.a}</p>
+                ) : (
+                  <>
+                    <Textarea value={item.a} onChange={(e) => item.set(e.target.value)} placeholder={t("journal.write_placeholder")} className="bg-[var(--bg-card)] border-[var(--border)] text-[14px] min-h-[100px]" />
+                    {item.a.length > 0 && item.a.length < 20 && <p className="text-[10px] text-[var(--text-tertiary)] mt-1">{20 - item.a.length} caracteres mas</p>}
+                  </>
+                )}
+              </div>
+            ))}
 
-      {/* SECTION 2: Content Briefing */}
-      {isCompleted && (
-        <>
-          {/* Header */}
-          <Card>
-            <CardContent className="pt-5 pb-5 flex items-center justify-between">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">{t("journal.briefing_title")}</p>
-                <div className="flex items-center gap-3 mt-1">
-                  {entry?.mood && <span className="text-sm">{moodEmojis[entry.mood] || ""} {entry.mood}</span>}
-                  {entry?.themes?.map((tag, i) => <span key={i} className="text-[10px] px-2 py-0.5 rounded-[4px] bg-[var(--bg-hover)] text-[var(--text-secondary)]">#{tag}</span>)}
+            {!isCompleted && (
+              <div className="flex items-center justify-between pt-2">
+                <div>
+                  {autoSaved && <span className="text-[10px] text-[var(--green)]">Guardado automaticamente ✓</span>}
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <GlowButton variant="primary" onClick={handleSubmit} disabled={!canSubmit || analyzing} className="px-8">
+                    {analyzing ? <><Loader2 size={14} className="animate-spin mr-1" /> {t("journal.analyzing")}</> : `${t("journal.save_generate")} →`}
+                  </GlowButton>
+                  {!canSubmit && <p className="text-[10px] text-[var(--text-tertiary)]">{t("journal.min_required")}</p>}
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 2: TU BRIEFING DE CONTENIDO                    */}
+      {/* ═══════════════════════════════════════════════════════ */}
+
+      {isCompleted ? (
+        <div className="space-y-4">
+          {/* Section header */}
+          <div className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden" style={{ backgroundImage: "var(--satin)" }}>
+            <div className="px-5 py-4 border-b border-[var(--border)]">
+              <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">Tu briefing de contenido</p>
+            </div>
+            <div className="px-5 py-4">
+              <div className="flex items-center gap-3">
+                {entry?.mood && <span className="text-lg">{moodEmojis[entry.mood] || ""}</span>}
+                <div>
+                  {entry?.mood && <p className="text-[13px] font-medium capitalize">{entry.mood.replace("_", " ")}</p>}
+                  <div className="flex gap-2 mt-1">
+                    {entry?.themes?.map((tag, i) => <span key={i} className="text-[10px] px-2 py-0.5 rounded-[4px] bg-[var(--bg-hover)] text-[var(--text-secondary)]">#{tag}</span>)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Quote */}
           {quote && (
             <Card className="border-l-2 border-l-[var(--amber)]">
-              <CardContent className="pt-6 pb-6 text-center">
-                <p className="text-[18px] font-medium italic leading-relaxed max-w-lg mx-auto">"{quote}"</p>
-                <div className="flex justify-center gap-3 mt-4">
-                  <GlowButton onClick={() => copyText(quote)}>{t("journal.copy")}</GlowButton>
+              <CardContent className="pt-6 pb-6">
+                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--amber)] font-medium mb-3">Frase del dia</p>
+                <p className="text-[18px] font-medium italic leading-relaxed max-w-lg">"{quote}"</p>
+                <div className="flex gap-3 mt-4">
+                  <GlowButton onClick={() => copyText(quote)}><Copy size={12} className="mr-1" /> {t("journal.copy")}</GlowButton>
                   <GlowButton onClick={() => createPost({ caption: quote, post_type: "story", status: "draft", scheduled_date: null, platform: "instagram" })}>{t("journal.publish_story")}</GlowButton>
                 </div>
               </CardContent>
@@ -453,40 +509,101 @@ export default function JournalPage() {
               </CardContent>
             </Card>
           )}
-
-          {/* Original answers */}
-          <Card>
-            <CardHeader><CardTitle className="text-[13px] text-[var(--text-tertiary)]">{t("journal.your_answers")}</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-              {qItems.map((item, i) => item.a && <div key={i}><p className="text-[10px] italic text-[var(--text-tertiary)]">"{item.q}"</p><p className="text-[12px] text-[var(--text-secondary)] mt-0.5">{item.a}</p></div>)}
-            </CardContent>
-          </Card>
-        </>
+        </div>
+      ) : (
+        /* Briefing placeholder when not completed */
+        <div className="rounded-[12px] border border-dashed border-[var(--border)] p-6 text-center">
+          <p className="text-[13px] text-[var(--text-tertiary)]">
+            {a1.length > 0 || a2.length > 0 || a3.length > 0
+              ? "Completa las 3 preguntas (minimo 20 caracteres cada una) para generar tu briefing"
+              : "Responde las 3 preguntas para generar tu briefing de contenido"}
+          </p>
+        </div>
       )}
 
-      {/* History */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* HISTORIAL                                               */}
+      {/* ═══════════════════════════════════════════════════════ */}
+
       {history.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-2">
           <h2 className="text-[14px] font-medium">{t("journal.previous_entries")}</h2>
-          {history.map((h) => (
-            <Card key={h.id} className="cursor-pointer" onClick={() => setExpandedHistoryId(expandedHistoryId === h.id ? null : h.id)}>
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-center justify-between">
+          {history.map((h) => {
+            const isExpanded = expandedHistoryId === h.id;
+            const hDate = h.entry_date;
+            const [hy, hm, hd] = hDate.split("-").map(Number);
+            const hDateObj = new Date(hy, hm - 1, hd);
+            const hDay = hDateObj.getDay();
+            const hContent = h.generated_content as Record<string, unknown> | null;
+            const hHooksCount = ((hContent?.hooks_bank || []) as unknown[]).length;
+            const hQuote = hContent?.quote_of_the_day as string | null;
+
+            return (
+              <div key={h.id} className="rounded-[10px] border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden transition-colors" style={{ backgroundImage: "var(--satin)" }}>
+                <button
+                  onClick={() => setExpandedHistoryId(isExpanded ? null : h.id)}
+                  className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-[var(--bg-hover)] transition-colors"
+                >
                   <div className="flex items-center gap-3">
-                    <span className="text-[12px] font-mono text-[var(--text-tertiary)]">{h.entry_date}</span>
-                    {h.mood && <span>{moodEmojis[h.mood] || ""}</span>}
-                    {h.themes?.slice(0, 3).map((tag, i) => <span key={i} className="text-[9px] px-1.5 py-0.5 rounded-[3px] bg-[var(--bg-hover)] text-[var(--text-tertiary)]">#{tag}</span>)}
+                    {isExpanded ? <ChevronDown size={14} className="text-[var(--text-tertiary)]" /> : <ChevronRight size={14} className="text-[var(--text-tertiary)]" />}
+                    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: dayColors[hDay] }} />
+                    <span className="text-[12px] text-[var(--text-secondary)]">{formatHistoryDate(hDate)}</span>
+                    {h.mood && <span className="text-[12px]">{moodEmojis[h.mood] || ""} <span className="text-[11px] text-[var(--text-secondary)] capitalize">{h.mood.replace("_", " ")}</span></span>}
+                    {hHooksCount > 0 && <span className="text-[10px] text-[var(--text-tertiary)]">{hHooksCount} hooks</span>}
+                    {h.themes?.slice(0, 2).map((tag, i) => <span key={i} className="text-[9px] px-1.5 py-0.5 rounded-[3px] bg-[var(--bg-hover)] text-[var(--text-tertiary)]">#{tag}</span>)}
                   </div>
                   <span className={`text-[10px] px-2 py-0.5 rounded-[3px] ${h.status === "completed" ? "bg-[var(--green-bg)] text-[var(--green)]" : "bg-[var(--amber-bg)] text-[var(--amber)]"}`}>
                     {h.status === "completed" ? t("journal.completed") : t("journal.incomplete")}
                   </span>
-                </div>
-                {expandedHistoryId === h.id && h.generated_content?.quote_of_the_day && (
-                  <p className="text-[13px] italic text-[var(--text-secondary)] mt-3 pt-3 border-t border-[var(--border)]">"{h.generated_content.quote_of_the_day}"</p>
+                </button>
+
+                {isExpanded && (
+                  <div className="px-4 pb-4 pt-1 border-t border-[var(--border)] space-y-4">
+                    {/* Questions & Answers */}
+                    {[
+                      { q: h.question_1, a: h.answer_1, domain: getQuestionsForDay(hDay).questions[0].domain },
+                      { q: h.question_2, a: h.answer_2, domain: getQuestionsForDay(hDay).questions[1].domain },
+                      { q: h.question_3, a: h.answer_3, domain: getQuestionsForDay(hDay).questions[2].domain },
+                    ].map((item, i) => (
+                      <div key={i} className={`border-l-2 ${domainColors[item.domain] || "border-l-[var(--border)]"} pl-3`}>
+                        <p className={`text-[10px] uppercase tracking-[0.06em] font-medium mb-1 ${domainTextColors[item.domain] || "text-[var(--text-tertiary)]"}`}>
+                          {t(domainLabelKeys[item.domain] || "journal.your_practice")}
+                        </p>
+                        <p className="text-[12px] italic text-[var(--text-tertiary)]">"{item.q}"</p>
+                        {item.a ? (
+                          <p className="text-[12px] text-[var(--text-secondary)] mt-1 leading-relaxed">→ {item.a}</p>
+                        ) : (
+                          <p className="text-[10px] text-[var(--text-tertiary)] mt-1 italic">Sin respuesta</p>
+                        )}
+                      </div>
+                    ))}
+
+                    {/* Generated content summary */}
+                    {h.status === "completed" && hContent && (
+                      <div className="pt-2 border-t border-[var(--border)] space-y-2">
+                        {hQuote && (
+                          <div className="flex items-start gap-2">
+                            <span className="text-[10px] text-[var(--amber)] font-medium uppercase shrink-0">Frase:</span>
+                            <p className="text-[12px] italic text-[var(--text-secondary)]">"{hQuote}"</p>
+                          </div>
+                        )}
+                        {hHooksCount > 0 && (
+                          <div>
+                            <span className="text-[10px] text-[var(--text-tertiary)] font-medium uppercase">Hooks:</span>
+                            <div className="mt-1 space-y-1">
+                              {((hContent.hooks_bank || []) as { text: string }[]).slice(0, 3).map((hook, i) => (
+                                <p key={i} className="text-[11px] text-[var(--text-secondary)]">{i + 1}. "{hook.text}"</p>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 )}
-              </CardContent>
-            </Card>
-          ))}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

@@ -254,8 +254,8 @@ export default function CommandCenter() {
                 </div>
               ) : (
                 <div>
-                  <p className="text-[13px] text-[var(--text-secondary)]">3 {t("dashboard.journal_pending")} — {dayNames[now.getDay()]}</p>
-                  <p className="text-[10px] text-[var(--text-tertiary)]">{t("dashboard.journal_generate")}</p>
+                  <p className="text-[13px] text-[var(--text-secondary)]">3 preguntas de {dayNames[now.getDay()].toUpperCase()} esperandote</p>
+                  <p className="text-[10px] text-[var(--text-tertiary)]">Genera tu briefing de contenido</p>
                 </div>
               )}
             </div>

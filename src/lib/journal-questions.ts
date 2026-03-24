@@ -79,3 +79,7 @@ export const WEEKLY_QUESTIONS: DayQuestions[] = [
 export function getTodayQuestions(): DayQuestions {
   return WEEKLY_QUESTIONS[new Date().getDay()];
 }
+
+export function getQuestionsForDay(day: number): DayQuestions {
+  return WEEKLY_QUESTIONS[day] || WEEKLY_QUESTIONS[0];
+}
