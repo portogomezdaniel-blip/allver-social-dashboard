@@ -6,15 +6,14 @@ import { fetchCalendarPosts } from "@/lib/supabase/calendar";
 import { CalendarGrid } from "@/components/calendar/calendar-grid";
 import { PlatformFilter } from "@/components/calendar/platform-filter";
 import { GlowButton } from "@/components/ui/glow-button";
+import { useLocale } from "@/lib/locale-context";
 
-const MONTH_NAMES = [
-  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
-];
+const MONTH_KEYS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 
 const allPlatforms: Platform[] = ["instagram", "youtube", "tiktok", "linkedin"];
 
 export default function ContentCalendar() {
+  const { t } = useLocale();
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
@@ -25,7 +24,6 @@ export default function ContentCalendar() {
   const loadPosts = useCallback(async () => {
     try {
       const dbPosts = await fetchCalendarPosts();
-      // If there are real posts, use them. Otherwise fallback to mock.
       setPosts(dbPosts.length > 0 ? dbPosts : mockCalendarPosts);
     } catch {
       setPosts(mockCalendarPosts);
@@ -56,21 +54,11 @@ export default function ContentCalendar() {
   const publishedCount = monthPosts.filter((p) => p.status === "published").length;
 
   function prevMonth() {
-    if (month === 0) {
-      setMonth(11);
-      setYear(year - 1);
-    } else {
-      setMonth(month - 1);
-    }
+    if (month === 0) { setMonth(11); setYear(year - 1); } else { setMonth(month - 1); }
   }
 
   function nextMonth() {
-    if (month === 11) {
-      setMonth(0);
-      setYear(year + 1);
-    } else {
-      setMonth(month + 1);
-    }
+    if (month === 11) { setMonth(0); setYear(year + 1); } else { setMonth(month + 1); }
   }
 
   function goToday() {
@@ -79,34 +67,33 @@ export default function ContentCalendar() {
     setMonth(now.getMonth());
   }
 
+  const monthName = t(`calendar.${MONTH_KEYS[month]}`);
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Content Calendar</h1>
+        <h1 className="text-2xl font-bold text-foreground">{t("calendar.title")}</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Vista mensual del contenido programado y publicado en todas las plataformas.
+          {t("calendar.subtitle")}
         </p>
       </div>
 
       {/* Controls */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        {/* Month navigation */}
         <div className="flex items-center gap-3">
           <GlowButton onClick={prevMonth} className="px-3 py-1.5">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </GlowButton>
           <h2 className="text-lg font-semibold text-foreground min-w-[180px] text-center">
-            {MONTH_NAMES[month]} {year}
+            {monthName} {year}
           </h2>
           <GlowButton onClick={nextMonth} className="px-3 py-1.5">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
           </GlowButton>
           <GlowButton variant="ghost" onClick={goToday} className="px-4 py-1.5 text-[10px]">
-            Hoy
+            {t("calendar.today")}
           </GlowButton>
         </div>
-
-        {/* Platform filter */}
         <PlatformFilter selected={selectedPlatforms} onChange={setSelectedPlatforms} />
       </div>
 
@@ -115,17 +102,17 @@ export default function ContentCalendar() {
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-primary" />
           <span className="text-muted-foreground">
-            Programados: <span className="text-foreground font-medium">{scheduledCount}</span>
+            {t("calendar.scheduled")}: <span className="text-foreground font-medium">{scheduledCount}</span>
           </span>
         </div>
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
           <span className="text-muted-foreground">
-            Publicados: <span className="text-foreground font-medium">{publishedCount}</span>
+            {t("calendar.published")}: <span className="text-foreground font-medium">{publishedCount}</span>
           </span>
         </div>
         <div className="text-muted-foreground">
-          Total: <span className="text-foreground font-medium">{monthPosts.length}</span>
+          {t("calendar.total")}: <span className="text-foreground font-medium">{monthPosts.length}</span>
         </div>
       </div>
 
@@ -137,7 +124,7 @@ export default function ContentCalendar() {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            Cargando calendario...
+            {t("calendar.loading")}
           </div>
         </div>
       ) : (

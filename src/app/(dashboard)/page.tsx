@@ -177,7 +177,7 @@ export default function CommandCenter() {
     return { day: dayNames[d.getDay()].slice(0, 3), date: d.getDate(), post: dayPost, isToday: i === 0 };
   });
 
-  if (loading) return <div className="flex items-center justify-center h-64 text-[var(--text-tertiary)] text-sm">Cargando command center...</div>;
+  if (loading) return <div className="flex items-center justify-center h-64 text-[var(--text-tertiary)] text-sm">{t("common.loading")}</div>;
   if (error) return <ErrorState message={error} />;
 
   return (
@@ -211,7 +211,7 @@ export default function CommandCenter() {
           <div className="flex gap-2">
             <Textarea value={ideaInput} onChange={(e) => setIdeaInput(e.target.value)} placeholder={t("dashboard.idea_bar_placeholder")} className="bg-[var(--bg)] border-[var(--border)] text-[14px] min-h-[44px] flex-1" rows={1} />
             <GlowButton variant="primary" onClick={handleIdeaGenerate} disabled={!ideaInput.trim() || ideaGenerating} className="shrink-0 self-end">
-              {ideaGenerating ? <Loader2 size={14} className="animate-spin" /> : "Generar →"}
+              {ideaGenerating ? <Loader2 size={14} className="animate-spin" /> : `${t("dashboard.generate_ideas")} →`}
             </GlowButton>
           </div>
           {ideaResult && (
@@ -245,7 +245,7 @@ export default function CommandCenter() {
                   <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">{t("dashboard.briefing_today")}</p>
                   <div className="flex items-center gap-2 mt-1">
                     {journalEntry.mood && <span className="text-sm">{({"reflective":"🪞","fired_up":"🔥","frustrated":"😤","grateful":"🙏","philosophical":"🌌","determined":"💪","vulnerable":"🫣"} as Record<string,string>)[journalEntry.mood] || ""}</span>}
-                    {(journalEntry.generated_content as Record<string,unknown>)?.content_plan ? <span className="text-[11px] text-[var(--text-secondary)]">3 posts sugeridos</span> : null}
+                    {(journalEntry.generated_content as Record<string,unknown>)?.content_plan ? <span className="text-[11px] text-[var(--text-secondary)]">3 {t("dashboard.posts_suggested")}</span> : null}
                     {((journalEntry.generated_content as Record<string,unknown>)?.hooks_bank as unknown[] | undefined)?.length ? <span className="text-[11px] text-[var(--text-secondary)]">· {String(((journalEntry.generated_content as Record<string,unknown>).hooks_bank as unknown[]).length)} hooks</span> : null}
                   </div>
                   {(journalEntry.generated_content as Record<string,unknown>)?.quote_of_the_day ? (
@@ -302,7 +302,7 @@ export default function CommandCenter() {
                       <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5 ml-[52px]">{fmtLabel} · {item.source}</p>
                     </div>
                     <GlowButton className="shrink-0 text-[10px]" onClick={() => createPost({ caption: item.suggested_hook, post_type: (item.suggested_format || "single") as "reel" | "carousel" | "single", status: "draft", scheduled_date: null, platform: "instagram" })}>
-                      Crear post →
+                      {t("dashboard.create_post")} →
                     </GlowButton>
                   </div>
                 );
@@ -455,7 +455,7 @@ export default function CommandCenter() {
                 </span>
                 {report?.format_breakdown && (
                   <span className="text-[10px] text-[var(--text-tertiary)]">
-                    Basado en analisis: {formatLabels[suggestion.formato]?.label || suggestion.formato} es tu formato con mejor performance
+                    {t("dashboard.based_on_analysis")}: {formatLabels[suggestion.formato]?.label || suggestion.formato} {t("dashboard.is_best_format")}
                   </span>
                 )}
               </div>

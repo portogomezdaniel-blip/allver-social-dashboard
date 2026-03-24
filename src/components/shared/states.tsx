@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale } from "@/lib/locale-context";
+
 export function LoadingSkeleton() {
   return (
     <div className="animate-pulse space-y-4 p-6">
@@ -15,9 +17,10 @@ export function LoadingSkeleton() {
 }
 
 export function ErrorState({ message }: { message: string }) {
+  const { t } = useLocale();
   return (
     <div className="flex flex-col items-center justify-center p-12">
-      <div className="text-[var(--red)] text-sm font-medium mb-2">Error</div>
+      <div className="text-[var(--red)] text-sm font-medium mb-2">{t("common.error")}</div>
       <div className="text-[var(--text-secondary)] text-sm text-center max-w-md">
         {message}
       </div>
@@ -25,20 +28,21 @@ export function ErrorState({ message }: { message: string }) {
         onClick={() => window.location.reload()}
         className="mt-4 px-4 py-2 text-xs bg-[var(--bg-card)] border border-[var(--border)] rounded-md hover:border-[var(--border-focus)] transition-colors"
       >
-        Reintentar
+        {t("common.retry")}
       </button>
     </div>
   );
 }
 
 export function EmptyState({
-  message = "No hay datos todavia",
+  message,
 }: {
   message?: string;
 }) {
+  const { t } = useLocale();
   return (
     <div className="flex flex-col items-center justify-center p-12">
-      <div className="text-[var(--text-tertiary)] text-sm">{message}</div>
+      <div className="text-[var(--text-tertiary)] text-sm">{message || t("common.no_data")}</div>
     </div>
   );
 }

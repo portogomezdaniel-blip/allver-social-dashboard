@@ -15,7 +15,7 @@ import { useLocale } from "@/lib/locale-context";
 
 const domainColors: Record<string, string> = { practice: "border-l-[var(--green)]", clients: "border-l-[var(--blue)]", philosophy: "border-l-[var(--purple)]" };
 const domainTextColors: Record<string, string> = { practice: "text-[var(--green)]", clients: "text-[var(--blue)]", philosophy: "text-[var(--purple)]" };
-const domainLabels: Record<string, string> = { practice: "Tu Practica", clients: "Tus Clientes", philosophy: "Filosofia" };
+const domainLabelKeys: Record<string, string> = { practice: "journal.your_practice", clients: "journal.your_clients", philosophy: "journal.philosophy" };
 const moodEmojis: Record<string, string> = { reflective: "🪞", fired_up: "🔥", frustrated: "😤", grateful: "🙏", philosophical: "🌌", determined: "💪", vulnerable: "🫣" };
 const dayNames = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
 const monthNames = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
@@ -169,10 +169,10 @@ export default function JournalPage() {
               <CardContent className="pt-5 pb-5">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-5 h-5 rounded-full bg-[var(--bg-hover)] flex items-center justify-center text-[10px] font-medium text-[var(--text-tertiary)]">{i + 1}</span>
-                  <p className={`text-[10px] uppercase tracking-[0.06em] font-medium ${domainTextColors[item.domain]}`}>{domainLabels[item.domain]}</p>
+                  <p className={`text-[10px] uppercase tracking-[0.06em] font-medium ${domainTextColors[item.domain]}`}>{t(domainLabelKeys[item.domain])}</p>
                 </div>
                 <p className="text-[15px] font-medium italic mb-4">"{item.q}"</p>
-                <Textarea value={item.a} onChange={(e) => item.set(e.target.value)} placeholder="Escribe lo que se te venga a la mente, sin filtro..." className="bg-[var(--bg)] border-[var(--border)] text-[14px] min-h-[100px]" />
+                <Textarea value={item.a} onChange={(e) => item.set(e.target.value)} placeholder={t("journal.write_placeholder")} className="bg-[var(--bg)] border-[var(--border)] text-[14px] min-h-[100px]" />
                 {item.a.length > 0 && item.a.length < 20 && <p className="text-[10px] text-[var(--text-tertiary)] mt-1">{20 - item.a.length} caracteres mas</p>}
               </CardContent>
             </Card>
@@ -208,8 +208,8 @@ export default function JournalPage() {
               <CardContent className="pt-6 pb-6 text-center">
                 <p className="text-[18px] font-medium italic leading-relaxed max-w-lg mx-auto">"{quote}"</p>
                 <div className="flex justify-center gap-3 mt-4">
-                  <GlowButton onClick={() => copyText(quote)}>Copiar</GlowButton>
-                  <GlowButton onClick={() => createPost({ caption: quote, post_type: "story", status: "draft", scheduled_date: null, platform: "instagram" })}>Publicar como story</GlowButton>
+                  <GlowButton onClick={() => copyText(quote)}>{t("journal.copy")}</GlowButton>
+                  <GlowButton onClick={() => createPost({ caption: quote, post_type: "story", status: "draft", scheduled_date: null, platform: "instagram" })}>{t("journal.publish_story")}</GlowButton>
                 </div>
               </CardContent>
             </Card>
@@ -240,18 +240,18 @@ export default function JournalPage() {
                 <div className="p-3 rounded-[6px] bg-[var(--bg)] border border-[var(--border)]">
                   <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium mb-1">Hook</p>
                   <p className="text-[14px] font-medium italic">"{hero.hook as string}"</p>
-                  <button onClick={() => copyText(hero.hook as string)} className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] mt-1">Copiar hook</button>
+                  <button onClick={() => copyText(hero.hook as string)} className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] mt-1">{t("journal.copy_hook")}</button>
                 </div>
                 {(hero.outline as string[])?.length > 0 && (
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium mb-2">Estructura</p>
+                    <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium mb-2">{t("journal.structure")}</p>
                     <ol className="space-y-1">{(hero.outline as string[]).map((p, i) => <li key={i} className="text-[12px] text-[var(--text-secondary)]">{i + 1}. {p}</li>)}</ol>
                   </div>
                 )}
                 <p className="text-[12px] text-[var(--text-secondary)]"><strong>CTA:</strong> {hero.cta as string}</p>
                 <div className="flex flex-wrap gap-1">{(hero.hashtags as string[] || []).map((h, i) => <span key={i} className="text-[10px] text-[var(--text-tertiary)]">#{h}</span>)}</div>
                 <div className="p-3 rounded-[6px] bg-[var(--green-bg)] border border-[var(--green)]/20">
-                  <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--green)] font-medium mb-1">Por que va a funcionar</p>
+                  <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--green)] font-medium mb-1">{t("journal.why_works")}</p>
                   <p className="text-[12px] text-[var(--text-secondary)]">{hero.why as string}</p>
                 </div>
                 {generatedCopies["hero"] ? (
@@ -283,9 +283,9 @@ export default function JournalPage() {
                     <p className="text-[11px] text-[var(--text-tertiary)]">{post.brief as string}</p>
                     <div className="flex gap-2">
                       <GlowButton variant="primary" onClick={() => handleWriteCopy(`sec-${i}`, post.title as string, post.hook as string, post.format as string)} disabled={generatingCopy === `sec-${i}`} className="text-[10px]">
-                        {generatingCopy === `sec-${i}` ? "..." : "Crear con IA"}
+                        {generatingCopy === `sec-${i}` ? "..." : t("journal.create_with_ai")}
                       </GlowButton>
-                      <GlowButton onClick={() => handleAddToCalendar(post.hook as string, post.format as string)} className="text-[10px]">Calendario</GlowButton>
+                      <GlowButton onClick={() => handleAddToCalendar(post.hook as string, post.format as string)} className="text-[10px]">{t("journal.calendar")}</GlowButton>
                     </div>
                     {generatedCopies[`sec-${i}`] && <div className="p-3 rounded-[6px] bg-[var(--bg)] border border-[var(--border)] text-[12px] text-[var(--text-secondary)] whitespace-pre-line">{generatedCopies[`sec-${i}`]}</div>}
                   </CardContent>
@@ -306,8 +306,8 @@ export default function JournalPage() {
                         <p className="text-[13px] font-medium">{h.text}</p>
                         <div className="flex gap-3 mt-2">
                           <span className="text-[10px] px-1.5 py-0.5 rounded-[3px] bg-[var(--bg-hover)] text-[var(--text-tertiary)]">{h.category}</span>
-                          <button onClick={() => copyText(h.text)} className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">Copiar</button>
-                          <button onClick={() => createHook({ text: h.text, source: "journal", category: h.category })} className="text-[10px] text-[var(--green)]">Guardar</button>
+                          <button onClick={() => copyText(h.text)} className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">{t("journal.copy")}</button>
+                          <button onClick={() => createHook({ text: h.text, source: "journal", category: h.category })} className="text-[10px] text-[var(--green)]">{t("journal.save_hook")}</button>
                         </div>
                       </div>
                     </div>
@@ -327,8 +327,8 @@ export default function JournalPage() {
                       <span className="text-[10px] px-1.5 py-0.5 rounded-[3px] bg-[var(--bg-hover)] text-[var(--text-secondary)] uppercase">{s.type}</span>
                     </div>
                     <p className="text-[13px] font-medium">{s.content}</p>
-                    <p className="text-[10px] text-[var(--text-tertiary)] mt-1">Tactica: {s.engagement_tactic}</p>
-                    <button onClick={() => copyText(s.content)} className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] mt-2">Copiar</button>
+                    <p className="text-[10px] text-[var(--text-tertiary)] mt-1">{t("journal.tactic")}: {s.engagement_tactic}</p>
+                    <button onClick={() => copyText(s.content)} className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] mt-2">{t("journal.copy")}</button>
                   </CardContent>
                 </Card>
               ))}
@@ -350,9 +350,9 @@ export default function JournalPage() {
                   </div>
                 ))}
                 <div className="flex gap-2">
-                  <GlowButton onClick={() => copyText(carousel.slides.map((s) => `Slide ${s.slide} [${s.type}]: ${s.content}`).join("\n\n"))}>Copiar todo</GlowButton>
+                  <GlowButton onClick={() => copyText(carousel.slides.map((s) => `Slide ${s.slide} [${s.type}]: ${s.content}`).join("\n\n"))}>{t("journal.copy_all")}</GlowButton>
                   <GlowButton variant="primary" onClick={() => handleWriteCopy("carousel", carousel.title, carousel.slides[0].content, "carousel")} disabled={generatingCopy === "carousel"}>
-                    {generatingCopy === "carousel" ? "..." : "Crear con IA →"}
+                    {generatingCopy === "carousel" ? "..." : `${t("journal.create_with_ai")} →`}
                   </GlowButton>
                 </div>
                 {generatedCopies["carousel"] && <div className="p-3 rounded-[6px] bg-[var(--bg)] border border-[var(--border)] text-[12px] text-[var(--text-secondary)] whitespace-pre-line">{generatedCopies["carousel"]}</div>}
@@ -364,7 +364,7 @@ export default function JournalPage() {
           {activeTab === "week" && weeklyStrategy && (
             <Card>
               <CardContent className="pt-5 pb-5 space-y-3">
-                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">Tema de la semana</p>
+                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">{t("journal.week_theme")}</p>
                 <p className="text-[14px] font-medium">{weeklyStrategy.theme_of_week as string}</p>
                 <div className="grid grid-cols-5 gap-2 mt-3">
                   {["monday", "tuesday", "wednesday", "thursday", "friday"].map((day) => {
@@ -412,7 +412,7 @@ export default function JournalPage() {
                 {engagement.comment_prompt && (
                   <div className="flex items-center justify-between">
                     <p className="text-[12px] text-[var(--text-secondary)]">{engagement.comment_prompt}</p>
-                    <button onClick={() => copyText(engagement.comment_prompt)} className="text-[10px] text-[var(--text-tertiary)] shrink-0 ml-2">Copiar</button>
+                    <button onClick={() => copyText(engagement.comment_prompt)} className="text-[10px] text-[var(--text-tertiary)] shrink-0 ml-2">{t("journal.copy")}</button>
                   </div>
                 )}
                 {engagement.poll_idea && (
@@ -426,7 +426,7 @@ export default function JournalPage() {
                 )}
                 {brandNote && (
                   <div className="p-3 rounded-[6px] border border-[var(--purple)]/20 bg-[var(--purple-bg)]">
-                    <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--purple)] font-medium mb-1">Nota de marca personal</p>
+                    <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--purple)] font-medium mb-1">{t("journal.personal_brand")}</p>
                     <p className="text-[12px] text-[var(--text-secondary)]">{brandNote}</p>
                   </div>
                 )}

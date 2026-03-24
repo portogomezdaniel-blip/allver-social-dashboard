@@ -13,9 +13,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const categories = ["all", "controversy", "question", "data", "story", "challenge"] as const;
-const catLabels: Record<string, string> = {
-  all: "Todos", controversy: "Controversia", question: "Pregunta",
-  data: "Dato", story: "Historia", challenge: "Reto", variation: "Variacion",
+const catLabelKeys: Record<string, string> = {
+  all: "hooks.all", controversy: "hooks.controversy", question: "hooks.question",
+  data: "hooks.data", story: "hooks.story", challenge: "hooks.challenge", variation: "hooks.variation",
 };
 
 export default function HooksPage() {
@@ -87,23 +87,23 @@ export default function HooksPage() {
         <div className="flex gap-2">
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger className="inline-flex items-center rounded-[6px] border border-[var(--border)] bg-[var(--bg-card)] px-3.5 py-[7px] text-xs font-medium text-[var(--text-primary)] hover:border-[var(--border-focus)] transition-colors">
-              + Guardar hook
+              + {t("hooks.save_hook")}
             </DialogTrigger>
             <DialogContent className="bg-[var(--bg-card)] border-[var(--border)] sm:max-w-md">
-              <DialogHeader><DialogTitle>Guardar hook</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>{t("hooks.save_hook")}</DialogTitle></DialogHeader>
               <div className="space-y-4 mt-2">
-                <Textarea value={newText} onChange={(e) => setNewText(e.target.value)} placeholder="Escribe el hook..." className="bg-[var(--bg)] border-[var(--border)] text-[13px]" />
+                <Textarea value={newText} onChange={(e) => setNewText(e.target.value)} placeholder={t("hooks.write_hook")} className="bg-[var(--bg)] border-[var(--border)] text-[13px]" />
                 <Select value={newCat} onValueChange={(v) => { if (v) setNewCat(v); }}>
                   <SelectTrigger className="bg-[var(--bg)] border-[var(--border)]"><SelectValue /></SelectTrigger>
                   <SelectContent className="bg-[var(--bg-card)] border-[var(--border)]">
                     {categories.filter((c) => c !== "all").map((c) => (
-                      <SelectItem key={c} value={c}>{catLabels[c]}</SelectItem>
+                      <SelectItem key={c} value={c}>{t(catLabelKeys[c])}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <div className="flex justify-end gap-2">
-                  <GlowButton onClick={() => setDialogOpen(false)}>Cancelar</GlowButton>
-                  <GlowButton variant="primary" onClick={handleSave} disabled={!newText.trim()}>Guardar</GlowButton>
+                  <GlowButton onClick={() => setDialogOpen(false)}>{t("hooks.cancel")}</GlowButton>
+                  <GlowButton variant="primary" onClick={handleSave} disabled={!newText.trim()}>{t("hooks.save")}</GlowButton>
                 </div>
               </div>
             </DialogContent>
@@ -123,7 +123,7 @@ export default function HooksPage() {
                 : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
             }`}
           >
-            {catLabels[cat]}
+            {t(catLabelKeys[cat])}
           </button>
         ))}
       </div>
@@ -145,7 +145,7 @@ export default function HooksPage() {
                         <div className="flex items-center gap-3 mt-2">
                           {hook.category && (
                             <span className="text-[10px] font-medium px-2 py-0.5 rounded-[4px] bg-[var(--bg-hover)] text-[var(--text-secondary)]">
-                              {catLabels[hook.category] || hook.category}
+                              {t(catLabelKeys[hook.category] || "") || hook.category}
                             </span>
                           )}
                           {hook.engagement_score && (
@@ -154,7 +154,7 @@ export default function HooksPage() {
                             </span>
                           )}
                           <span className="text-[11px] text-[var(--text-tertiary)]">
-                            Usado {hook.times_used}x
+                            {t("hooks.used_times")} {hook.times_used}x
                           </span>
                         </div>
                       </div>
@@ -174,11 +174,11 @@ export default function HooksPage() {
                   </div>
                   {variations[hook.id] && (
                     <div className="px-5 pb-4 pl-12 space-y-2">
-                      <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">Variaciones generadas</p>
+                      <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">{t("hooks.generated_variations")}</p>
                       {variations[hook.id].map((v, i) => (
                         <div key={i} className="p-3 rounded-[6px] bg-[var(--bg)] border border-[var(--border)]">
                           <p className="text-[13px]">{v.hook}</p>
-                          <p className="text-[10px] text-[var(--text-tertiary)] mt-1">Tema sugerido: {v.suggested_topic}</p>
+                          <p className="text-[10px] text-[var(--text-tertiary)] mt-1">{t("hooks.suggested_topic")}: {v.suggested_topic}</p>
                         </div>
                       ))}
                     </div>

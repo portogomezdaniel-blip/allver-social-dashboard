@@ -12,18 +12,20 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PostCard } from "@/components/instagram/post-card";
 import { NewPostDialog } from "@/components/instagram/new-post-dialog";
-
-const statusTabs: { value: PostStatus; label: string }[] = [
-  { value: "scheduled", label: "Programados" },
-  { value: "draft", label: "Borradores" },
-  { value: "published", label: "Publicados" },
-  { value: "backlog", label: "Backlog" },
-];
+import { useLocale } from "@/lib/locale-context";
 
 export default function InstagramManager() {
+  const { t } = useLocale();
   const [posts, setPosts] = useState<DbPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const statusTabs: { value: PostStatus; label: string }[] = [
+    { value: "scheduled", label: t("content.scheduled") },
+    { value: "draft", label: t("content.drafts") },
+    { value: "published", label: t("content.published") },
+    { value: "backlog", label: t("content.backlog") },
+  ];
 
   const loadPosts = useCallback(async () => {
     try {
@@ -32,7 +34,7 @@ export default function InstagramManager() {
       setPosts(data);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Error cargando posts";
+        err instanceof Error ? err.message : t("content.error_loading");
       setError(message);
     } finally {
       setLoading(false);
@@ -61,7 +63,7 @@ export default function InstagramManager() {
       setPosts((prev) => [newPost, ...prev]);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Error creando post";
+        err instanceof Error ? err.message : t("content.error_creating");
       setError(message);
     }
   }
@@ -72,7 +74,7 @@ export default function InstagramManager() {
       setPosts((prev) => prev.filter((p) => p.id !== id));
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Error eliminando post";
+        err instanceof Error ? err.message : t("content.error_deleting");
       setError(message);
     }
   }
@@ -104,7 +106,7 @@ export default function InstagramManager() {
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
             />
           </svg>
-          Cargando posts...
+          {t("content.loading")}
         </div>
       </div>
     );
@@ -115,11 +117,10 @@ export default function InstagramManager() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">
-            Instagram Manager
+            {t("content.title")}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Gestiona tu contenido de Instagram: ideas, borradores, programados y
-            publicados.
+            {t("content.subtitle")}
           </p>
         </div>
         <NewPostDialog onAdd={handleAddPost} />
@@ -163,7 +164,7 @@ export default function InstagramManager() {
             </div>
             {getPostsByStatus(tab.value).length === 0 && (
               <div className="text-center py-12 text-muted-foreground">
-                No hay posts en esta categoria.
+                {t("content.no_posts")}
               </div>
             )}
           </TabsContent>

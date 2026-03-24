@@ -87,7 +87,7 @@ export default function SettingsPage() {
         .eq("id", userId);
     }
 
-    setSaveMsg("Guardado");
+    setSaveMsg(t("settings.saved"));
     setSaving(false);
     setTimeout(() => setSaveMsg(""), 2000);
   }
@@ -239,7 +239,7 @@ export default function SettingsPage() {
 
         {identityLoading ? (
           <div className="flex items-center justify-center py-16 text-[var(--text-tertiary)]">
-            Cargando...
+            {t("settings.loading")}
           </div>
         ) : onboardingStatus === "not_started" || !identity ? (
           /* Estado A — Sin identidad */
@@ -260,17 +260,16 @@ export default function SettingsPage() {
               <circle cx="12" cy="7" r="4" />
             </svg>
             <h3 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-[0.15em]">
-              Aun no has configurado tu identidad de creador
+              {t("settings.not_configured")}
             </h3>
             <p className="text-xs text-[var(--text-tertiary)] max-w-md mx-auto">
-              Tu identidad define como el sistema genera contenido para ti. Sin
-              ella, los agentes de IA no pueden trabajar.
+              {t("settings.not_configured_detail")}
             </p>
             <button
               onClick={() => alert("Onboarding proximamente")}
               className="bg-[var(--green)] text-[var(--bg)] px-8 py-3 text-xs tracking-[0.15em] uppercase font-bold hover:bg-[var(--green)] transition-colors mt-4"
             >
-              Comenzar Configuracion
+              {t("settings.start_config")}
             </button>
           </div>
         ) : onboardingStatus === "in_progress" ? (
@@ -298,13 +297,13 @@ export default function SettingsPage() {
           /* Estado C — Completado */
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Card 1 — Identidad Base */}
-            <IdentityCard label="01 — Identidad Base">
+            <IdentityCard label={t("settings.identity_base")}>
               <p className="text-sm text-[var(--text-primary)]">
-                {identity.niche || "Sin nicho"} —{" "}
+                {identity.niche || t("settings.no_niche")} —{" "}
                 {identity.experience_years || "?"} anos
               </p>
               <p className="text-sm text-[var(--text-primary)]">
-                {identity.city || "Sin ciudad"}
+                {identity.city || t("settings.no_city")}
                 {identity.gym_name ? ` — ${identity.gym_name}` : ""}
               </p>
               {identity.specialties && identity.specialties.length > 0 && (
@@ -322,28 +321,28 @@ export default function SettingsPage() {
             </IdentityCard>
 
             {/* Card 2 — Filosofia */}
-            <IdentityCard label="02 — Filosofia y Metodo">
+            <IdentityCard label={t("settings.philosophy_method")}>
               {renderJsonList(identity.philosophy, "core_principles", "Principios")}
               {renderJsonField(identity.philosophy, "what_differentiates", "Diferenciador")}
               {renderJsonField(identity.philosophy, "signature_method", "Metodo")}
             </IdentityCard>
 
             {/* Card 3 — Voz y Tono */}
-            <IdentityCard label="03 — Voz y Tono">
+            <IdentityCard label={t("settings.voice_tone")}>
               {renderJsonField(identity.voice_profile, "tone", "Tono")}
               {renderJsonTags(identity.voice_profile, "key_vocabulary", "var(--green)")}
               {renderJsonTags(identity.voice_profile, "never_says", "rgba(255,100,100,0.5)")}
             </IdentityCard>
 
             {/* Card 4 — Audiencia */}
-            <IdentityCard label="04 — Audiencia">
+            <IdentityCard label={t("settings.audience")}>
               {renderJsonField(identity.audience_profile, "ideal_client", "Cliente ideal")}
               {renderJsonList(identity.audience_profile, "frustrations", "Frustraciones")}
               {renderJsonField(identity.audience_profile, "age_range", "Edad")}
             </IdentityCard>
 
             {/* Card 5 — Metas */}
-            <IdentityCard label="05 — Metas de Contenido">
+            <IdentityCard label={t("settings.content_goals")}>
               {identity.content_goals && identity.content_goals.length > 0 ? (
                 <div className="flex flex-wrap gap-1.5">
                   {identity.content_goals.map((g, i) => (
@@ -356,12 +355,12 @@ export default function SettingsPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-[var(--text-tertiary)]">Sin metas configuradas</p>
+                <p className="text-xs text-[var(--text-tertiary)]">{t("settings.no_goals")}</p>
               )}
             </IdentityCard>
 
             {/* Card 6 — Prohibiciones */}
-            <IdentityCard label="06 — Prohibiciones">
+            <IdentityCard label={t("settings.prohibitions")}>
               {renderJsonList(identity.prohibitions, "never_post", "Nunca publicar")}
               {renderJsonList(identity.prohibitions, "tone_limits", "Limites de tono")}
               {renderJsonTags(identity.prohibitions, "topics_off_limits", "rgba(255,100,100,0.5)")}

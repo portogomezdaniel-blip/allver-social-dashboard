@@ -114,7 +114,7 @@ export default function AnalyticsPage() {
           {/* Format Breakdown Chart */}
           {formatData.length > 0 && (
             <Card>
-              <CardHeader><CardTitle>Performance por formato</CardTitle></CardHeader>
+              <CardHeader><CardTitle>{t("analytics.format_performance")}</CardTitle></CardHeader>
               <CardContent>
                 <div className="h-[200px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -134,7 +134,7 @@ export default function AnalyticsPage() {
           {/* AI Insights */}
           {report.ai_insights && report.ai_insights.length > 0 && (
             <Card>
-              <CardHeader><CardTitle>Insights de IA</CardTitle></CardHeader>
+              <CardHeader><CardTitle>{t("analytics.ai_insights")}</CardTitle></CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-[var(--border)]">
                   {report.ai_insights.map((insight, i) => (
@@ -155,7 +155,7 @@ export default function AnalyticsPage() {
           {/* Recommendations */}
           {report.ai_recommendations && report.ai_recommendations.length > 0 && (
             <Card>
-              <CardHeader><CardTitle>Recomendaciones</CardTitle></CardHeader>
+              <CardHeader><CardTitle>{t("analytics.recommendations")}</CardTitle></CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-[var(--border)]">
                   {report.ai_recommendations.map((rec, i) => (
@@ -176,7 +176,7 @@ export default function AnalyticsPage() {
           {/* Report History */}
           {history.length > 1 && (
             <Card>
-              <CardHeader><CardTitle>Historial de reportes</CardTitle></CardHeader>
+              <CardHeader><CardTitle>{t("analytics.report_history")}</CardTitle></CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   {history.map((h) => (

@@ -74,11 +74,11 @@ export default function IdeasPage() {
         <CardContent className="pt-5 pb-5">
           <div className="flex items-center gap-2 mb-3">
             <Sparkles size={16} className="text-[var(--amber)]" />
-            <p className="text-[14px] font-medium">Que tienes en mente hoy?</p>
+            <p className="text-[14px] font-medium">{t("dashboard.idea_bar_title")}</p>
           </div>
-          <p className="text-[12px] text-[var(--text-tertiary)] mb-3">Escribe una idea, algo que paso en el gym, o lo que quieras convertir en contenido</p>
+          <p className="text-[12px] text-[var(--text-tertiary)] mb-3">{t("dashboard.idea_bar_subtitle")}</p>
           <div className="flex gap-2">
-            <Textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ej: hoy un alumno me pregunto por que le duele la espalda al hacer peso muerto..." className="bg-[var(--bg)] border-[var(--border)] text-[14px] min-h-[44px] flex-1" rows={1} />
+            <Textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder={t("ideas.placeholder")} className="bg-[var(--bg)] border-[var(--border)] text-[14px] min-h-[44px] flex-1" rows={1} />
             <GlowButton variant="primary" onClick={handleGenerate} disabled={!input.trim() || generating} className="shrink-0 self-end">
               {generating ? <Loader2 size={14} className="animate-spin" /> : `${t("ideas.generate")} →`}
             </GlowButton>
@@ -97,14 +97,14 @@ export default function IdeasPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Hooks */}
               <div>
-                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium mb-3">Hooks</p>
+                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium mb-3">{t("ideas.hooks")}</p>
                 <div className="space-y-2">
                   {currentResult.hooks.map((h, i) => (
                     <div key={i} className="p-3 rounded-[6px] border border-[var(--border)] bg-[var(--bg)] hover:border-[var(--border-focus)] transition-colors">
                       <p className="text-[13px] font-medium">{h.text}</p>
                       <div className="flex gap-2 mt-2">
-                        <button onClick={() => navigator.clipboard.writeText(h.text)} className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">Copiar</button>
-                        <button onClick={() => handleSaveHook(h.text, h.category)} className="text-[10px] text-[var(--green)] hover:text-[var(--text-primary)] transition-colors">Guardar</button>
+                        <button onClick={() => navigator.clipboard.writeText(h.text)} className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">{t("journal.copy")}</button>
+                        <button onClick={() => handleSaveHook(h.text, h.category)} className="text-[10px] text-[var(--green)] hover:text-[var(--text-primary)] transition-colors">{t("common.save")}</button>
                       </div>
                     </div>
                   ))}
@@ -112,7 +112,7 @@ export default function IdeasPage() {
               </div>
               {/* Ideas */}
               <div>
-                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium mb-3">Contenido</p>
+                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium mb-3">{t("ideas.ideas_label")}</p>
                 <div className="space-y-2">
                   {currentResult.ideas.map((idea, i) => (
                     <div key={i} className="p-3 rounded-[6px] border border-[var(--border)] bg-[var(--bg)] hover:border-[var(--border-focus)] transition-colors">
@@ -124,7 +124,7 @@ export default function IdeasPage() {
                       </div>
                       <p className="text-[11px] text-[var(--text-secondary)] mt-1">{idea.description}</p>
                       <button onClick={() => handleCreatePost(idea.title, idea.description, idea.format)} className="text-[10px] text-[var(--green)] hover:text-[var(--text-primary)] transition-colors mt-2">
-                        Crear post →
+                        {t("dashboard.create_post")} →
                       </button>
                     </div>
                   ))}
