@@ -7,16 +7,11 @@ import { GlowButton } from "@/components/ui/glow-button";
 import { createClient } from "@/lib/supabase/client";
 import { fetchNewsByDate, type DailyNews } from "@/lib/supabase/daily-news";
 import { createPost } from "@/lib/supabase/posts";
+import { useLocale } from "@/lib/locale-context";
 
-const urgencyConfig: Record<string, { label: string; sublabel: string; emoji: string; cls: string; dot: string }> = {
-  hot: { label: "HOT", sublabel: "Publicar hoy", emoji: "🔴", cls: "bg-[var(--red-bg)] text-[var(--red)]", dot: "bg-[var(--red)]" },
-  warm: { label: "WARM", sublabel: "Esta semana", emoji: "🟡", cls: "bg-[var(--amber-bg)] text-[var(--amber)]", dot: "bg-[var(--amber)]" },
-  evergreen: { label: "EVERGREEN", sublabel: "Cuando quiera", emoji: "🟢", cls: "bg-[var(--green-bg)] text-[var(--green)]", dot: "bg-[var(--green)]" },
-};
-
-function formatDate(dateStr: string) {
+function formatDateLocale(dateStr: string, locale: string) {
   const d = new Date(dateStr + "T12:00:00");
-  return d.toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" });
+  return d.toLocaleDateString(locale === "en" ? "en-US" : "es-ES", { day: "numeric", month: "short", year: "numeric" });
 }
 
 function shiftDate(dateStr: string, days: number): string {
@@ -26,6 +21,7 @@ function shiftDate(dateStr: string, days: number): string {
 }
 
 export default function IntelPage() {
+  const { t, locale } = useLocale();
   const [news, setNews] = useState<DailyNews[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -35,6 +31,12 @@ export default function IntelPage() {
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   const isToday = selectedDate === new Date().toISOString().split("T")[0];
+
+  const urgencyConfig: Record<string, { label: string; sublabel: string; emoji: string; cls: string }> = {
+    hot: { label: t("intel.hot"), sublabel: t("intel.hot_sub"), emoji: "🔴", cls: "bg-[var(--red-bg)] text-[var(--red)]" },
+    warm: { label: t("intel.warm"), sublabel: t("intel.warm_sub"), emoji: "🟡", cls: "bg-[var(--amber-bg)] text-[var(--amber)]" },
+    evergreen: { label: t("intel.evergreen"), sublabel: t("intel.evergreen_sub"), emoji: "🟢", cls: "bg-[var(--green-bg)] text-[var(--green)]" },
+  };
 
   useEffect(() => {
     const supabase = createClient();
@@ -81,14 +83,14 @@ export default function IntelPage() {
       scheduled_date: null,
       platform: "instagram",
     });
-    showToast("Post creado como borrador");
+    showToast(t("intel.post_created"));
   }
 
   function handleCopyHook(item: DailyNews) {
     navigator.clipboard.writeText(item.suggested_hook);
     setCopiedId(item.id);
     setTimeout(() => setCopiedId(null), 2000);
-    showToast("Hook copiado");
+    showToast(t("intel.hook_copied"));
   }
 
   function showToast(msg: string) {
@@ -101,17 +103,17 @@ export default function IntelPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[22px] font-medium tracking-[-0.03em]">Intel</h1>
-          <p className="text-[13px] text-[var(--text-tertiary)] mt-0.5">3 noticias diarias de tu nicho</p>
+          <h1 className="text-[22px] font-medium tracking-[-0.03em]">{t("intel.title")}</h1>
+          <p className="text-[13px] text-[var(--text-tertiary)] mt-0.5">{t("intel.subtitle")}</p>
         </div>
         <GlowButton variant="primary" onClick={handleGenerate} disabled={generating}>
           {generating ? (
             <>
               <Loader2 size={14} className="animate-spin mr-1.5" />
-              Buscando...
+              {t("intel.searching")}
             </>
           ) : (
-            "Actualizar"
+            t("intel.update")
           )}
         </GlowButton>
       </div>
@@ -125,7 +127,7 @@ export default function IntelPage() {
           <ChevronLeft size={18} />
         </button>
         <span className="text-[14px] font-medium font-mono min-w-[140px] text-center">
-          {isToday ? "Hoy" : formatDate(selectedDate)}
+          {isToday ? t("intel.today") : formatDateLocale(selectedDate, locale)}
         </span>
         <button
           onClick={() => setSelectedDate(shiftDate(selectedDate, 1))}
@@ -138,7 +140,7 @@ export default function IntelPage() {
 
       {/* News cards */}
       {loading ? (
-        <div className="text-center py-12 text-[var(--text-tertiary)] text-sm">Cargando intel...</div>
+        <div className="text-center py-12 text-[var(--text-tertiary)] text-sm">{t("intel.loading")}</div>
       ) : news.length > 0 ? (
         <div className="space-y-4">
           {news.map((item) => {
@@ -154,7 +156,7 @@ export default function IntelPage() {
                       </span>
                     </div>
                     <span className="text-[11px] font-mono text-[var(--text-tertiary)]">
-                      {item.source} · {formatDate(item.news_date)}
+                      {item.source} · {formatDateLocale(item.news_date, locale)}
                     </span>
                   </div>
 
@@ -169,7 +171,7 @@ export default function IntelPage() {
                   {/* Hook */}
                   <div className="p-3 rounded-[6px] bg-[var(--bg)] border border-[var(--border)] mb-4">
                     <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium mb-1.5">
-                      HOOK
+                      {t("intel.hook_label")}
                     </p>
                     <p className="text-[14px] italic font-medium leading-snug">
                       &ldquo;{item.suggested_hook}&rdquo;
@@ -178,7 +180,7 @@ export default function IntelPage() {
 
                   {/* Format */}
                   <p className="text-[11px] text-[var(--text-tertiary)] mb-4">
-                    Formato: <span className="uppercase font-medium text-[var(--text-secondary)]">{item.suggested_format || "single"}</span>
+                    {t("intel.format_label")}: <span className="uppercase font-medium text-[var(--text-secondary)]">{item.suggested_format || "single"}</span>
                   </p>
 
                   {/* Actions */}
@@ -190,7 +192,7 @@ export default function IntelPage() {
                         handleCreatePost(item);
                       }}
                     >
-                      Crear post →
+                      {t("intel.create_post")} →
                     </GlowButton>
                     <GlowButton
                       onClick={(e: React.MouseEvent) => {
@@ -201,12 +203,12 @@ export default function IntelPage() {
                       {copiedId === item.id ? (
                         <>
                           <Check size={12} className="mr-1" />
-                          Copiado
+                          {t("intel.copied")}
                         </>
                       ) : (
                         <>
                           <Copy size={12} className="mr-1" />
-                          Copiar hook
+                          {t("intel.copy_hook")}
                         </>
                       )}
                     </GlowButton>
@@ -219,7 +221,7 @@ export default function IntelPage() {
                         className="inline-flex items-center gap-1 px-3 py-[7px] text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
                       >
                         <ExternalLink size={12} />
-                        Ver fuente
+                        {t("intel.view_source")}
                       </a>
                     )}
                   </div>
@@ -231,16 +233,16 @@ export default function IntelPage() {
       ) : (
         <Card>
           <CardContent className="text-center py-16">
-            <p className="text-[15px] text-[var(--text-tertiary)] mb-1">Sin noticias para {isToday ? "hoy" : formatDate(selectedDate)}</p>
+            <p className="text-[15px] text-[var(--text-tertiary)] mb-1">{t("intel.no_news")} {isToday ? t("intel.today") : formatDateLocale(selectedDate, locale)}</p>
             {isToday && (
               <GlowButton variant="primary" className="mt-4" onClick={handleGenerate} disabled={generating}>
                 {generating ? (
                   <>
                     <Loader2 size={14} className="animate-spin mr-1.5" />
-                    Generando noticias...
+                    {t("intel.generating_news")}
                   </>
                 ) : (
-                  "Generar noticias"
+                  t("intel.generate_news")
                 )}
               </GlowButton>
             )}

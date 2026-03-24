@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GlowButton } from "@/components/ui/glow-button";
 import { Textarea } from "@/components/ui/textarea";
 import { createClient } from "@/lib/supabase/client";
+import { useLocale } from "@/lib/locale-context";
 import { fetchSessions, type IdeaSession } from "@/lib/supabase/idea-sessions";
 import { createHook } from "@/lib/supabase/hooks";
 import { createPost } from "@/lib/supabase/posts";
@@ -18,6 +19,7 @@ const formatLabels: Record<string, { label: string; cls: string }> = {
 };
 
 export default function IdeasPage() {
+  const { t } = useLocale();
   const [input, setInput] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
@@ -63,8 +65,8 @@ export default function IdeasPage() {
   return (
     <div className="space-y-6 max-w-[900px]">
       <div>
-        <h1 className="text-[22px] font-medium tracking-[-0.03em]">Ideas</h1>
-        <p className="text-[13px] text-[var(--text-tertiary)] mt-0.5">Convierte tus pensamientos en contenido</p>
+        <h1 className="text-[22px] font-medium tracking-[-0.03em]">{t("ideas.title")}</h1>
+        <p className="text-[13px] text-[var(--text-tertiary)] mt-0.5">{t("ideas.subtitle")}</p>
       </div>
 
       {/* Idea Bar */}
@@ -78,7 +80,7 @@ export default function IdeasPage() {
           <div className="flex gap-2">
             <Textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ej: hoy un alumno me pregunto por que le duele la espalda al hacer peso muerto..." className="bg-[var(--bg)] border-[var(--border)] text-[14px] min-h-[44px] flex-1" rows={1} />
             <GlowButton variant="primary" onClick={handleGenerate} disabled={!input.trim() || generating} className="shrink-0 self-end">
-              {generating ? <Loader2 size={14} className="animate-spin" /> : "Generar ideas →"}
+              {generating ? <Loader2 size={14} className="animate-spin" /> : `${t("ideas.generate")} →`}
             </GlowButton>
           </div>
         </CardContent>
@@ -136,7 +138,7 @@ export default function IdeasPage() {
       {/* History */}
       {sessions.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-[14px] font-medium">Historial de ideas</h2>
+          <h2 className="text-[14px] font-medium">{t("ideas.history")}</h2>
           {sessions.map((s) => (
             <Card key={s.id} className="cursor-pointer" onClick={() => setExpandedId(expandedId === s.id ? null : s.id)}>
               <CardContent className="pt-4 pb-4">

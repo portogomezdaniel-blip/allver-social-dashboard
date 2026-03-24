@@ -11,6 +11,7 @@ import { createHook } from "@/lib/supabase/hooks";
 import { createPost } from "@/lib/supabase/posts";
 import { getTodayQuestions } from "@/lib/journal-questions";
 import Link from "next/link";
+import { useLocale } from "@/lib/locale-context";
 
 const domainColors: Record<string, string> = { practice: "border-l-[var(--green)]", clients: "border-l-[var(--blue)]", philosophy: "border-l-[var(--purple)]" };
 const domainTextColors: Record<string, string> = { practice: "text-[var(--green)]", clients: "text-[var(--blue)]", philosophy: "text-[var(--purple)]" };
@@ -20,9 +21,10 @@ const dayNames = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes"
 const monthNames = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 const fmtCls: Record<string, string> = { reel: "bg-[var(--purple-bg)] text-[var(--purple)]", carousel: "bg-[var(--blue-bg)] text-[var(--blue)]", single: "bg-[var(--amber-bg)] text-[var(--amber)]", story: "bg-[var(--green-bg)] text-[var(--green)]", story_series: "bg-[var(--green-bg)] text-[var(--green)]" };
 
-function copyText(t: string) { navigator.clipboard.writeText(t); }
+function copyText(text: string) { navigator.clipboard.writeText(text); }
 
 export default function JournalPage() {
+  const { t } = useLocale();
   const [entry, setEntry] = useState<JournalEntry | null>(null);
   const [history, setHistory] = useState<JournalEntry[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
@@ -114,7 +116,7 @@ export default function JournalPage() {
     }
   }
 
-  if (loading) return <div className="flex items-center justify-center h-64 text-[var(--text-tertiary)] text-sm">Cargando diario...</div>;
+  if (loading) return <div className="flex items-center justify-center h-64 text-[var(--text-tertiary)] text-sm">{t("journal.loading")}</div>;
 
   const b = entry?.generated_content as Record<string, unknown> | null;
   const isCompleted = entry?.status === "completed" && b;
@@ -150,12 +152,12 @@ export default function JournalPage() {
     <div className="space-y-6 max-w-[900px]">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[22px] font-medium tracking-[-0.03em]">Diario</h1>
+          <h1 className="text-[22px] font-medium tracking-[-0.03em]">{t("journal.title")}</h1>
           <p className="text-[13px] text-[var(--text-tertiary)] mt-0.5">{dateStr}</p>
         </div>
         <div className="flex items-center gap-3">
-          {autoSaved && <span className="text-[10px] text-[var(--text-tertiary)] animate-pulse">Guardado</span>}
-          <Link href="/journal/knowledge" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">Base de conocimiento →</Link>
+          {autoSaved && <span className="text-[10px] text-[var(--text-tertiary)] animate-pulse">{t("journal.saved")}</span>}
+          <Link href="/journal/knowledge" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">{t("journal.knowledge_base")} →</Link>
         </div>
       </div>
 
@@ -177,9 +179,9 @@ export default function JournalPage() {
           ))}
           <div className="flex flex-col items-center gap-2">
             <GlowButton variant="primary" onClick={handleSubmit} disabled={!canSubmit || analyzing} className="px-8">
-              {analyzing ? <><Loader2 size={14} className="animate-spin mr-1" /> Generando briefing...</> : "Guardar y generar contenido →"}
+              {analyzing ? <><Loader2 size={14} className="animate-spin mr-1" /> {t("journal.analyzing")}</> : `${t("journal.save_generate")} →`}
             </GlowButton>
-            {!canSubmit && <p className="text-[10px] text-[var(--text-tertiary)]">Responde las 3 preguntas (min. 20 caracteres)</p>}
+            {!canSubmit && <p className="text-[10px] text-[var(--text-tertiary)]">{t("journal.min_required")}</p>}
           </div>
         </>
       )}
@@ -191,10 +193,10 @@ export default function JournalPage() {
           <Card>
             <CardContent className="pt-5 pb-5 flex items-center justify-between">
               <div>
-                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">Tu briefing de contenido</p>
+                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">{t("journal.briefing_title")}</p>
                 <div className="flex items-center gap-3 mt-1">
                   {entry?.mood && <span className="text-sm">{moodEmojis[entry.mood] || ""} {entry.mood}</span>}
-                  {entry?.themes?.map((t, i) => <span key={i} className="text-[10px] px-2 py-0.5 rounded-[4px] bg-[var(--bg-hover)] text-[var(--text-secondary)]">#{t}</span>)}
+                  {entry?.themes?.map((tag, i) => <span key={i} className="text-[10px] px-2 py-0.5 rounded-[4px] bg-[var(--bg-hover)] text-[var(--text-secondary)]">#{tag}</span>)}
                 </div>
               </div>
             </CardContent>
@@ -228,7 +230,7 @@ export default function JournalPage() {
               <CardContent className="pt-5 pb-5 space-y-4">
                 <div className="flex items-center gap-2">
                   <span className="text-[13px]">🎯</span>
-                  <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">Post principal del dia</p>
+                  <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">{t("journal.main_post")}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-medium rounded-[4px] ${fmtCls[hero.format as string] || ""}`}>{(hero.format as string || "").toUpperCase()}</span>
@@ -257,10 +259,10 @@ export default function JournalPage() {
                 ) : null}
                 <div className="flex gap-2">
                   <GlowButton variant="primary" onClick={() => handleWriteCopy("hero", hero.title as string, hero.hook as string, hero.format as string)} disabled={generatingCopy === "hero"}>
-                    {generatingCopy === "hero" ? "Generando..." : "Crear post con IA →"}
+                    {generatingCopy === "hero" ? t("dashboard.generating") : `${t("journal.create_ai")} →`}
                   </GlowButton>
                   <GlowButton onClick={() => handleAddToCalendar(hero.hook as string, hero.format as string)}>
-                    <CalendarIcon size={12} className="mr-1" /> Agregar al calendario
+                    <CalendarIcon size={12} className="mr-1" /> {t("journal.add_calendar")}
                   </GlowButton>
                 </div>
               </CardContent>
@@ -378,7 +380,7 @@ export default function JournalPage() {
                   })}
                 </div>
                 <GlowButton variant="primary" onClick={() => handleApplyWeeklyPlan(weeklyStrategy as Record<string, { format: string; topic: string }>)}>
-                  Aplicar al calendario
+                  {t("journal.apply_calendar")}
                 </GlowButton>
               </CardContent>
             </Card>
@@ -434,7 +436,7 @@ export default function JournalPage() {
 
           {/* Original answers */}
           <Card>
-            <CardHeader><CardTitle className="text-[13px] text-[var(--text-tertiary)]">Tus respuestas</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-[13px] text-[var(--text-tertiary)]">{t("journal.your_answers")}</CardTitle></CardHeader>
             <CardContent className="space-y-3">
               {qItems.map((item, i) => item.a && <div key={i}><p className="text-[10px] italic text-[var(--text-tertiary)]">"{item.q}"</p><p className="text-[12px] text-[var(--text-secondary)] mt-0.5">{item.a}</p></div>)}
             </CardContent>
@@ -445,7 +447,7 @@ export default function JournalPage() {
       {/* History */}
       {history.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-[14px] font-medium">Entradas anteriores</h2>
+          <h2 className="text-[14px] font-medium">{t("journal.previous_entries")}</h2>
           {history.map((h) => (
             <Card key={h.id} className="cursor-pointer" onClick={() => setExpandedHistoryId(expandedHistoryId === h.id ? null : h.id)}>
               <CardContent className="pt-4 pb-4">
@@ -453,10 +455,10 @@ export default function JournalPage() {
                   <div className="flex items-center gap-3">
                     <span className="text-[12px] font-mono text-[var(--text-tertiary)]">{h.entry_date}</span>
                     {h.mood && <span>{moodEmojis[h.mood] || ""}</span>}
-                    {h.themes?.slice(0, 3).map((t, i) => <span key={i} className="text-[9px] px-1.5 py-0.5 rounded-[3px] bg-[var(--bg-hover)] text-[var(--text-tertiary)]">#{t}</span>)}
+                    {h.themes?.slice(0, 3).map((tag, i) => <span key={i} className="text-[9px] px-1.5 py-0.5 rounded-[3px] bg-[var(--bg-hover)] text-[var(--text-tertiary)]">#{tag}</span>)}
                   </div>
                   <span className={`text-[10px] px-2 py-0.5 rounded-[3px] ${h.status === "completed" ? "bg-[var(--green-bg)] text-[var(--green)]" : "bg-[var(--amber-bg)] text-[var(--amber)]"}`}>
-                    {h.status === "completed" ? "Completado" : "Sin completar"}
+                    {h.status === "completed" ? t("journal.completed") : t("journal.incomplete")}
                   </span>
                 </div>
                 {expandedHistoryId === h.id && h.generated_content?.quote_of_the_day && (
