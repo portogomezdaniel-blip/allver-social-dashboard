@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { CreatorIdentity } from "@/lib/supabase/identity";
+import { useLocale } from "@/lib/locale-context";
 
 const goalLabels: Record<string, string> = {
   more_clients: "Mas clientes",
@@ -20,6 +21,7 @@ const goalLabels: Record<string, string> = {
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { locale, setLocale, t } = useLocale();
   const [userEmail, setUserEmail] = useState("");
   const [userCreatedAt, setUserCreatedAt] = useState("");
   const [userId, setUserId] = useState("");
@@ -103,28 +105,28 @@ export default function SettingsPage() {
     <div className="max-w-[800px] mx-auto space-y-12">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">Configuracion</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">{t("settings.title")}</h1>
         <p className="text-sm text-[var(--text-tertiary)] mt-1">
-          Ajustes de tu cuenta y perfil de creador.
+          {t("settings.subtitle")}
         </p>
       </div>
 
       {/* CUENTA */}
       <section>
         <h2 className="text-xs tracking-[0.15em] uppercase text-[var(--text-tertiary)] mb-4">
-          Cuenta
+          {t("settings.account")}
         </h2>
         <div className="border border-[var(--border)] bg-[var(--bg-card)] p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[10px] uppercase tracking-[0.15em] text-[var(--text-tertiary)]">
-                Email
+                {t("settings.email")}
               </p>
               <p className="text-sm text-[var(--text-primary)] mt-1">{userEmail}</p>
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-[0.15em] text-[var(--text-tertiary)]">
-                Registro
+                {t("settings.registered")}
               </p>
               <p className="text-sm text-[var(--text-primary)] mt-1">
                 {userCreatedAt
@@ -139,7 +141,7 @@ export default function SettingsPage() {
             onClick={handleLogout}
             className="border border-[rgba(255,100,100,0.3)] bg-transparent px-4 py-2 text-xs tracking-[0.15em] uppercase text-[rgba(255,100,100,0.6)] hover:border-[rgba(255,100,100,0.6)] hover:text-[rgba(255,100,100,0.8)] transition-colors"
           >
-            Cerrar Sesion
+            {t("settings.logout")}
           </button>
         </div>
       </section>
@@ -149,13 +151,13 @@ export default function SettingsPage() {
       {/* PERFIL */}
       <section>
         <h2 className="text-xs tracking-[0.15em] uppercase text-[var(--text-tertiary)] mb-4">
-          Perfil
+          {t("settings.profile")}
         </h2>
         <div className="border border-[var(--border)] bg-[var(--bg-card)] p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-[10px] uppercase tracking-[0.15em] text-[var(--text-tertiary)]">
-                Nombre
+                {t("settings.name")}
               </label>
               <Input
                 value={name}
@@ -165,7 +167,7 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-1.5">
               <label className="text-[10px] uppercase tracking-[0.15em] text-[var(--text-tertiary)]">
-                Ciudad
+                {t("settings.city")}
               </label>
               <Input
                 value={city}
@@ -176,7 +178,7 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-1.5">
               <label className="text-[10px] uppercase tracking-[0.15em] text-[var(--text-tertiary)]">
-                Gimnasio
+                {t("settings.gym")}
               </label>
               <Input
                 value={gym}
@@ -186,7 +188,7 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-1.5">
               <label className="text-[10px] uppercase tracking-[0.15em] text-[var(--text-tertiary)]">
-                Instagram
+                {t("settings.instagram")}
               </label>
               <div className="flex items-center border border-[var(--border)] bg-[var(--bg)]">
                 <span className="px-2.5 text-sm text-[var(--text-tertiary)]">@</span>
@@ -200,7 +202,7 @@ export default function SettingsPage() {
           </div>
           <div className="space-y-1.5">
             <label className="text-[10px] uppercase tracking-[0.15em] text-[var(--text-tertiary)]">
-              Bio
+              {t("settings.bio")}
             </label>
             <Textarea
               value={bio}
@@ -215,7 +217,7 @@ export default function SettingsPage() {
               disabled={saving}
               className="bg-[var(--green)] text-[var(--bg)] px-5 py-2.5 text-xs tracking-[0.15em] uppercase font-bold hover:bg-[var(--green)] transition-colors disabled:opacity-50"
             >
-              {saving ? "Guardando..." : "Guardar Cambios"}
+              {saving ? t("settings.saving") : t("settings.save_changes")}
             </button>
             {saveMsg && (
               <span className="text-xs text-[var(--green)]">{saveMsg}</span>
@@ -229,11 +231,10 @@ export default function SettingsPage() {
       {/* I AM */}
       <section className="pb-4">
         <h2 className="text-[28px] font-bold text-[var(--text-primary)] tracking-[0.1em]">
-          I AM
+          {t("settings.iam")}
         </h2>
         <p className="text-sm text-[var(--text-tertiary)] mt-1 mb-8">
-          Tu identidad como creador. Esto define como el sistema genera
-          contenido para ti.
+          {t("settings.iam_subtitle")}
         </p>
 
         {identityLoading ? (
@@ -374,18 +375,47 @@ export default function SettingsPage() {
       {/* APARIENCIA */}
       <section className="pb-12">
         <h2 className="text-xs tracking-[0.15em] uppercase text-[var(--text-tertiary)] mb-4">
-          Apariencia
+          {t("settings.appearance")}
         </h2>
-        <div className="border border-[var(--border)] bg-[var(--bg-card)] p-6 space-y-4">
+        <div className="border border-[var(--border)] bg-[var(--bg-card)] p-6 space-y-6">
+          {/* Language Toggle */}
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.15em] text-[var(--text-tertiary)] mb-2">
+              {t("settings.language")}
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setLocale("es")}
+                className={`px-4 py-2 text-sm rounded-md border transition-colors ${
+                  locale === "es"
+                    ? "bg-[var(--text-primary)] text-[var(--bg)] border-[var(--text-primary)]"
+                    : "bg-[var(--bg-card)] text-[var(--text-secondary)] border-[var(--border)] hover:border-[var(--border-focus)]"
+                }`}
+              >
+                ES Espanol
+              </button>
+              <button
+                onClick={() => setLocale("en")}
+                className={`px-4 py-2 text-sm rounded-md border transition-colors ${
+                  locale === "en"
+                    ? "bg-[var(--text-primary)] text-[var(--bg)] border-[var(--text-primary)]"
+                    : "bg-[var(--bg-card)] text-[var(--text-secondary)] border-[var(--border)] hover:border-[var(--border-focus)]"
+                }`}
+              >
+                EN English
+              </button>
+            </div>
+          </div>
+
           <div className="flex items-center gap-3">
             <div className="w-6 h-6 bg-[var(--green)]" />
-            <p className="text-sm text-[var(--text-primary)]">Color de acento</p>
+            <p className="text-sm text-[var(--text-primary)]">{t("settings.accent_color")}</p>
             <span className="text-xs text-[var(--text-tertiary)]">var(--green)</span>
           </div>
           <div className="flex items-center gap-3">
-            <p className="text-sm text-[var(--text-primary)]">Tema: Dark Mode</p>
+            <p className="text-sm text-[var(--text-primary)]">{t("settings.theme")}: {t("settings.dark_mode")}</p>
             <span className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider">
-              Proximamente
+              {t("settings.coming_soon")}
             </span>
           </div>
         </div>

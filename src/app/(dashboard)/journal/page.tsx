@@ -79,7 +79,7 @@ export default function JournalPage() {
         setEntry({ ...entry, answer_1: a1, answer_2: a2, answer_3: a3, status: "completed", generated_content: data.content || briefing, mood: briefing.mood, themes: briefing.themes });
         fetch("/api/agents/extract-knowledge", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId, journalEntryId: entry.id }) }).catch(() => {});
       }
-    } catch {} setAnalyzing(false);
+    } catch (err) { console.error("Journal analyze error:", err); } setAnalyzing(false);
   }
 
   async function handleWriteCopy(key: string, tema: string, hook: string, formato: string) {
@@ -89,7 +89,7 @@ export default function JournalPage() {
       const res = await fetch("/api/agents/write-copy", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId, tema, hook, formato }) });
       const data = await res.json();
       if (data.caption) setGeneratedCopies((p) => ({ ...p, [key]: data.caption }));
-    } catch {} setGeneratingCopy(null);
+    } catch (err) { console.error("Journal copy error:", err); } setGeneratingCopy(null);
   }
 
   async function handleAddToCalendar(caption: string, format: string) {

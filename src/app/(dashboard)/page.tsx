@@ -14,6 +14,8 @@ import { fetchTodayEntry, type JournalEntry } from "@/lib/supabase/journal";
 import { fetchTopHotNews, type DailyNews } from "@/lib/supabase/daily-news";
 import { Textarea } from "@/components/ui/textarea";
 import { createPost } from "@/lib/supabase/posts";
+import { ErrorState } from "@/components/shared/states";
+import { useLocale } from "@/lib/locale-context";
 
 const dayNames = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
 const monthNames = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
@@ -79,6 +81,7 @@ function ContentScore({ score }: { score: number }) {
 }
 
 export default function CommandCenter() {
+  const { t } = useLocale();
   const [report, setReport] = useState<AnalyticsReport | null>(null);
   const [suggestion, setSuggestion] = useState<DailySuggestion | null>(null);
   const [runs, setRuns] = useState<AgentRun[]>([]);
@@ -92,6 +95,7 @@ export default function CommandCenter() {
   const [ideaGenerating, setIdeaGenerating] = useState(false);
   const [ideaResult, setIdeaResult] = useState<{ hooks: { text: string; category: string }[]; ideas: { title: string; format: string; description: string }[] } | null>(null);
   const [hotNews, setHotNews] = useState<DailyNews[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   const now = new Date();
   const dateStr = `${dayNames[now.getDay()]}, ${now.getDate()} ${monthNames[now.getMonth()]}`;
@@ -103,12 +107,12 @@ export default function CommandCenter() {
     });
 
     Promise.all([
-      fetchLatestReport().catch(() => null),
-      fetchTodaySuggestion().catch(() => null),
-      fetchAgentRuns(5).catch(() => []),
-      fetchPosts().catch(() => []),
-      fetchTodayEntry().catch(() => null),
-      fetchTopHotNews(3).catch(() => []),
+      fetchLatestReport().catch((e) => { console.error("Report:", e); return null; }),
+      fetchTodaySuggestion().catch((e) => { console.error("Suggestion:", e); return null; }),
+      fetchAgentRuns(5).catch((e) => { console.error("Runs:", e); return []; }),
+      fetchPosts().catch((e) => { console.error("Posts:", e); return []; }),
+      fetchTodayEntry().catch((e) => { console.error("Journal:", e); return null; }),
+      fetchTopHotNews(3).catch((e) => { console.error("News:", e); return []; }),
     ]).then(([r, s, a, p, j, hn]) => {
       setReport(r);
       setSuggestion(s);
@@ -116,6 +120,10 @@ export default function CommandCenter() {
       setHotNews((hn as DailyNews[]) || []);
       setRuns(a);
       setPosts(p);
+      setLoading(false);
+    }).catch((err) => {
+      console.error("Dashboard load error:", err);
+      setError(err.message || "Error loading dashboard");
       setLoading(false);
     });
   }, []);
@@ -130,7 +138,7 @@ export default function CommandCenter() {
       const newPosts = await fetchPosts();
       setReport(newReport);
       setPosts(newPosts);
-    } catch {}
+    } catch (err) { console.error("Refresh error:", err); }
     setRefreshing(false);
   }
 
@@ -141,7 +149,7 @@ export default function CommandCenter() {
       const res = await fetch("/api/agents/daily-content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId }) });
       const data = await res.json();
       if (data.suggestion) setSuggestion(data.suggestion);
-    } catch {}
+    } catch (err) { console.error("Generate content error:", err); }
     setGenerating(false);
   }
 
@@ -152,7 +160,7 @@ export default function CommandCenter() {
       const res = await fetch("/api/agents/idea-generator", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId, input: ideaInput.trim() }) });
       const data = await res.json();
       if (data.hooks || data.ideas) setIdeaResult({ hooks: data.hooks || [], ideas: data.ideas || [] });
-    } catch {}
+    } catch (err) { console.error("Idea generate error:", err); }
     setIdeaGenerating(false);
   }
 
@@ -170,13 +178,14 @@ export default function CommandCenter() {
   });
 
   if (loading) return <div className="flex items-center justify-center h-64 text-[var(--text-tertiary)] text-sm">Cargando command center...</div>;
+  if (error) return <ErrorState message={error} />;
 
   return (
     <div className="space-y-6 max-w-[1100px]">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[22px] font-medium tracking-[-0.03em]">Command Center</h1>
+          <h1 className="text-[22px] font-medium tracking-[-0.03em]">{t("dashboard.command_center")}</h1>
           <p className="text-[13px] text-[var(--text-tertiary)] mt-0.5">
             {dateStr} {report?.ai_summary ? `· ${report.ai_summary}` : ""}
           </p>
@@ -184,10 +193,10 @@ export default function CommandCenter() {
         <div className="flex gap-2">
           <GlowButton onClick={handleRefresh} disabled={refreshing}>
             <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
-            <span className="ml-1.5">{refreshing ? "Actualizando..." : "Actualizar"}</span>
+            <span className="ml-1.5">{refreshing ? t("dashboard.updating") : t("dashboard.update")}</span>
           </GlowButton>
           <GlowButton variant="primary" onClick={handleGenerateContent} disabled={generating}>
-            {generating ? "Generando..." : "Generar contenido"}
+            {generating ? t("dashboard.generating") : t("dashboard.generate_content")}
           </GlowButton>
         </div>
       </div>
@@ -197,10 +206,10 @@ export default function CommandCenter() {
         <CardContent className="pt-5 pb-5">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles size={16} className="text-[var(--amber)]" />
-            <p className="text-[14px] font-medium">Que tienes en mente hoy?</p>
+            <p className="text-[14px] font-medium">{t("dashboard.idea_bar_title")}</p>
           </div>
           <div className="flex gap-2">
-            <Textarea value={ideaInput} onChange={(e) => setIdeaInput(e.target.value)} placeholder="Ej: hoy un alumno me pregunto por que le duele la espalda al hacer peso muerto..." className="bg-[var(--bg)] border-[var(--border)] text-[14px] min-h-[44px] flex-1" rows={1} />
+            <Textarea value={ideaInput} onChange={(e) => setIdeaInput(e.target.value)} placeholder={t("dashboard.idea_bar_placeholder")} className="bg-[var(--bg)] border-[var(--border)] text-[14px] min-h-[44px] flex-1" rows={1} />
             <GlowButton variant="primary" onClick={handleIdeaGenerate} disabled={!ideaInput.trim() || ideaGenerating} className="shrink-0 self-end">
               {ideaGenerating ? <Loader2 size={14} className="animate-spin" /> : "Generar →"}
             </GlowButton>
@@ -208,18 +217,18 @@ export default function CommandCenter() {
           {ideaResult && (
             <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-[var(--border)]">
               <div className="space-y-2">
-                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">Hooks</p>
+                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">{t("dashboard.hooks_label")}</p>
                 {ideaResult.hooks.slice(0, 3).map((h, i) => (
                   <p key={i} className="text-[12px] text-[var(--text-secondary)]">· {h.text}</p>
                 ))}
               </div>
               <div className="space-y-2">
-                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">Ideas</p>
+                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">{t("dashboard.ideas_label")}</p>
                 {ideaResult.ideas.slice(0, 3).map((idea, i) => (
                   <p key={i} className="text-[12px] text-[var(--text-secondary)]">· [{idea.format}] {idea.title}</p>
                 ))}
               </div>
-              <Link href="/ideas" className="col-span-2 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">Ver todas las ideas →</Link>
+              <Link href="/ideas" className="col-span-2 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">{t("dashboard.all_ideas")} →</Link>
             </div>
           )}
         </CardContent>
@@ -233,7 +242,7 @@ export default function CommandCenter() {
               <BookOpen size={16} className="text-[var(--purple)]" />
               {journalEntry?.status === "completed" && journalEntry.generated_content ? (
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">Briefing de hoy</p>
+                  <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">{t("dashboard.briefing_today")}</p>
                   <div className="flex items-center gap-2 mt-1">
                     {journalEntry.mood && <span className="text-sm">{({"reflective":"🪞","fired_up":"🔥","frustrated":"😤","grateful":"🙏","philosophical":"🌌","determined":"💪","vulnerable":"🫣"} as Record<string,string>)[journalEntry.mood] || ""}</span>}
                     {(journalEntry.generated_content as Record<string,unknown>)?.content_plan ? <span className="text-[11px] text-[var(--text-secondary)]">3 posts sugeridos</span> : null}
@@ -245,13 +254,13 @@ export default function CommandCenter() {
                 </div>
               ) : (
                 <div>
-                  <p className="text-[13px] text-[var(--text-secondary)]">3 preguntas esperandote</p>
-                  <p className="text-[10px] text-[var(--text-tertiary)]">Genera tu briefing de contenido</p>
+                  <p className="text-[13px] text-[var(--text-secondary)]">3 {t("dashboard.journal_pending")}</p>
+                  <p className="text-[10px] text-[var(--text-tertiary)]">{t("dashboard.journal_generate")}</p>
                 </div>
               )}
             </div>
             <Link href="/journal" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">
-              {journalEntry?.status === "completed" ? "Ver briefing →" : "Abrir diario →"}
+              {journalEntry?.status === "completed" ? `${t("dashboard.view_briefing")} →` : `${t("dashboard.journal_open")} →`}
             </Link>
           </div>
         </CardContent>
@@ -259,13 +268,13 @@ export default function CommandCenter() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
-        <StatCard label="Posts este mes" value={publishedThisMonth} trend={report?.posting_frequency_trend} />
-        <StatCard label="Engagement avg" value={report?.avg_engagement_rate || 0} suffix="%" trend={report?.engagement_trend} />
-        <StatCard label="Alcance total" value={report?.total_reach || 0} format trend={report?.reach_trend} />
+        <StatCard label={t("dashboard.posts_this_month")} value={publishedThisMonth} trend={report?.posting_frequency_trend} />
+        <StatCard label={t("dashboard.engagement_avg")} value={report?.avg_engagement_rate || 0} suffix="%" trend={report?.engagement_trend} />
+        <StatCard label={t("dashboard.total_reach")} value={report?.total_reach || 0} format trend={report?.reach_trend} />
         <div className="rounded-[10px] border border-[var(--border)] bg-[var(--bg-card)] p-[18px_20px] flex items-center justify-between" style={{ backgroundImage: "var(--satin)" }}>
           <div>
-            <p className="text-[11px] text-[var(--text-tertiary)] tracking-[0.02em] mb-2">Content Score</p>
-            <p className="text-[11px] text-[var(--text-tertiary)]">{report ? "Basado en IA" : "Sin analisis"}</p>
+            <p className="text-[11px] text-[var(--text-tertiary)] tracking-[0.02em] mb-2">{t("dashboard.content_score")}</p>
+            <p className="text-[11px] text-[var(--text-tertiary)]">{report ? t("dashboard.based_on_ai") : t("dashboard.no_analysis")}</p>
           </div>
           <ContentScore score={report?.ai_content_score || 0} />
         </div>
@@ -274,8 +283,8 @@ export default function CommandCenter() {
       {/* Intel de hoy */}
       <Card>
         <CardHeader>
-          <CardTitle>Intel de hoy</CardTitle>
-          <CardAction><Link href="/news" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">Ver todas →</Link></CardAction>
+          <CardTitle>{t("dashboard.intel_today")}</CardTitle>
+          <CardAction><Link href="/news" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">{t("dashboard.see_all")} →</Link></CardAction>
         </CardHeader>
         <CardContent className="p-0">
           {hotNews.length > 0 ? (
@@ -301,7 +310,7 @@ export default function CommandCenter() {
             </div>
           ) : (
             <div className="px-5 py-6 text-center">
-              <p className="text-[12px] text-[var(--text-tertiary)]">Sin noticias para hoy</p>
+              <p className="text-[12px] text-[var(--text-tertiary)]">{t("intel.no_news")}</p>
             </div>
           )}
         </CardContent>
@@ -311,8 +320,8 @@ export default function CommandCenter() {
       {posts.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Funnel de contenido</CardTitle>
-            <CardAction><span className="text-[10px] text-[var(--text-tertiary)]">Esta semana</span></CardAction>
+            <CardTitle>{t("dashboard.content_funnel")}</CardTitle>
+            <CardAction><span className="text-[10px] text-[var(--text-tertiary)]">{t("dashboard.this_week")}</span></CardAction>
           </CardHeader>
           <CardContent>
             {(() => {
@@ -357,7 +366,7 @@ export default function CommandCenter() {
         {/* AI Insights */}
         <Card className="xl:col-span-2">
           <CardHeader>
-            <CardTitle>AI Insights</CardTitle>
+            <CardTitle>{t("dashboard.ai_insights")}</CardTitle>
             <CardAction>
               {report && <span className="text-[10px] text-[var(--text-tertiary)]">{formatRelative(report.created_at)}</span>}
             </CardAction>
@@ -382,9 +391,9 @@ export default function CommandCenter() {
               </div>
             ) : (
               <div className="px-5 py-8 text-center">
-                <p className="text-[13px] text-[var(--text-tertiary)]">Sin insights todavia</p>
+                <p className="text-[13px] text-[var(--text-tertiary)]">{t("dashboard.no_insights")}</p>
                 <GlowButton variant="primary" className="mt-3" onClick={handleRefresh} disabled={refreshing}>
-                  Generar analisis
+                  {t("dashboard.generate_analysis")}
                 </GlowButton>
               </div>
             )}
@@ -393,7 +402,7 @@ export default function CommandCenter() {
 
         {/* Format Performance */}
         <Card>
-          <CardHeader><CardTitle>Por formato</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t("dashboard.by_format")}</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             {report?.format_breakdown && Object.keys(report.format_breakdown).length > 0 ? (
               Object.entries(report.format_breakdown)
@@ -409,7 +418,7 @@ export default function CommandCenter() {
                           <span className={`inline-flex items-center px-1.5 py-0.5 text-[9px] font-medium rounded-[3px] ${fl?.cls || "bg-[var(--bg-hover)] text-[var(--text-secondary)]"}`}>
                             {fl?.label || fmt}
                           </span>
-                          {i === 0 && <span className="text-[9px] text-[var(--green)]">MEJOR</span>}
+                          {i === 0 && <span className="text-[9px] text-[var(--green)]">{t("dashboard.best")}</span>}
                         </div>
                         <span className="text-[11px] font-mono text-[var(--text-secondary)]">{data.avg_engagement}</span>
                       </div>
@@ -421,7 +430,7 @@ export default function CommandCenter() {
                   );
                 })
             ) : (
-              <p className="text-[12px] text-[var(--text-tertiary)] text-center py-4">Sin datos de formato</p>
+              <p className="text-[12px] text-[var(--text-tertiary)] text-center py-4">{t("dashboard.no_format_data")}</p>
             )}
           </CardContent>
         </Card>
@@ -430,10 +439,10 @@ export default function CommandCenter() {
       {/* Daily Content */}
       <Card>
         <CardHeader>
-          <CardTitle>Contenido del dia</CardTitle>
+          <CardTitle>{t("dashboard.content_today")}</CardTitle>
           <CardAction>
             <GlowButton variant="ghost" onClick={handleGenerateContent} disabled={generating} className="text-[11px]">
-              {generating ? "Generando..." : "Regenerar"}
+              {generating ? t("dashboard.generating") : t("dashboard.regenerate")}
             </GlowButton>
           </CardAction>
         </CardHeader>
@@ -465,14 +474,14 @@ export default function CommandCenter() {
                     const data = await res.json();
                     if (data.caption) setSuggestion({ ...suggestion, generated_copy: data.caption });
                     setGenerating(false);
-                  }} disabled={generating}>Generar copy</GlowButton>
+                  }} disabled={generating}>{t("dashboard.generate_copy")}</GlowButton>
                 </div>
               )}
             </div>
           ) : (
             <div className="text-center py-6">
-              <p className="text-[13px] text-[var(--text-tertiary)]">Sin sugerencia para hoy</p>
-              <GlowButton variant="primary" className="mt-3" onClick={handleGenerateContent} disabled={generating}>Generar ahora</GlowButton>
+              <p className="text-[13px] text-[var(--text-tertiary)]">{t("dashboard.no_suggestion")}</p>
+              <GlowButton variant="primary" className="mt-3" onClick={handleGenerateContent} disabled={generating}>{t("dashboard.generate_now")}</GlowButton>
             </div>
           )}
         </CardContent>
@@ -481,7 +490,7 @@ export default function CommandCenter() {
       {/* Recommendations */}
       {report?.ai_recommendations && report.ai_recommendations.length > 0 && (
         <Card>
-          <CardHeader><CardTitle>Recomendaciones</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t("dashboard.recommendations")}</CardTitle></CardHeader>
           <CardContent className="p-0">
             <div className="divide-y divide-[var(--border)]">
               {report.ai_recommendations.map((rec, i) => (
@@ -504,7 +513,7 @@ export default function CommandCenter() {
       {/* Activity + Pipeline */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <Card>
-          <CardHeader><CardTitle>Actividad reciente</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t("dashboard.recent_activity")}</CardTitle></CardHeader>
           <CardContent className="p-0">
             {runs.length > 0 ? (
               <div className="divide-y divide-[var(--border)]">
@@ -519,7 +528,7 @@ export default function CommandCenter() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 px-5 text-[13px] text-[var(--text-tertiary)]">Sin actividad todavia</div>
+              <div className="text-center py-8 px-5 text-[13px] text-[var(--text-tertiary)]">{t("dashboard.no_activity")}</div>
             )}
           </CardContent>
         </Card>
@@ -527,8 +536,8 @@ export default function CommandCenter() {
         {/* Mini Calendar */}
         <Card>
           <CardHeader>
-            <CardTitle>Proximos 7 dias</CardTitle>
-            <CardAction><Link href="/calendar" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">Calendario →</Link></CardAction>
+            <CardTitle>{t("dashboard.next_7_days")}</CardTitle>
+            <CardAction><Link href="/calendar" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">{t("dashboard.calendar")} →</Link></CardAction>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-7 gap-2">

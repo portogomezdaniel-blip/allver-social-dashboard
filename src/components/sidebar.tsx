@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useLocale } from "@/lib/locale-context";
 import {
   LayoutDashboard,
   PenSquare,
@@ -22,35 +23,35 @@ import {
 
 const navSections = [
   {
-    label: "Principal",
+    labelKey: "nav.principal",
     items: [
-      { name: "Dashboard", href: "/", icon: LayoutDashboard },
-      { name: "Content", href: "/instagram", icon: PenSquare },
-      { name: "Calendar", href: "/calendar", icon: Calendar },
+      { nameKey: "nav.dashboard", href: "/", icon: LayoutDashboard },
+      { nameKey: "nav.content", href: "/instagram", icon: PenSquare },
+      { nameKey: "nav.calendar", href: "/calendar", icon: Calendar },
     ],
   },
   {
-    label: "Crear",
+    labelKey: "nav.crear",
     items: [
-      { name: "Ideas", href: "/ideas", icon: Sparkles },
-      { name: "Journal", href: "/journal", icon: BookOpen },
+      { nameKey: "nav.ideas", href: "/ideas", icon: Sparkles },
+      { nameKey: "nav.journal", href: "/journal", icon: BookOpen },
     ],
   },
   {
-    label: "Analisis",
+    labelKey: "nav.analisis",
     items: [
-      { name: "Intel", href: "/news", icon: Newspaper },
-      { name: "Recon", href: "/competitors", icon: Radar },
-      { name: "Hooks", href: "/hooks", icon: Zap },
-      { name: "Templates", href: "/templates", icon: LayoutTemplate },
-      { name: "Analytics", href: "/analytics", icon: BarChart3 },
+      { nameKey: "nav.intel", href: "/news", icon: Newspaper },
+      { nameKey: "nav.recon", href: "/competitors", icon: Radar },
+      { nameKey: "nav.hooks", href: "/hooks", icon: Zap },
+      { nameKey: "nav.templates", href: "/templates", icon: LayoutTemplate },
+      { nameKey: "nav.analytics", href: "/analytics", icon: BarChart3 },
     ],
   },
   {
-    label: "Sistema",
+    labelKey: "nav.sistema",
     items: [
-      { name: "Agents", href: "/agents", icon: Bot },
-      { name: "Config", href: "/settings", icon: Settings },
+      { nameKey: "nav.agents", href: "/agents", icon: Bot },
+      { nameKey: "nav.config", href: "/settings", icon: Settings },
     ],
   },
 ];
@@ -58,6 +59,7 @@ const navSections = [
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useLocale();
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -107,9 +109,9 @@ export function Sidebar() {
       {/* Nav */}
       <nav className="flex-1 space-y-5">
         {navSections.map((section) => (
-          <div key={section.label}>
+          <div key={section.labelKey}>
             <p className="text-[10px] font-medium tracking-[0.08em] uppercase text-[var(--text-tertiary)] px-6 mb-1.5">
-              {section.label}
+              {t(section.labelKey)}
             </p>
             <div className="space-y-0.5">
               {section.items.map((item) => {
@@ -137,7 +139,7 @@ export function Sidebar() {
                         isActive ? "opacity-75" : "opacity-45"
                       }
                     />
-                    {item.name}
+                    {t(item.nameKey)}
                   </Link>
                 );
               })}
@@ -167,7 +169,7 @@ export function Sidebar() {
           className="flex items-center gap-2 w-full px-2 py-1.5 mt-1 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
         >
           <LogOut size={13} className="opacity-45" />
-          Cerrar sesion
+          {t("nav.logout")}
         </button>
       </div>
     </aside>

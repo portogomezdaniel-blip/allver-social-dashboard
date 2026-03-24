@@ -28,7 +28,7 @@ export default function IdeasPage() {
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => { if (data.user) setUserId(data.user.id); });
-    fetchSessions(20).then(setSessions).catch(() => {});
+    fetchSessions(20).then(setSessions).catch((err) => console.error("Ideas load error:", err));
   }, []);
 
   async function handleGenerate() {
@@ -46,12 +46,12 @@ export default function IdeasPage() {
         const refreshed = await fetchSessions(20);
         setSessions(refreshed);
       }
-    } catch {}
+    } catch (err) { console.error("Idea generate error:", err); }
     setGenerating(false);
   }
 
   async function handleSaveHook(text: string, category: string) {
-    try { await createHook({ text, source: "idea_session", category }); } catch {}
+    try { await createHook({ text, source: "idea_session", category }); } catch (err) { console.error("Save hook error:", err); }
   }
 
   async function handleCreatePost(title: string, description: string, format: string) {

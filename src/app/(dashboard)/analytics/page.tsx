@@ -8,11 +8,13 @@ import { fetchLatestReport, fetchReportHistory, type AnalyticsReport } from "@/l
 import { fetchPosts, type DbPost } from "@/lib/supabase/posts";
 import { createClient } from "@/lib/supabase/client";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { useLocale } from "@/lib/locale-context";
 
 const insightIcons: Record<string, string> = { trending_up: "📈", trending_down: "📉", lightbulb: "💡", warning: "⚠️", star: "⭐" };
 const insightColors: Record<string, string> = { positive: "text-[var(--green)]", negative: "text-[var(--red)]", opportunity: "text-[var(--blue)]", neutral: "text-[var(--text-tertiary)]" };
 
 export default function AnalyticsPage() {
+  const { t } = useLocale();
   const [report, setReport] = useState<AnalyticsReport | null>(null);
   const [history, setHistory] = useState<AnalyticsReport[]>([]);
   const [posts, setPosts] = useState<DbPost[]>([]);
@@ -49,22 +51,22 @@ export default function AnalyticsPage() {
 
   const scoreColor = (report?.ai_content_score || 0) >= 70 ? "var(--green)" : (report?.ai_content_score || 0) >= 40 ? "var(--amber)" : "var(--red)";
 
-  if (loading) return <div className="flex items-center justify-center h-64 text-[var(--text-tertiary)] text-sm">Cargando analytics...</div>;
+  if (loading) return <div className="flex items-center justify-center h-64 text-[var(--text-tertiary)] text-sm">{t("analytics.loading")}</div>;
 
   return (
     <div className="space-y-6 max-w-[1000px]">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[22px] font-medium tracking-[-0.03em]">Analytics</h1>
-          <p className="text-[13px] text-[var(--text-tertiary)] mt-0.5">Analisis inteligente de tu contenido</p>
+          <h1 className="text-[22px] font-medium tracking-[-0.03em]">{t("analytics.title")}</h1>
+          <p className="text-[13px] text-[var(--text-tertiary)] mt-0.5">{t("analytics.subtitle")}</p>
         </div>
         <div className="flex gap-2">
           <div className="flex rounded-[6px] border border-[var(--border)] overflow-hidden">
-            <button onClick={() => setReportType("weekly")} className={`px-3 py-1.5 text-[11px] font-medium transition-colors ${reportType === "weekly" ? "bg-[var(--text-primary)] text-[var(--bg)]" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"}`}>Semanal</button>
-            <button onClick={() => setReportType("monthly")} className={`px-3 py-1.5 text-[11px] font-medium transition-colors ${reportType === "monthly" ? "bg-[var(--text-primary)] text-[var(--bg)]" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"}`}>Mensual</button>
+            <button onClick={() => setReportType("weekly")} className={`px-3 py-1.5 text-[11px] font-medium transition-colors ${reportType === "weekly" ? "bg-[var(--text-primary)] text-[var(--bg)]" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"}`}>{t("analytics.weekly")}</button>
+            <button onClick={() => setReportType("monthly")} className={`px-3 py-1.5 text-[11px] font-medium transition-colors ${reportType === "monthly" ? "bg-[var(--text-primary)] text-[var(--bg)]" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"}`}>{t("analytics.monthly")}</button>
           </div>
           <GlowButton variant="primary" onClick={handleGenerate} disabled={generating}>
-            {generating ? "Generando..." : "Generar analisis"}
+            {generating ? t("analytics.generating") : t("analytics.generate")}
           </GlowButton>
         </div>
       </div>
@@ -199,10 +201,10 @@ export default function AnalyticsPage() {
       ) : (
         <Card>
           <CardContent className="text-center py-16">
-            <p className="text-[15px] text-[var(--text-secondary)]">No hay reportes de analytics todavia</p>
-            <p className="text-[12px] text-[var(--text-tertiary)] mt-1">Genera tu primer analisis para ver insights, tendencias y recomendaciones de IA.</p>
+            <p className="text-[15px] text-[var(--text-secondary)]">{t("analytics.no_reports")}</p>
+            <p className="text-[12px] text-[var(--text-tertiary)] mt-1">{t("analytics.no_reports_detail")}</p>
             <GlowButton variant="primary" className="mt-4" onClick={handleGenerate} disabled={generating}>
-              {generating ? "Generando..." : "Generar primer analisis"}
+              {generating ? t("analytics.generating") : t("analytics.generate_first")}
             </GlowButton>
           </CardContent>
         </Card>

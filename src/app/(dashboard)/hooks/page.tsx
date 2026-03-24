@@ -7,6 +7,7 @@ import { GlowButton } from "@/components/ui/glow-button";
 import { Input } from "@/components/ui/input";
 import { fetchHooks, createHook, toggleFavorite, type Hook } from "@/lib/supabase/hooks";
 import { createClient } from "@/lib/supabase/client";
+import { useLocale } from "@/lib/locale-context";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -18,6 +19,7 @@ const catLabels: Record<string, string> = {
 };
 
 export default function HooksPage() {
+  const { t } = useLocale();
   const [hooks, setHooks] = useState<Hook[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
@@ -33,7 +35,7 @@ export default function HooksPage() {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) setUserId(data.user.id);
     });
-    fetchHooks().then(setHooks).catch(() => {}).finally(() => setLoading(false));
+    fetchHooks().then(setHooks).catch((err) => console.error("Hooks load error:", err)).finally(() => setLoading(false));
   }, []);
 
   const filtered = useMemo(() =>
@@ -56,7 +58,7 @@ export default function HooksPage() {
         const newHooks = await fetchHooks();
         setHooks(newHooks);
       }
-    } catch {}
+    } catch (err) { console.error("Hook variations error:", err); }
     setGenerating(null);
   }
 
@@ -73,14 +75,14 @@ export default function HooksPage() {
     setDialogOpen(false);
   }
 
-  if (loading) return <div className="flex items-center justify-center h-64 text-[var(--text-tertiary)] text-sm">Cargando hooks...</div>;
+  if (loading) return <div className="flex items-center justify-center h-64 text-[var(--text-tertiary)] text-sm">{t("hooks.loading")}</div>;
 
   return (
     <div className="space-y-6 max-w-[900px]">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[22px] font-medium tracking-[-0.03em]">Banco de Hooks</h1>
-          <p className="text-[13px] text-[var(--text-tertiary)] mt-0.5">Tus mejores frases de apertura</p>
+          <h1 className="text-[22px] font-medium tracking-[-0.03em]">{t("hooks.title")}</h1>
+          <p className="text-[13px] text-[var(--text-tertiary)] mt-0.5">{t("hooks.subtitle")}</p>
         </div>
         <div className="flex gap-2">
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -186,7 +188,7 @@ export default function HooksPage() {
             </div>
           ) : (
             <div className="text-center py-12 text-[var(--text-tertiary)] text-[13px]">
-              No hay hooks todavia. Guarda tu primer hook o genera nuevos con IA.
+              {t("hooks.empty")}
             </div>
           )}
         </CardContent>

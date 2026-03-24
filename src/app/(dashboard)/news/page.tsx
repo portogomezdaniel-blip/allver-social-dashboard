@@ -48,7 +48,8 @@ export default function IntelPage() {
     try {
       const n = await fetchNewsByDate(date);
       setNews(n);
-    } catch {
+    } catch (err) {
+      console.error("News load error:", err);
       setNews([]);
     }
     setLoading(false);
@@ -68,7 +69,7 @@ export default function IntelPage() {
         body: JSON.stringify({ userId }),
       });
       await loadNews(selectedDate);
-    } catch {}
+    } catch (err) { console.error("News generate error:", err); }
     setGenerating(false);
   }
 
