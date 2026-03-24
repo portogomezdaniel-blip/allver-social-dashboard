@@ -24,9 +24,9 @@ export default function ContentCalendar() {
   const loadPosts = useCallback(async () => {
     try {
       const dbPosts = await fetchCalendarPosts();
-      setPosts(dbPosts.length > 0 ? dbPosts : mockCalendarPosts);
+      setPosts(dbPosts);
     } catch {
-      setPosts(mockCalendarPosts);
+      setPosts([]);
     } finally {
       setLoading(false);
     }

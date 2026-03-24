@@ -26,6 +26,9 @@ export default function IdeasPage() {
   const [currentResult, setCurrentResult] = useState<{ hooks: { text: string; category: string }[]; ideas: { title: string; format: string; description: string }[] } | null>(null);
   const [sessions, setSessions] = useState<IdeaSession[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(null), 2500); }
 
   useEffect(() => {
     const supabase = createClient();
@@ -53,13 +56,14 @@ export default function IdeasPage() {
   }
 
   async function handleSaveHook(text: string, category: string) {
-    try { await createHook({ text, source: "idea_session", category }); } catch (err) { console.error("Save hook error:", err); }
+    try { await createHook({ text, source: "idea_session", category }); showToast(t("common.saved")); } catch (err) { console.error("Save hook error:", err); }
   }
 
   async function handleCreatePost(title: string, description: string, format: string) {
     try {
       await createPost({ caption: `${title}\n\n${description}`, post_type: format as "reel" | "carousel" | "single" | "story", status: "draft", scheduled_date: null, platform: "instagram" });
-    } catch {}
+      showToast(t("common.created"));
+    } catch (err) { console.error("Create post error:", err); }
   }
 
   return (
@@ -175,6 +179,12 @@ export default function IdeasPage() {
               </CardContent>
             </Card>
           ))}
+        </div>
+      )}
+
+      {toastMsg && (
+        <div className="fixed bottom-6 right-6 bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-primary)] px-4 py-2.5 rounded-[8px] text-[13px] font-medium shadow-lg z-50">
+          {toastMsg}
         </div>
       )}
     </div>

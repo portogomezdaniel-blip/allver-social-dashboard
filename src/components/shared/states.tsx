@@ -5,7 +5,7 @@ import { useLocale } from "@/lib/locale-context";
 export function LoadingSkeleton() {
   return (
     <div className="animate-pulse space-y-4 p-6">
-      <div className="h-8 bg-[var(--bg-card)] rounded-lg w-48" />
+      <div className="h-8 bg-[var(--bg-card)] rounded-[10px] w-48" />
       <div className="h-4 bg-[var(--bg-card)] rounded w-96" />
       <div className="grid grid-cols-4 gap-3 mt-6">
         {[1, 2, 3, 4].map((i) => (

@@ -84,10 +84,10 @@ export default function CompetitorTracker() {
     try {
       const data = await fetchCompetitors();
       setCompetitors(
-        data.length > 0 ? data.map(dbToLocal) : mockCompetitors
+        data.map(dbToLocal)
       );
     } catch {
-      setCompetitors(mockCompetitors);
+      setCompetitors([]);
     } finally {
       setLoading(false);
     }
