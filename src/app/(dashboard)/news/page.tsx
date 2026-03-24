@@ -26,11 +26,11 @@ export default function IntelPage() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
+  const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString("en-CA"));
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
-  const isToday = selectedDate === new Date().toISOString().split("T")[0];
+  const isToday = selectedDate === new Date().toLocaleDateString("en-CA");
 
   const urgencyConfig: Record<string, { label: string; sublabel: string; emoji: string; cls: string }> = {
     hot: { label: t("intel.hot"), sublabel: t("intel.hot_sub"), emoji: "🔴", cls: "bg-[var(--red-bg)] text-[var(--red)]" },

@@ -35,12 +35,12 @@ export async function fetchNewsByDate(date: string): Promise<DailyNews[]> {
 }
 
 export async function fetchTodayNews(): Promise<DailyNews[]> {
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toLocaleDateString("en-CA");
   return fetchNewsByDate(today);
 }
 
 export async function fetchTopHotNews(limit: number = 3): Promise<DailyNews[]> {
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toLocaleDateString("en-CA");
   const news = await fetchNewsByDate(today);
   return news.slice(0, limit);
 }

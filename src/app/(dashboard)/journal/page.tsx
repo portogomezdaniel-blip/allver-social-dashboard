@@ -23,6 +23,13 @@ const fmtCls: Record<string, string> = { reel: "bg-[var(--purple-bg)] text-[var(
 
 function copyText(text: string) { navigator.clipboard.writeText(text); }
 
+// Use local date to avoid UTC timezone issues (e.g. Colombia UTC-5)
+function getLocalDateString(): string {
+  return new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD in local tz
+}
+
+const dayColors: Record<number, string> = { 0: "var(--text-tertiary)", 1: "var(--green)", 2: "var(--blue)", 3: "var(--purple)", 4: "var(--amber)", 5: "var(--red)", 6: "var(--blue)" };
+
 export default function JournalPage() {
   const { t } = useLocale();
   const [entry, setEntry] = useState<JournalEntry | null>(null);
@@ -39,22 +46,28 @@ export default function JournalPage() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const now = new Date();
-  const today = now.toISOString().split("T")[0];
-  const dateStr = `${dayNames[now.getDay()]}, ${now.getDate()} ${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+  const today = getLocalDateString();
+  const dayOfWeek = now.getDay();
+  const dateStr = `${dayNames[dayOfWeek]}, ${now.getDate()} ${monthNames[now.getMonth()]} ${now.getFullYear()}`;
   const todayQuestions = getTodayQuestions();
+  const questionStartNum = dayOfWeek * 3 + 1;
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) return;
       const uid = data.user.id; setUserId(uid);
-      const { data: existing } = await supabase.from("journal_entries").select("*").eq("user_id", uid).eq("entry_date", today).single();
+      const todayDate = getLocalDateString();
+      const qs = getTodayQuestions();
+
+      // Use maybeSingle to avoid 406 error when entry doesn't exist
+      const { data: existing } = await supabase.from("journal_entries").select("*").eq("user_id", uid).eq("entry_date", todayDate).maybeSingle();
       if (existing) { setEntry(existing); setA1(existing.answer_1 || ""); setA2(existing.answer_2 || ""); setA3(existing.answer_3 || ""); }
       else {
-        const { data: ne } = await supabase.from("journal_entries").upsert({ user_id: uid, entry_date: today, question_1: todayQuestions.questions[0].text, question_2: todayQuestions.questions[1].text, question_3: todayQuestions.questions[2].text, status: "pending" }, { onConflict: "user_id,entry_date" }).select().single();
+        const { data: ne } = await supabase.from("journal_entries").insert({ user_id: uid, entry_date: todayDate, question_1: qs.questions[0].text, question_2: qs.questions[1].text, question_3: qs.questions[2].text, status: "pending" }).select().single();
         if (ne) setEntry(ne);
       }
-      const { data: hist } = await supabase.from("journal_entries").select("*").eq("user_id", uid).neq("entry_date", today).order("entry_date", { ascending: false }).limit(10);
+      const { data: hist } = await supabase.from("journal_entries").select("*").eq("user_id", uid).neq("entry_date", todayDate).order("entry_date", { ascending: false }).limit(14);
       setHistory(hist ?? []); setLoading(false);
     });
   }, []);
@@ -96,7 +109,7 @@ export default function JournalPage() {
 
   async function handleAddToCalendar(caption: string, format: string) {
     const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
-    await createPost({ caption, post_type: format as "reel" | "carousel" | "single" | "story", status: "scheduled", scheduled_date: tomorrow.toISOString().split("T")[0], platform: "instagram" });
+    await createPost({ caption, post_type: format as "reel" | "carousel" | "single" | "story", status: "scheduled", scheduled_date: tomorrow.toLocaleDateString("en-CA"), platform: "instagram" });
   }
 
   async function handleApplyWeeklyPlan(strategy: Record<string, { format: string; topic: string }>) {
@@ -112,7 +125,7 @@ export default function JournalPage() {
       if (!plan) continue;
       const date = new Date(startDate);
       date.setDate(date.getDate() + i);
-      await createPost({ caption: `[${plan.format.toUpperCase()}] ${plan.topic}`, post_type: (plan.format === "story_series" ? "story" : plan.format) as "reel" | "carousel" | "single" | "story", status: "scheduled", scheduled_date: date.toISOString().split("T")[0], platform: "instagram" });
+      await createPost({ caption: `[${plan.format.toUpperCase()}] ${plan.topic}`, post_type: (plan.format === "story_series" ? "story" : plan.format) as "reel" | "carousel" | "single" | "story", status: "scheduled", scheduled_date: date.toLocaleDateString("en-CA"), platform: "instagram" });
     }
   }
 
@@ -161,7 +174,14 @@ export default function JournalPage() {
         </div>
       </div>
 
-      {/* Questions */}
+      {/* Day indicator */}
+      <div className="flex items-center gap-2">
+        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: dayColors[dayOfWeek] }} />
+        <span className="text-[12px] font-medium uppercase tracking-[0.04em]" style={{ color: dayColors[dayOfWeek] }}>{dayNames[dayOfWeek]}</span>
+        <span className="text-[11px] text-[var(--text-tertiary)]">· {questionStartNum}, {questionStartNum + 1}, {questionStartNum + 2} / 21</span>
+      </div>
+
+      {/* SECTION 1: Questions */}
       {!isCompleted && (
         <>
           {qItems.map((item, i) => (
@@ -186,7 +206,7 @@ export default function JournalPage() {
         </>
       )}
 
-      {/* BRIEFING */}
+      {/* SECTION 2: Content Briefing */}
       {isCompleted && (
         <>
           {/* Header */}

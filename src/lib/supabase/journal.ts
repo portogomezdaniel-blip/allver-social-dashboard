@@ -25,8 +25,8 @@ export interface JournalEntry {
 
 export async function fetchTodayEntry(): Promise<JournalEntry | null> {
   const supabase = createClient();
-  const today = new Date().toISOString().split("T")[0];
-  const { data } = await supabase.from("journal_entries").select("*").eq("entry_date", today).single();
+  const today = new Date().toLocaleDateString("en-CA"); // local date, not UTC
+  const { data } = await supabase.from("journal_entries").select("*").eq("entry_date", today).maybeSingle();
   return data;
 }
 

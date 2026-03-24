@@ -19,7 +19,7 @@ export interface DailySuggestion {
 
 export async function fetchTodaySuggestion(): Promise<DailySuggestion | null> {
   const supabase = createClient();
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toLocaleDateString("en-CA");
   const { data } = await supabase
     .from("daily_suggestions")
     .select("*")
