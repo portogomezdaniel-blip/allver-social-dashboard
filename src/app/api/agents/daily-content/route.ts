@@ -68,7 +68,9 @@ Genera la sugerencia de contenido para hoy.`;
 
     let parsed;
     try {
-      parsed = JSON.parse(text);
+      const clean = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      const match = clean.match(/\{[\s\S]*\}/);
+      parsed = JSON.parse(match ? match[0] : clean);
     } catch {
       parsed = { tema: "Error parsing", formato: "single", hook: text, puntos_clave: [], razonamiento: "Parse error" };
     }
