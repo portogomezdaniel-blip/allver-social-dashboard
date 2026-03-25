@@ -61,11 +61,16 @@ export function Sidebar() {
   const router = useRouter();
   const { t } = useLocale();
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      setUserEmail(data.user?.email ?? null);
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (data.user) {
+        setUserEmail(data.user.email ?? null);
+        const { data: profile } = await supabase.from("creators").select("full_name").eq("id", data.user.id).maybeSingle();
+        if (profile?.full_name) setUserName(profile.full_name);
+      }
     });
   }, []);
 
@@ -76,8 +81,8 @@ export function Sidebar() {
     router.refresh();
   }
 
-  const initial = userEmail ? userEmail[0].toUpperCase() : "?";
-  const displayName = userEmail ? userEmail.split("@")[0] : "...";
+  const displayName = userName || (userEmail ? userEmail.split("@")[0] : "...");
+  const initial = displayName[0]?.toUpperCase() || "?";
 
   return (
     <aside

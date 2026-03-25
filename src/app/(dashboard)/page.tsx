@@ -96,14 +96,22 @@ export default function CommandCenter() {
   const [ideaResult, setIdeaResult] = useState<{ hooks: { text: string; category: string }[]; ideas: { title: string; format: string; description: string }[] } | null>(null);
   const [hotNews, setHotNews] = useState<DailyNews[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [creatorName, setCreatorName] = useState<string | null>(null);
 
   const now = new Date();
+  const hour = now.getHours();
+  const greetingKey = hour < 12 ? "dashboard.greeting_morning" : hour < 18 ? "dashboard.greeting_afternoon" : "dashboard.greeting_evening";
   const dateStr = `${dayNames[now.getDay()]}, ${now.getDate()} ${monthNames[now.getMonth()]}`;
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) setUserId(data.user.id);
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (data.user) {
+        setUserId(data.user.id);
+        // Load creator name
+        const { data: profile } = await supabase.from("creators").select("full_name").eq("id", data.user.id).maybeSingle();
+        if (profile?.full_name) setCreatorName(profile.full_name);
+      }
     });
 
     Promise.all([
@@ -185,7 +193,9 @@ export default function CommandCenter() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[22px] font-medium tracking-[-0.03em]">{t("dashboard.command_center")}</h1>
+          <h1 className="text-[22px] font-medium tracking-[-0.03em]">
+            {creatorName ? `${t(greetingKey)}, ${creatorName}` : t("dashboard.command_center")}
+          </h1>
           <p className="text-[13px] text-[var(--text-tertiary)] mt-0.5">
             {dateStr} {report?.ai_summary ? `· ${report.ai_summary}` : ""}
           </p>
