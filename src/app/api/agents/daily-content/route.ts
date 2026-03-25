@@ -22,7 +22,9 @@ export async function POST(req: NextRequest) {
     const recentPosts = await getRecentPosts(userId, 10);
     const weekSchedule = await getWeekSchedule(userId);
 
-    const today = new Date();
+    // Use Colombia time (UTC-5) for consistent date
+    const now = new Date();
+    const today = new Date(now.getTime() - 5 * 60 * 60 * 1000);
     const dayNames = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
     const knowledgeCtx = await getKnowledgeContext(userId);
 

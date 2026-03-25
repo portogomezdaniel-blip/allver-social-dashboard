@@ -78,7 +78,10 @@ Responde SOLO en JSON sin markdown:
       return NextResponse.json({ error: "Failed to parse news", raw: result.text }, { status: 500 });
     }
 
-    const today = new Date().toISOString().split("T")[0];
+    // Use Colombia time (UTC-5) for consistent date
+    const now = new Date();
+    const colombiaTime = new Date(now.getTime() - 5 * 60 * 60 * 1000);
+    const today = colombiaTime.toISOString().split("T")[0];
 
     for (const item of newsData.news || []) {
       await supabase.from("daily_news").upsert(

@@ -23,7 +23,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ message: "No active creators" });
   }
 
-  const today = new Date().toISOString().split("T")[0];
+  // Use Colombia time (UTC-5)
+  const now = new Date();
+  const colombiaTime = new Date(now.getTime() - 5 * 60 * 60 * 1000);
+  const today = colombiaTime.toISOString().split("T")[0];
   const baseUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:3000";
