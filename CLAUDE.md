@@ -223,17 +223,25 @@ creadores con datos sensibles de negocio.
 **Completado**:
 - Auth completo con Supabase (login, registro, sesiones)
 - Instagram Manager con CRUD real en base de datos
-- Frontend completo de los 6 módulos (analytics, calendar, competitors, news, agents)
+- Frontend completo de los 6+ módulos (analytics, calendar, competitors, news, agents, hooks, ideas, journal, templates)
 - Deploy en Vercel con auto-deploy desde GitHub
+- i18n completo (ES/EN toggle)
+- Journal con preguntas diarias rotativas (21 preguntas, 3/día) + briefing de contenido IA
+- Content Calendar conectado a tabla `posts` de Supabase (lee posts reales)
+- Pipeline diario automatizado: 1 cron consolidado (5:30 AM Colombia) genera noticias + contenido
+- Pipeline semanal (lunes): hooks, recon competidores, analytics, identity evolution
+- Todos los botones "Crear post" insertan en posts con scheduled_date (aparecen en calendario)
+- Dashboard Command Center con stats, intel, journal preview, idea bar, mini calendario
 
 **Siguiente tarea prioritaria**:
-Conectar Content Calendar a la tabla `posts` de Supabase para mostrar los posts
-programados en la vista mensual. Los datos ya existen — solo hay que leer y mostrar.
-
-**Tarea de demo (esta semana)**:
 Personalizar el dashboard para dos creadores específicos (Mauro y otro entrenador de
 Medellín) con sus datos de ejemplo, su nicho, y posts representativos de su estilo.
 El objetivo es que en el demo se vean reflejados en los primeros 30 segundos.
+
+**Nota técnica sobre crons**:
+Vercel Hobby tier permite máximo 2 crons. Todo está consolidado en `/api/crons/daily-all`
+(schedule: 30 10 * * * = 5:30 AM Colombia). Ejecuta daily news + content diario, y
+hooks + recon + analytics + identity los lunes.
 
 ---
 
