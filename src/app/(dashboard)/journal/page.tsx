@@ -68,14 +68,6 @@ export default function JournalPage() {
       const todayDate = getLocalDateString();
       const qs = getTodayQuestions();
 
-      // Debug log for rotation verification
-      console.log("Journal Debug:", {
-        today: todayDate,
-        dayOfWeek: new Date().getDay(),
-        dayName: dayNames[new Date().getDay()],
-        questions: qs.questions.map(q => q.text.slice(0, 50))
-      });
-
       // Use maybeSingle to avoid 406 error when entry doesn't exist
       const { data: existing } = await supabase.from("journal_entries").select("*").eq("user_id", uid).eq("entry_date", todayDate).maybeSingle();
       if (existing) { setEntry(existing); setA1(existing.answer_1 || ""); setA2(existing.answer_2 || ""); setA3(existing.answer_3 || ""); }
@@ -100,7 +92,7 @@ export default function JournalPage() {
   }, [a1, a2, a3, userId, entry]);
 
   async function handleSubmit() {
-    if (!userId || !entry || a1.trim().length < 20) return;
+    if (!userId || !entry || !canSubmit) return;
     setAnalyzing(true);
     try {
       const res = await fetch("/api/agents/journal-analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId, entryId: entry.id, question_1: entry.question_1, question_2: entry.question_2, question_3: entry.question_3, answer_1: a1, answer_2: a2, answer_3: a3 }) });
@@ -205,12 +197,12 @@ export default function JournalPage() {
                 <span className="text-[12px] font-medium uppercase tracking-[0.04em]" style={{ color: dayColors[dayOfWeek] }}>{dayNames[dayOfWeek]}</span>
                 <span className="text-[11px] text-[var(--text-tertiary)]">· Preguntas {questionStartNum}, {questionStartNum + 1}, {questionStartNum + 2} de 21</span>
               </div>
-              <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5">Las preguntas cambian cada dia. Manana tendras 3 nuevas.</p>
+              <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5">{t("journal.questions_change")}</p>
             </div>
           </div>
           {isCompleted && (
             <button onClick={() => setQuestionsCollapsed(!questionsCollapsed)} className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] flex items-center gap-1 transition-colors">
-              {questionsCollapsed ? <><ChevronRight size={12} /> Mostrar</> : <><ChevronDown size={12} /> Ocultar</>}
+              {questionsCollapsed ? <><ChevronRight size={12} /> {t("journal.show")}</> : <><ChevronDown size={12} /> {t("journal.hide")}</>}
             </button>
           )}
         </div>
@@ -239,7 +231,7 @@ export default function JournalPage() {
             {!isCompleted && (
               <div className="flex items-center justify-between pt-2">
                 <div>
-                  {autoSaved && <span className="text-[10px] text-[var(--green)]">Guardado automaticamente ✓</span>}
+                  {autoSaved && <span className="text-[10px] text-[var(--green)]">{t("journal.auto_saved")} ✓</span>}
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <GlowButton variant="primary" onClick={handleSubmit} disabled={!canSubmit || analyzing} className="px-8">
@@ -262,7 +254,7 @@ export default function JournalPage() {
           {/* Section header */}
           <div className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden" style={{ backgroundImage: "var(--satin)" }}>
             <div className="px-5 py-4 border-b border-[var(--border)]">
-              <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">Tu briefing de contenido</p>
+              <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">{t("journal.briefing_section")}</p>
             </div>
             <div className="px-5 py-4">
               <div className="flex items-center gap-3">
@@ -281,7 +273,7 @@ export default function JournalPage() {
           {quote && (
             <Card className="border-l-2 border-l-[var(--amber)]">
               <CardContent className="pt-6 pb-6">
-                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--amber)] font-medium mb-3">Frase del dia</p>
+                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--amber)] font-medium mb-3">{t("journal.quote_of_day")}</p>
                 <p className="text-[18px] font-medium italic leading-relaxed max-w-lg">"{quote}"</p>
                 <div className="flex gap-3 mt-4">
                   <GlowButton onClick={() => copyText(quote)}><Copy size={12} className="mr-1" /> {t("journal.copy")}</GlowButton>
@@ -515,8 +507,8 @@ export default function JournalPage() {
         <div className="rounded-[12px] border border-dashed border-[var(--border)] p-6 text-center">
           <p className="text-[13px] text-[var(--text-tertiary)]">
             {a1.length > 0 || a2.length > 0 || a3.length > 0
-              ? "Completa las 3 preguntas (minimo 20 caracteres cada una) para generar tu briefing"
-              : "Responde las 3 preguntas para generar tu briefing de contenido"}
+              ? t("journal.complete_to_generate")
+              : t("journal.answer_to_generate")}
           </p>
         </div>
       )}
@@ -573,7 +565,7 @@ export default function JournalPage() {
                         {item.a ? (
                           <p className="text-[12px] text-[var(--text-secondary)] mt-1 leading-relaxed">→ {item.a}</p>
                         ) : (
-                          <p className="text-[10px] text-[var(--text-tertiary)] mt-1 italic">Sin respuesta</p>
+                          <p className="text-[10px] text-[var(--text-tertiary)] mt-1 italic">{t("journal.no_answer")}</p>
                         )}
                       </div>
                     ))}
@@ -583,13 +575,13 @@ export default function JournalPage() {
                       <div className="pt-2 border-t border-[var(--border)] space-y-2">
                         {hQuote && (
                           <div className="flex items-start gap-2">
-                            <span className="text-[10px] text-[var(--amber)] font-medium uppercase shrink-0">Frase:</span>
+                            <span className="text-[10px] text-[var(--amber)] font-medium uppercase shrink-0">{t("journal.phrase_label")}</span>
                             <p className="text-[12px] italic text-[var(--text-secondary)]">"{hQuote}"</p>
                           </div>
                         )}
                         {hHooksCount > 0 && (
                           <div>
-                            <span className="text-[10px] text-[var(--text-tertiary)] font-medium uppercase">Hooks:</span>
+                            <span className="text-[10px] text-[var(--text-tertiary)] font-medium uppercase">{t("journal.hooks_label")}</span>
                             <div className="mt-1 space-y-1">
                               {((hContent.hooks_bank || []) as { text: string }[]).slice(0, 3).map((hook, i) => (
                                 <p key={i} className="text-[11px] text-[var(--text-secondary)]">{i + 1}. "{hook.text}"</p>
