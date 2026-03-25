@@ -76,11 +76,13 @@ export default function IntelPage() {
   }
 
   async function handleCreatePost(item: DailyNews) {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
     await createPost({
       caption: item.suggested_hook,
       post_type: (item.suggested_format || "single") as "reel" | "carousel" | "single" | "story",
-      status: "draft",
-      scheduled_date: null,
+      status: "scheduled",
+      scheduled_date: tomorrow.toLocaleDateString("en-CA"),
       platform: "instagram",
     });
     showToast(t("intel.post_created"));

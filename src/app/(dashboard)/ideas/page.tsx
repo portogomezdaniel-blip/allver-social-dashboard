@@ -61,7 +61,9 @@ export default function IdeasPage() {
 
   async function handleCreatePost(title: string, description: string, format: string) {
     try {
-      await createPost({ caption: `${title}\n\n${description}`, post_type: format as "reel" | "carousel" | "single" | "story", status: "draft", scheduled_date: null, platform: "instagram" });
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      await createPost({ caption: `${title}\n\n${description}`, post_type: format as "reel" | "carousel" | "single" | "story", status: "scheduled", scheduled_date: tomorrow.toLocaleDateString("en-CA"), platform: "instagram" });
       showToast(t("common.created"));
     } catch (err) { console.error("Create post error:", err); }
   }

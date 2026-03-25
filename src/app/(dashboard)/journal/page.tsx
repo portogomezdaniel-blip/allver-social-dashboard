@@ -285,7 +285,7 @@ export default function JournalPage() {
                 <p className="text-[18px] font-medium italic leading-relaxed max-w-lg">"{quote}"</p>
                 <div className="flex gap-3 mt-4">
                   <GlowButton onClick={() => copyText(quote)}><Copy size={12} className="mr-1" /> {t("journal.copy")}</GlowButton>
-                  <GlowButton onClick={() => createPost({ caption: quote, post_type: "story", status: "draft", scheduled_date: null, platform: "instagram" })}>{t("journal.publish_story")}</GlowButton>
+                  <GlowButton onClick={() => { const tm = new Date(); tm.setDate(tm.getDate() + 1); createPost({ caption: quote, post_type: "story", status: "scheduled", scheduled_date: tm.toLocaleDateString("en-CA"), platform: "instagram" }); }}>{t("journal.publish_story")}</GlowButton>
                 </div>
               </CardContent>
             </Card>

@@ -301,7 +301,7 @@ export default function CommandCenter() {
                       </div>
                       <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5 ml-[52px]">{fmtLabel} · {item.source}</p>
                     </div>
-                    <GlowButton className="shrink-0 text-[10px]" onClick={() => createPost({ caption: item.suggested_hook, post_type: (item.suggested_format || "single") as "reel" | "carousel" | "single", status: "draft", scheduled_date: null, platform: "instagram" })}>
+                    <GlowButton className="shrink-0 text-[10px]" onClick={() => { const tm = new Date(); tm.setDate(tm.getDate() + 1); createPost({ caption: item.suggested_hook, post_type: (item.suggested_format || "single") as "reel" | "carousel" | "single", status: "scheduled", scheduled_date: tm.toLocaleDateString("en-CA"), platform: "instagram" }); }}>
                       {t("dashboard.create_post")} →
                     </GlowButton>
                   </div>
