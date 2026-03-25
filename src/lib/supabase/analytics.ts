@@ -35,7 +35,7 @@ export async function fetchLatestReport(type: string = "weekly"): Promise<Analyt
     .eq("report_type", type)
     .order("report_date", { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
   return data;
 }
 

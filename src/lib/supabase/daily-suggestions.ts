@@ -24,7 +24,7 @@ export async function fetchTodaySuggestion(): Promise<DailySuggestion | null> {
     .from("daily_suggestions")
     .select("*")
     .eq("suggestion_date", today)
-    .single();
+    .maybeSingle();
   return data;
 }
 

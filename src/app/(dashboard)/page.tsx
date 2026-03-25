@@ -172,7 +172,7 @@ export default function CommandCenter() {
 
   const next7 = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(); d.setDate(d.getDate() + i);
-    const dateKey = d.toISOString().split("T")[0];
+    const dateKey = d.toLocaleDateString("en-CA"); // local date, not UTC
     const dayPost = posts.find((p) => p.scheduled_date === dateKey && p.status === "scheduled");
     return { day: dayNames[d.getDay()].slice(0, 3), date: d.getDate(), post: dayPost, isToday: i === 0 };
   });

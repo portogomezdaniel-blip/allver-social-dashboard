@@ -39,7 +39,9 @@ export async function getWeekSchedule(userId: string) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  const today = new Date();
+  // Use Colombia time (UTC-5) for consistent dates on server
+  const now = new Date();
+  const today = new Date(now.getTime() - 5 * 60 * 60 * 1000);
   const weekEnd = new Date(today);
   weekEnd.setDate(today.getDate() + 7);
 
