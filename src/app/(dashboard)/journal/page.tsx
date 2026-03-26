@@ -375,7 +375,7 @@ export default function JournalPage() {
                         <div className="flex gap-3 mt-2">
                           <span className="text-[10px] px-1.5 py-0.5 rounded-[3px] bg-[var(--bg-hover)] text-[var(--text-tertiary)]">{h.category}</span>
                           <button onClick={() => copyText(h.text)} className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">{t("journal.copy")}</button>
-                          <button onClick={() => createHook({ text: h.text, source: "journal", category: h.category })} className="text-[10px] text-[var(--green)]">{t("journal.save_hook")}</button>
+                          <button onClick={async () => await createHook({ text: h.text, source: "journal", category: h.category })} className="text-[10px] text-[var(--green)]">{t("journal.save_hook")}</button>
                         </div>
                       </div>
                     </div>
