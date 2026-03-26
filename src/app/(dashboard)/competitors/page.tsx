@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, Fragment } from "react";
 import {
   Competitor,
   CompetitorPlatform,
@@ -253,8 +253,8 @@ export default function CompetitorTracker() {
               </thead>
               <tbody>
                 {sorted.map((comp) => (
-                  <>
-                    <tr key={comp.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors cursor-pointer" onClick={() => setExpandedId(expandedId === comp.id ? null : comp.id)}>
+                  <Fragment key={comp.id}>
+                    <tr className="border-b border-border/50 hover:bg-muted/20 transition-colors cursor-pointer" onClick={() => setExpandedId(expandedId === comp.id ? null : comp.id)}>
                       <td className="py-3 pl-4 pr-2">
                         <div className="flex items-center gap-2">
                           <span className={`w-2 h-2 rounded-full ${platformDotColors[comp.platform]}`} />
@@ -301,7 +301,7 @@ export default function CompetitorTracker() {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 ))}
               </tbody>
             </table>
