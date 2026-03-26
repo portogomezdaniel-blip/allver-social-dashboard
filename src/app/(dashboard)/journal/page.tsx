@@ -1,10 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Copy, Loader2, Calendar as CalendarIcon, ChevronDown, ChevronRight } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GlowButton } from "@/components/ui/glow-button";
-import { Textarea } from "@/components/ui/textarea";
+import { Copy, Loader2, ChevronDown, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { type JournalEntry } from "@/lib/supabase/journal";
 import { createHook } from "@/lib/supabase/hooks";
@@ -12,29 +9,24 @@ import { createPost } from "@/lib/supabase/posts";
 import { getTodayQuestions, getQuestionsForDay } from "@/lib/journal-questions";
 import Link from "next/link";
 import { useLocale } from "@/lib/locale-context";
+import GlassCard from "@/components/mirror/GlassCard";
+import LayerLabel from "@/components/mirror/LayerLabel";
+import LayerDivider from "@/components/mirror/LayerDivider";
 
-const domainColors: Record<string, string> = { practice: "border-l-[var(--green)]", clients: "border-l-[var(--blue)]", philosophy: "border-l-[var(--purple)]" };
-const domainTextColors: Record<string, string> = { practice: "text-[var(--green)]", clients: "text-[var(--blue)]", philosophy: "text-[var(--purple)]" };
-const domainLabelKeys: Record<string, string> = { practice: "journal.your_practice", clients: "journal.your_clients", philosophy: "journal.philosophy" };
-const moodEmojis: Record<string, string> = { reflective: "🪞", fired_up: "🔥", frustrated: "😤", grateful: "🙏", philosophical: "🌌", determined: "💪", vulnerable: "🫣" };
+const domainColors: Record<string, string> = { practice: "var(--green)", clients: "var(--blue)", philosophy: "var(--purple)" };
+const domainLabels: Record<string, string> = { practice: "TU PRACTICA", clients: "TUS CLIENTES", philosophy: "FILOSOFIA" };
+const moodEmojis: Record<string, string> = { reflective: "\uD83E\uDE9E", fired_up: "\uD83D\uDD25", frustrated: "\uD83D\uDE24", grateful: "\uD83D\uDE4F", philosophical: "\uD83C\uDF0C", determined: "\uD83D\uDCAA", vulnerable: "\uD83E\uDEE3" };
 const dayNames = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
 const monthNames = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
-const fmtCls: Record<string, string> = { reel: "bg-[var(--purple-bg)] text-[var(--purple)]", carousel: "bg-[var(--blue-bg)] text-[var(--blue)]", single: "bg-[var(--amber-bg)] text-[var(--amber)]", story: "bg-[var(--green-bg)] text-[var(--green)]", story_series: "bg-[var(--green-bg)] text-[var(--green)]" };
+const dayColors: Record<number, string> = { 0: "var(--text-muted)", 1: "var(--green)", 2: "var(--blue)", 3: "var(--purple)", 4: "var(--amber)", 5: "var(--red)", 6: "var(--blue)" };
+const fmtColors: Record<string, string> = { reel: "var(--filter)", carousel: "var(--authority)", story: "var(--conversion)", single: "var(--brand)", story_series: "var(--conversion)" };
 
 function copyText(text: string) { navigator.clipboard.writeText(text); }
-
-// Use local date to avoid UTC timezone issues (e.g. Colombia UTC-5)
-function getLocalDateString(): string {
-  return new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD in local tz
-}
-
-const dayColors: Record<number, string> = { 0: "var(--text-tertiary)", 1: "var(--green)", 2: "var(--blue)", 3: "var(--purple)", 4: "var(--amber)", 5: "var(--red)", 6: "var(--blue)" };
-
+function getLocalDateString(): string { return new Date().toLocaleDateString("en-CA"); }
 function formatHistoryDate(dateStr: string): string {
   const [y, m, d] = dateStr.split("-").map(Number);
   const date = new Date(y, m - 1, d);
-  const day = dayNames[date.getDay()];
-  return `${day}, ${d} ${monthNames[m - 1]}`;
+  return `${dayNames[date.getDay()]}, ${d} ${monthNames[m - 1]}`;
 }
 
 export default function JournalPage() {
@@ -54,9 +46,7 @@ export default function JournalPage() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const now = new Date();
-  const today = getLocalDateString();
   const dayOfWeek = now.getDay();
-  const dateStr = `${dayNames[dayOfWeek]}, ${now.getDate()} ${monthNames[now.getMonth()]} ${now.getFullYear()}`;
   const todayQuestions = getTodayQuestions();
   const questionStartNum = dayOfWeek * 3 + 1;
 
@@ -67,8 +57,6 @@ export default function JournalPage() {
       const uid = data.user.id; setUserId(uid);
       const todayDate = getLocalDateString();
       const qs = getTodayQuestions();
-
-      // Use maybeSingle to avoid 406 error when entry doesn't exist
       const { data: existing } = await supabase.from("journal_entries").select("*").eq("user_id", uid).eq("entry_date", todayDate).maybeSingle();
       if (existing) { setEntry(existing); setA1(existing.answer_1 || ""); setA2(existing.answer_2 || ""); setA3(existing.answer_3 || ""); }
       else {
@@ -102,7 +90,7 @@ export default function JournalPage() {
         setEntry({ ...entry, answer_1: a1, answer_2: a2, answer_3: a3, status: "completed", generated_content: data.content || briefing, mood: briefing.mood, themes: briefing.themes });
         fetch("/api/agents/extract-knowledge", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId, journalEntryId: entry.id }) }).catch(() => {});
       }
-    } catch (err) { console.error("Journal analyze error:", err); } setAnalyzing(false);
+    } catch (err) { console.error(err); } setAnalyzing(false);
   }
 
   async function handleWriteCopy(key: string, tema: string, hook: string, formato: string) {
@@ -112,7 +100,7 @@ export default function JournalPage() {
       const res = await fetch("/api/agents/write-copy", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId, tema, hook, formato }) });
       const data = await res.json();
       if (data.caption) setGeneratedCopies((p) => ({ ...p, [key]: data.caption }));
-    } catch (err) { console.error("Journal copy error:", err); } setGeneratingCopy(null);
+    } catch (err) { console.error(err); } setGeneratingCopy(null);
   }
 
   async function handleAddToCalendar(caption: string, format: string) {
@@ -126,18 +114,15 @@ export default function JournalPage() {
     const dow = startDate.getDay();
     const daysUntilMonday = dow === 0 ? 1 : dow === 1 ? 0 : 8 - dow;
     startDate.setDate(startDate.getDate() + daysUntilMonday);
-
     for (let i = 0; i < days.length; i++) {
-      const day = days[i];
-      const plan = strategy[day];
+      const plan = strategy[days[i]];
       if (!plan) continue;
-      const date = new Date(startDate);
-      date.setDate(date.getDate() + i);
+      const date = new Date(startDate); date.setDate(date.getDate() + i);
       await createPost({ caption: `[${plan.format.toUpperCase()}] ${plan.topic}`, post_type: (plan.format === "story_series" ? "story" : plan.format) as "reel" | "carousel" | "single" | "story", status: "scheduled", scheduled_date: date.toLocaleDateString("en-CA"), platform: "instagram" });
     }
   }
 
-  if (loading) return <div className="flex items-center justify-center h-64 text-[var(--text-tertiary)] text-sm">{t("journal.loading")}</div>;
+  if (loading) return <div className="flex items-center justify-center h-[60vh] text-[var(--text-muted)] text-sm">...</div>;
 
   const b = entry?.generated_content as Record<string, unknown> | null;
   const isCompleted = entry?.status === "completed" && b;
@@ -147,7 +132,6 @@ export default function JournalPage() {
     { q: entry?.question_2 || todayQuestions.questions[1].text, a: a2, set: setA2, domain: todayQuestions.questions[1].domain },
     { q: entry?.question_3 || todayQuestions.questions[2].text, a: a3, set: setA3, domain: todayQuestions.questions[2].domain },
   ];
-
   const hero = (b?.content_plan as Record<string, unknown>)?.hero_post as Record<string, unknown> | null;
   const secondaryPosts = ((b?.content_plan as Record<string, unknown>)?.secondary_posts || []) as Record<string, unknown>[];
   const hooksBank = (b?.hooks_bank || []) as { text: string; category: string; power_score: number }[];
@@ -155,7 +139,6 @@ export default function JournalPage() {
   const carousel = b?.carousel_structure as { title: string; slides: { slide: number; type: string; content: string }[] } | null;
   const weeklyStrategy = b?.weekly_strategy as Record<string, unknown> | null;
   const repurpose = (b?.repurpose_ideas || []) as { from: string; to: string; how: string }[];
-  const engagement = b?.audience_engagement as { question_to_ask: string; poll_idea: { question: string; option_a: string; option_b: string }; comment_prompt: string } | null;
   const brandNote = b?.personal_brand_note as string | null;
   const quote = b?.quote_of_the_day as string | null;
 
@@ -170,123 +153,113 @@ export default function JournalPage() {
   ];
 
   return (
-    <div className="space-y-6 max-w-[900px]">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-[22px] font-medium tracking-[-0.03em]">{t("journal.title")}</h1>
-          <p className="text-[13px] text-[var(--text-tertiary)] mt-0.5">{dateStr}</p>
+    <div className="max-w-[680px] mx-auto space-y-6">
+      {/* ═══ RITUAL HEADER ═══ */}
+      <div className="text-center pt-2">
+        <div className="flex justify-center mb-3">
+          <span className="w-3 h-3 rounded-full" style={{ backgroundColor: dayColors[dayOfWeek] }} />
         </div>
-        <div className="flex items-center gap-3">
-          {autoSaved && <span className="text-[10px] text-[var(--text-tertiary)] animate-pulse">{t("journal.saved")}</span>}
-          <Link href="/journal/knowledge" className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">{t("journal.knowledge_base")} →</Link>
+        <p className="text-[10px] font-mono tracking-[0.2em] uppercase text-[var(--text-muted)]">
+          {dayNames[dayOfWeek]} &middot; Preguntas {questionStartNum}, {questionStartNum + 1}, {questionStartNum + 2} de 21
+        </p>
+        <h1 className="text-[24px] font-[800] tracking-[-0.03em] mt-2" style={{ fontFamily: "var(--font-display)" }}>
+          Tu reflexion de hoy
+        </h1>
+        <p className="text-[11px] text-[var(--text-muted)] italic mt-1" style={{ fontFamily: "var(--font-serif)" }}>
+          Las preguntas cambian cada dia
+        </p>
+        <div className="flex justify-center gap-3 mt-2">
+          {autoSaved && <span className="text-[9px] text-[var(--olive)]">Guardado \u2713</span>}
+          <Link href="/journal/knowledge" className="text-[9px] text-[var(--text-muted)] hover:text-[var(--text-secondary)]">Base de conocimiento &rarr;</Link>
         </div>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SECTION 1: TUS PREGUNTAS DE HOY                        */}
-      {/* ═══════════════════════════════════════════════════════ */}
-
-      <div className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden" style={{ backgroundImage: "var(--satin)" }}>
-        {/* Section header */}
-        <div className="px-5 py-4 border-b border-[var(--border)] flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: dayColors[dayOfWeek] }} />
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[12px] font-medium uppercase tracking-[0.04em]" style={{ color: dayColors[dayOfWeek] }}>{dayNames[dayOfWeek]}</span>
-                <span className="text-[11px] text-[var(--text-tertiary)]">· Preguntas {questionStartNum}, {questionStartNum + 1}, {questionStartNum + 2} de 21</span>
-              </div>
-              <p className="text-[10px] text-[var(--text-tertiary)] mt-0.5">{t("journal.questions_change")}</p>
-            </div>
-          </div>
-          {isCompleted && (
-            <button onClick={() => setQuestionsCollapsed(!questionsCollapsed)} className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] flex items-center gap-1 transition-colors">
-              {questionsCollapsed ? <><ChevronRight size={12} /> {t("journal.show")}</> : <><ChevronDown size={12} /> {t("journal.hide")}</>}
-            </button>
-          )}
+      {/* ═══ QUESTIONS ═══ */}
+      {isCompleted && (
+        <div className="text-center">
+          <button onClick={() => setQuestionsCollapsed(!questionsCollapsed)} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--text-secondary)] inline-flex items-center gap-1">
+            {questionsCollapsed ? <><ChevronRight size={12} /> Mostrar respuestas</> : <><ChevronDown size={12} /> Ocultar respuestas</>}
+          </button>
         </div>
+      )}
 
-        {/* Questions content */}
-        {!questionsCollapsed && (
-          <div className="p-5 space-y-4">
-            {qItems.map((item, i) => (
-              <div key={i} className={`border-l-2 ${domainColors[item.domain] || ""} rounded-[8px] bg-[var(--bg)] p-4`}>
+      {!questionsCollapsed && (
+        <div className="space-y-4">
+          {qItems.map((item, i) => (
+            <GlassCard key={i} intensity="medium" className="p-5" >
+              <div style={{ borderLeft: `2px solid ${domainColors[item.domain]}`, paddingLeft: "16px" }}>
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="w-5 h-5 rounded-full bg-[var(--bg-hover)] flex items-center justify-center text-[10px] font-medium text-[var(--text-tertiary)]">{i + 1}</span>
-                  <p className={`text-[10px] uppercase tracking-[0.06em] font-medium ${domainTextColors[item.domain]}`}>{t(domainLabelKeys[item.domain])}</p>
+                  <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono font-bold" style={{ background: `${domainColors[item.domain]}20`, color: domainColors[item.domain] }}>{i + 1}</span>
+                  <span className="text-[8px] tracking-[0.2em] uppercase font-mono" style={{ color: domainColors[item.domain] }}>{domainLabels[item.domain]}</span>
                 </div>
-                <p className="text-[15px] font-medium italic mb-4">"{item.q}"</p>
+                <p className="text-[16px] md:text-[18px] leading-relaxed mb-4" style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "var(--text-secondary)" }}>
+                  &ldquo;{item.q}&rdquo;
+                </p>
                 {isCompleted ? (
                   <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{item.a}</p>
                 ) : (
                   <>
-                    <Textarea value={item.a} onChange={(e) => item.set(e.target.value)} placeholder={t("journal.write_placeholder")} className="bg-[var(--bg-card)] border-[var(--border)] text-[14px] min-h-[100px]" />
-                    {item.a.length > 0 && item.a.length < 20 && <p className="text-[10px] text-[var(--text-tertiary)] mt-1">{20 - item.a.length} caracteres mas</p>}
+                    <textarea
+                      value={item.a}
+                      onChange={(e) => item.set(e.target.value)}
+                      placeholder="Escribe sin filtro..."
+                      className="w-full bg-[rgba(0,0,0,0.15)] border border-[var(--border)] rounded-[14px] px-4 py-3 text-[13px] text-[var(--text-primary)] placeholder:text-[var(--text-ghost)] focus:outline-none focus:border-[var(--border-focus)] min-h-[90px] resize-none"
+                    />
+                    {item.a.length > 0 && item.a.length < 20 && <p className="text-[9px] text-[var(--text-muted)] mt-1">{20 - item.a.length} caracteres mas</p>}
                   </>
                 )}
               </div>
-            ))}
+            </GlassCard>
+          ))}
 
-            {!isCompleted && (
-              <div className="flex items-center justify-between pt-2">
-                <div>
-                  {autoSaved && <span className="text-[10px] text-[var(--green)]">{t("journal.auto_saved")} ✓</span>}
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <GlowButton variant="primary" onClick={handleSubmit} disabled={!canSubmit || analyzing} className="px-8">
-                    {analyzing ? <><Loader2 size={14} className="animate-spin mr-1" /> {t("journal.analyzing")}</> : `${t("journal.save_generate")} →`}
-                  </GlowButton>
-                  {!canSubmit && <p className="text-[10px] text-[var(--text-tertiary)]">{t("journal.min_required")}</p>}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+          {!isCompleted && (
+            <div className="text-center pt-2">
+              <button onClick={handleSubmit} disabled={!canSubmit || analyzing} className="px-8 py-2.5 rounded-[14px] text-[12px] font-medium transition-all" style={{ background: canSubmit ? "var(--depth)" : "rgba(0,0,0,0.12)", color: canSubmit ? "var(--text-primary)" : "var(--text-muted)", opacity: canSubmit ? 1 : 0.5 }}>
+                {analyzing ? <span className="inline-flex items-center gap-1.5"><Loader2 size={14} className="animate-spin" /> Generando briefing...</span> : "Guardar y generar contenido \u2192"}
+              </button>
+              {!canSubmit && <p className="text-[9px] text-[var(--text-muted)] mt-2">Responde las 3 preguntas (min. 20 caracteres)</p>}
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SECTION 2: TU BRIEFING DE CONTENIDO                    */}
-      {/* ═══════════════════════════════════════════════════════ */}
-
+      {/* ═══ BRIEFING ═══ */}
       {isCompleted ? (
-        <div className="space-y-4">
-          {/* Section header */}
-          <div className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden" style={{ backgroundImage: "var(--satin)" }}>
-            <div className="px-5 py-4 border-b border-[var(--border)]">
-              <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">{t("journal.briefing_section")}</p>
-            </div>
-            <div className="px-5 py-4">
-              <div className="flex items-center gap-3">
-                {entry?.mood && <span className="text-lg">{moodEmojis[entry.mood] || ""}</span>}
-                <div>
-                  {entry?.mood && <p className="text-[13px] font-medium capitalize">{entry.mood.replace("_", " ")}</p>}
-                  <div className="flex gap-2 mt-1">
-                    {entry?.themes?.map((tag, i) => <span key={i} className="text-[10px] px-2 py-0.5 rounded-[4px] bg-[var(--bg-hover)] text-[var(--text-secondary)]">#{tag}</span>)}
-                  </div>
+        <>
+          <LayerDivider />
+          <LayerLabel layer="depth" label="TU BRIEFING DE CONTENIDO" />
+
+          {/* Mood + themes */}
+          <GlassCard intensity="subtle" className="p-4">
+            <div className="flex items-center gap-3">
+              {entry?.mood && <span className="text-lg">{moodEmojis[entry.mood] || ""}</span>}
+              <div>
+                {entry?.mood && <p className="text-[12px] font-medium capitalize">{entry.mood.replace("_", " ")}</p>}
+                <div className="flex gap-1.5 mt-1">
+                  {entry?.themes?.map((tag, i) => <span key={i} className="text-[9px] px-2 py-0.5 rounded-md" style={{ background: "rgba(0,0,0,0.12)", color: "var(--text-secondary)" }}>#{tag}</span>)}
                 </div>
               </div>
             </div>
-          </div>
+          </GlassCard>
 
           {/* Quote */}
           {quote && (
-            <Card className="border-l-2 border-l-[var(--amber)]">
-              <CardContent className="pt-6 pb-6">
-                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--amber)] font-medium mb-3">{t("journal.quote_of_day")}</p>
-                <p className="text-[18px] font-medium italic leading-relaxed max-w-lg">"{quote}"</p>
-                <div className="flex gap-3 mt-4">
-                  <GlowButton onClick={() => copyText(quote)}><Copy size={12} className="mr-1" /> {t("journal.copy")}</GlowButton>
-                  <GlowButton onClick={async () => { const tm = new Date(); tm.setDate(tm.getDate() + 1); await createPost({ caption: quote, post_type: "story", status: "scheduled", scheduled_date: tm.toLocaleDateString("en-CA"), platform: "instagram" }); }}>{t("journal.publish_story")}</GlowButton>
-                </div>
-              </CardContent>
-            </Card>
+            <GlassCard intensity="medium" className="p-5" >
+              <span className="text-[8px] tracking-[0.2em] uppercase font-mono text-[var(--amber)] mb-2 block">FRASE DEL DIA</span>
+              <p className="text-[18px] leading-relaxed" style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "var(--text-secondary)" }}>
+                &ldquo;{quote}&rdquo;
+              </p>
+              <div className="flex gap-2 mt-3">
+                <button onClick={() => copyText(quote)} className="text-[10px] px-3 py-1.5 rounded-lg border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]"><Copy size={10} className="inline mr-1" />Copiar</button>
+                <button onClick={async () => { const tm = new Date(); tm.setDate(tm.getDate() + 1); await createPost({ caption: quote, post_type: "story", status: "scheduled", scheduled_date: tm.toLocaleDateString("en-CA"), platform: "instagram" }); }} className="text-[10px] px-3 py-1.5 rounded-lg" style={{ background: "var(--depth)", color: "var(--text-primary)" }}>Publicar como story</button>
+              </div>
+            </GlassCard>
           )}
 
           {/* Tabs */}
           <div className="flex gap-1 overflow-x-auto pb-1">
             {tabs.map((tab) => (
-              <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`shrink-0 px-3 py-1.5 text-[11px] font-medium rounded-[6px] transition-colors ${activeTab === tab.id ? "bg-[var(--text-primary)] text-[var(--bg)]" : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"}`}>
+              <button key={tab.id} onClick={() => setActiveTab(tab.id)} className="shrink-0 px-3 py-1.5 text-[10px] font-medium rounded-lg transition-all" style={{ background: activeTab === tab.id ? "var(--depth)" : "rgba(0,0,0,0.12)", color: activeTab === tab.id ? "var(--text-primary)" : "var(--text-muted)" }}>
                 {tab.label}
               </button>
             ))}
@@ -294,309 +267,217 @@ export default function JournalPage() {
 
           {/* Hero Post */}
           {activeTab === "hero" && hero && (
-            <Card>
-              <CardContent className="pt-5 pb-5 space-y-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-[13px]">🎯</span>
-                  <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">{t("journal.main_post")}</p>
+            <GlassCard intensity="medium" className="p-5 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-[8px] px-2 py-[2px] rounded-md" style={{ background: `${fmtColors[hero.format as string] || "var(--olive)"}15`, color: fmtColors[hero.format as string] || "var(--olive)" }}>{(hero.format as string || "").toUpperCase()}</span>
+                <span className="text-[10px] font-mono text-[var(--text-muted)]">{hero.best_time as string}</span>
+              </div>
+              <p className="text-[15px] font-[800]" style={{ fontFamily: "var(--font-display)" }}>{hero.title as string}</p>
+              <div className="p-3 rounded-[12px]" style={{ background: "rgba(0,0,0,0.12)", border: "0.5px solid var(--border)" }}>
+                <span className="text-[8px] tracking-[0.15em] uppercase font-mono text-[var(--text-muted)] mb-1 block">HOOK</span>
+                <p className="text-[14px] italic" style={{ fontFamily: "var(--font-serif)" }}>&ldquo;{hero.hook as string}&rdquo;</p>
+                <button onClick={() => copyText(hero.hook as string)} className="text-[9px] text-[var(--text-muted)] mt-1 hover:text-[var(--text-secondary)]">Copiar hook</button>
+              </div>
+              {(hero.outline as string[])?.length > 0 && (
+                <div>
+                  <span className="text-[8px] tracking-[0.15em] uppercase font-mono text-[var(--text-muted)] mb-1 block">ESTRUCTURA</span>
+                  <ol className="space-y-1">{(hero.outline as string[]).map((p, i) => <li key={i} className="text-[12px] text-[var(--text-secondary)]">{i + 1}. {p}</li>)}</ol>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-medium rounded-[4px] ${fmtCls[hero.format as string] || ""}`}>{(hero.format as string || "").toUpperCase()}</span>
-                  <span className="text-[11px] font-mono text-[var(--text-tertiary)]">{hero.best_time as string}</span>
-                </div>
-                <p className="text-[15px] font-medium">{hero.title as string}</p>
-                <div className="p-3 rounded-[6px] bg-[var(--bg)] border border-[var(--border)]">
-                  <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium mb-1">Hook</p>
-                  <p className="text-[14px] font-medium italic">"{hero.hook as string}"</p>
-                  <button onClick={() => copyText(hero.hook as string)} className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] mt-1">{t("journal.copy_hook")}</button>
-                </div>
-                {(hero.outline as string[])?.length > 0 && (
-                  <div>
-                    <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium mb-2">{t("journal.structure")}</p>
-                    <ol className="space-y-1">{(hero.outline as string[]).map((p, i) => <li key={i} className="text-[12px] text-[var(--text-secondary)]">{i + 1}. {p}</li>)}</ol>
-                  </div>
-                )}
-                <p className="text-[12px] text-[var(--text-secondary)]"><strong>CTA:</strong> {hero.cta as string}</p>
-                <div className="flex flex-wrap gap-1">{(hero.hashtags as string[] || []).map((h, i) => <span key={i} className="text-[10px] text-[var(--text-tertiary)]">#{h}</span>)}</div>
-                <div className="p-3 rounded-[6px] bg-[var(--green-bg)] border border-[var(--green)]/20">
-                  <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--green)] font-medium mb-1">{t("journal.why_works")}</p>
-                  <p className="text-[12px] text-[var(--text-secondary)]">{hero.why as string}</p>
-                </div>
-                {generatedCopies["hero"] ? (
-                  <div className="p-3 rounded-[6px] bg-[var(--bg)] border border-[var(--border)] text-[12px] text-[var(--text-secondary)] whitespace-pre-line leading-relaxed">{generatedCopies["hero"]}</div>
-                ) : null}
-                <div className="flex gap-2">
-                  <GlowButton variant="primary" onClick={() => handleWriteCopy("hero", hero.title as string, hero.hook as string, hero.format as string)} disabled={generatingCopy === "hero"}>
-                    {generatingCopy === "hero" ? t("dashboard.generating") : `${t("journal.create_ai")} →`}
-                  </GlowButton>
-                  <GlowButton onClick={() => handleAddToCalendar(hero.hook as string, hero.format as string)}>
-                    <CalendarIcon size={12} className="mr-1" /> {t("journal.add_calendar")}
-                  </GlowButton>
-                </div>
-              </CardContent>
-            </Card>
+              )}
+              <p className="text-[11px] text-[var(--text-secondary)]"><strong>CTA:</strong> {hero.cta as string}</p>
+              <div className="flex flex-wrap gap-1">{(hero.hashtags as string[] || []).map((h, i) => <span key={i} className="text-[9px] text-[var(--text-muted)]">#{h}</span>)}</div>
+              {(hero.why as string) && <p className="text-[11px] text-[var(--olive)] italic">{hero.why as string}</p>}
+              {generatedCopies["hero"] && <div className="p-3 rounded-[12px] bg-[rgba(0,0,0,0.1)] border border-[var(--border)] text-[12px] text-[var(--text-secondary)] whitespace-pre-line leading-relaxed">{generatedCopies["hero"]}</div>}
+              <div className="flex gap-2">
+                <button onClick={() => handleWriteCopy("hero", hero.title as string, hero.hook as string, hero.format as string)} disabled={generatingCopy === "hero"} className="text-[10px] px-3 py-1.5 rounded-lg font-medium" style={{ background: "var(--depth)", color: "var(--text-primary)" }}>
+                  {generatingCopy === "hero" ? "..." : "Crear con IA \u2192"}
+                </button>
+                <button onClick={() => handleAddToCalendar(hero.hook as string, hero.format as string)} className="text-[10px] px-3 py-1.5 rounded-lg border border-[var(--border)] text-[var(--text-muted)]">Calendario</button>
+              </div>
+            </GlassCard>
           )}
 
           {/* Secondary Posts */}
           {activeTab === "posts" && secondaryPosts.length > 0 && (
             <div className="space-y-3">
               {secondaryPosts.map((post, i) => (
-                <Card key={i}>
-                  <CardContent className="pt-4 pb-4 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-flex items-center px-1.5 py-0.5 text-[9px] font-medium rounded-[3px] ${fmtCls[post.format as string] || ""}`}>{(post.format as string || "").toUpperCase()}</span>
-                      <p className="text-[13px] font-medium">{post.title as string}</p>
-                    </div>
-                    <p className="text-[13px] italic text-[var(--text-secondary)]">"{post.hook as string}"</p>
-                    <p className="text-[11px] text-[var(--text-tertiary)]">{post.brief as string}</p>
-                    <div className="flex gap-2">
-                      <GlowButton variant="primary" onClick={() => handleWriteCopy(`sec-${i}`, post.title as string, post.hook as string, post.format as string)} disabled={generatingCopy === `sec-${i}`} className="text-[10px]">
-                        {generatingCopy === `sec-${i}` ? "..." : t("journal.create_with_ai")}
-                      </GlowButton>
-                      <GlowButton onClick={() => handleAddToCalendar(post.hook as string, post.format as string)} className="text-[10px]">{t("journal.calendar")}</GlowButton>
-                    </div>
-                    {generatedCopies[`sec-${i}`] && <div className="p-3 rounded-[6px] bg-[var(--bg)] border border-[var(--border)] text-[12px] text-[var(--text-secondary)] whitespace-pre-line">{generatedCopies[`sec-${i}`]}</div>}
-                  </CardContent>
-                </Card>
+                <GlassCard key={i} intensity="subtle" className="p-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[8px] px-2 py-[2px] rounded-md" style={{ background: `${fmtColors[post.format as string] || "var(--olive)"}15`, color: fmtColors[post.format as string] || "var(--olive)" }}>{(post.format as string || "").toUpperCase()}</span>
+                    <p className="text-[13px] font-medium">{post.title as string}</p>
+                  </div>
+                  <p className="text-[12px] italic text-[var(--text-secondary)]" style={{ fontFamily: "var(--font-serif)" }}>&ldquo;{post.hook as string}&rdquo;</p>
+                  <p className="text-[10px] text-[var(--text-muted)]">{post.brief as string}</p>
+                  {generatedCopies[`sec-${i}`] && <div className="p-3 rounded-[12px] bg-[rgba(0,0,0,0.1)] border border-[var(--border)] text-[12px] text-[var(--text-secondary)] whitespace-pre-line">{generatedCopies[`sec-${i}`]}</div>}
+                  <div className="flex gap-2">
+                    <button onClick={() => handleWriteCopy(`sec-${i}`, post.title as string, post.hook as string, post.format as string)} disabled={generatingCopy === `sec-${i}`} className="text-[9px] px-2 py-1 rounded-md" style={{ background: "rgba(155,126,184,0.12)", color: "var(--depth)" }}>{generatingCopy === `sec-${i}` ? "..." : "IA"}</button>
+                    <button onClick={() => handleAddToCalendar(post.hook as string, post.format as string)} className="text-[9px] px-2 py-1 rounded-md text-[var(--text-muted)] border border-[var(--border)]">Cal</button>
+                  </div>
+                </GlassCard>
               ))}
             </div>
           )}
 
           {/* Hooks */}
           {activeTab === "hooks" && hooksBank.length > 0 && (
-            <Card>
-              <CardContent className="p-0 divide-y divide-[var(--border)]">
-                {hooksBank.map((h, i) => (
-                  <div key={i} className="px-5 py-3.5 hover:bg-[var(--bg-hover)] transition-colors">
-                    <div className="flex items-start gap-3">
-                      <span className="text-[14px] font-mono font-medium text-[var(--amber)] mt-0.5">{h.power_score}/10</span>
-                      <div className="flex-1">
-                        <p className="text-[13px] font-medium">{h.text}</p>
-                        <div className="flex gap-3 mt-2">
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-[3px] bg-[var(--bg-hover)] text-[var(--text-tertiary)]">{h.category}</span>
-                          <button onClick={() => copyText(h.text)} className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">{t("journal.copy")}</button>
-                          <button onClick={async () => await createHook({ text: h.text, source: "journal", category: h.category })} className="text-[10px] text-[var(--green)]">{t("journal.save_hook")}</button>
-                        </div>
+            <div className="space-y-2">
+              {hooksBank.map((h, i) => (
+                <GlassCard key={i} intensity="subtle" className="p-3.5">
+                  <div className="flex items-start gap-3">
+                    <span className="text-[14px] font-mono font-[800]" style={{ color: "var(--amber)" }}>{h.power_score}/10</span>
+                    <div className="flex-1">
+                      <p className="text-[13px]" style={{ fontFamily: h.power_score >= 8 ? "var(--font-serif)" : "inherit", fontStyle: h.power_score >= 8 ? "italic" : "normal" }}>{h.text}</p>
+                      <div className="flex gap-3 mt-2">
+                        <span className="text-[9px] px-1.5 py-0.5 rounded-md" style={{ background: "rgba(0,0,0,0.1)", color: "var(--text-muted)" }}>{h.category}</span>
+                        <button onClick={() => copyText(h.text)} className="text-[9px] text-[var(--text-muted)] hover:text-[var(--text-secondary)]">Copiar</button>
+                        <button onClick={async () => await createHook({ text: h.text, source: "journal", category: h.category })} className="text-[9px] text-[var(--olive)]">Guardar</button>
                       </div>
                     </div>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
+                </GlassCard>
+              ))}
+            </div>
           )}
 
           {/* Stories */}
           {activeTab === "stories" && storyIdeas.length > 0 && (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {storyIdeas.map((s, i) => (
-                <Card key={i}>
-                  <CardContent className="pt-4 pb-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-[3px] bg-[var(--bg-hover)] text-[var(--text-secondary)] uppercase">{s.type}</span>
-                    </div>
-                    <p className="text-[13px] font-medium">{s.content}</p>
-                    <p className="text-[10px] text-[var(--text-tertiary)] mt-1">{t("journal.tactic")}: {s.engagement_tactic}</p>
-                    <button onClick={() => copyText(s.content)} className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] mt-2">{t("journal.copy")}</button>
-                  </CardContent>
-                </Card>
+                <GlassCard key={i} intensity="ghost" className="p-3.5">
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-md uppercase" style={{ background: "rgba(0,0,0,0.1)", color: "var(--text-muted)" }}>{s.type}</span>
+                  <p className="text-[12px] text-[var(--text-secondary)] mt-1.5">{s.content}</p>
+                  <p className="text-[9px] text-[var(--text-muted)] mt-1">{s.engagement_tactic}</p>
+                </GlassCard>
               ))}
             </div>
           )}
 
           {/* Carousel */}
           {activeTab === "carousel" && carousel && (
-            <Card>
-              <CardContent className="pt-5 pb-5 space-y-3">
-                <p className="text-[14px] font-medium">{carousel.title}</p>
-                {carousel.slides.map((slide) => (
-                  <div key={slide.slide} className="p-3 rounded-[6px] bg-[var(--bg)] border border-[var(--border)]">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[10px] font-mono text-[var(--text-tertiary)]">Slide {slide.slide}</span>
-                      <span className="text-[9px] px-1.5 py-0.5 rounded-[3px] bg-[var(--bg-hover)] text-[var(--text-tertiary)] uppercase">{slide.type}</span>
-                    </div>
-                    <p className="text-[12px] text-[var(--text-secondary)]">{slide.content}</p>
-                  </div>
-                ))}
-                <div className="flex gap-2">
-                  <GlowButton onClick={() => copyText(carousel.slides.map((s) => `Slide ${s.slide} [${s.type}]: ${s.content}`).join("\n\n"))}>{t("journal.copy_all")}</GlowButton>
-                  <GlowButton variant="primary" onClick={() => handleWriteCopy("carousel", carousel.title, carousel.slides[0].content, "carousel")} disabled={generatingCopy === "carousel"}>
-                    {generatingCopy === "carousel" ? "..." : `${t("journal.create_with_ai")} →`}
-                  </GlowButton>
+            <GlassCard intensity="medium" className="p-5 space-y-3">
+              <p className="text-[14px] font-[800]" style={{ fontFamily: "var(--font-display)" }}>{carousel.title}</p>
+              {carousel.slides.map((slide) => (
+                <div key={slide.slide} className="p-3 rounded-[12px]" style={{ background: "rgba(0,0,0,0.1)", border: "0.5px solid var(--border)" }}>
+                  <span className="text-[9px] font-mono text-[var(--text-muted)]">Slide {slide.slide} &middot; <span className="uppercase">{slide.type}</span></span>
+                  <p className="text-[12px] text-[var(--text-secondary)] mt-1">{slide.content}</p>
                 </div>
-                {generatedCopies["carousel"] && <div className="p-3 rounded-[6px] bg-[var(--bg)] border border-[var(--border)] text-[12px] text-[var(--text-secondary)] whitespace-pre-line">{generatedCopies["carousel"]}</div>}
-              </CardContent>
-            </Card>
+              ))}
+              <div className="flex gap-2">
+                <button onClick={() => copyText(carousel.slides.map(s => `Slide ${s.slide} [${s.type}]: ${s.content}`).join("\n\n"))} className="text-[10px] px-3 py-1.5 rounded-lg border border-[var(--border)] text-[var(--text-muted)]">Copiar todo</button>
+                <button onClick={() => handleWriteCopy("carousel", carousel.title, carousel.slides[0].content, "carousel")} disabled={generatingCopy === "carousel"} className="text-[10px] px-3 py-1.5 rounded-lg" style={{ background: "var(--depth)", color: "var(--text-primary)" }}>{generatingCopy === "carousel" ? "..." : "IA \u2192"}</button>
+              </div>
+              {generatedCopies["carousel"] && <div className="p-3 rounded-[12px] bg-[rgba(0,0,0,0.1)] border border-[var(--border)] text-[12px] text-[var(--text-secondary)] whitespace-pre-line">{generatedCopies["carousel"]}</div>}
+            </GlassCard>
           )}
 
           {/* Weekly Strategy */}
           {activeTab === "week" && weeklyStrategy && (
-            <Card>
-              <CardContent className="pt-5 pb-5 space-y-3">
-                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">{t("journal.week_theme")}</p>
-                <p className="text-[14px] font-medium">{weeklyStrategy.theme_of_week as string}</p>
-                <div className="grid grid-cols-5 gap-2 mt-3">
-                  {["monday", "tuesday", "wednesday", "thursday", "friday"].map((day) => {
-                    const plan = weeklyStrategy[day] as { format: string; topic: string } | null;
-                    if (!plan) return <div key={day} className="p-3 rounded-[6px] border border-[var(--border)] text-center"><p className="text-[10px] text-[var(--text-tertiary)]">{day.slice(0, 3)}</p><p className="text-[10px] text-[var(--text-tertiary)]">—</p></div>;
-                    return (
-                      <div key={day} className="p-3 rounded-[6px] border border-[var(--border)] bg-[var(--bg)]">
-                        <p className="text-[10px] text-[var(--text-tertiary)] uppercase">{day.slice(0, 3)}</p>
-                        <span className={`inline-flex mt-1 px-1 py-0.5 text-[8px] font-medium rounded-[2px] ${fmtCls[plan.format] || ""}`}>{plan.format}</span>
-                        <p className="text-[10px] text-[var(--text-secondary)] mt-1">{plan.topic}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-                <GlowButton variant="primary" onClick={() => handleApplyWeeklyPlan(weeklyStrategy as Record<string, { format: string; topic: string }>)}>
-                  {t("journal.apply_calendar")}
-                </GlowButton>
-              </CardContent>
-            </Card>
+            <GlassCard intensity="subtle" className="p-5 space-y-3">
+              <span className="text-[8px] tracking-[0.2em] uppercase font-mono text-[var(--text-muted)]">TEMA DE LA SEMANA</span>
+              <p className="text-[14px] font-[800]" style={{ fontFamily: "var(--font-display)" }}>{weeklyStrategy.theme_of_week as string}</p>
+              <div className="grid grid-cols-5 gap-1.5 mt-3">
+                {["monday", "tuesday", "wednesday", "thursday", "friday"].map((day) => {
+                  const plan = weeklyStrategy[day] as { format: string; topic: string } | null;
+                  return (
+                    <div key={day} className="p-2.5 rounded-lg text-center" style={{ background: plan ? "rgba(0,0,0,0.12)" : "rgba(0,0,0,0.05)", border: "0.5px solid var(--border-ghost)" }}>
+                      <p className="text-[9px] text-[var(--text-muted)] uppercase">{day.slice(0, 3)}</p>
+                      {plan ? (<>
+                        <span className="text-[8px] font-mono mt-1 block" style={{ color: fmtColors[plan.format] || "var(--olive)" }}>{plan.format}</span>
+                        <p className="text-[9px] text-[var(--text-secondary)] mt-0.5 line-clamp-2">{plan.topic}</p>
+                      </>) : <p className="text-[9px] text-[var(--text-muted)] mt-1">&mdash;</p>}
+                    </div>
+                  );
+                })}
+              </div>
+              <button onClick={() => handleApplyWeeklyPlan(weeklyStrategy as Record<string, { format: string; topic: string }>)} className="text-[10px] px-3 py-1.5 rounded-lg" style={{ background: "var(--depth)", color: "var(--text-primary)" }}>Aplicar al calendario</button>
+            </GlassCard>
           )}
 
           {/* Repurpose */}
           {activeTab === "repurpose" && repurpose.length > 0 && (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {repurpose.map((r, i) => (
-                <Card key={i}>
-                  <CardContent className="pt-4 pb-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[10px] text-[var(--text-tertiary)]">De:</span>
-                      <span className="text-[11px] text-[var(--text-secondary)]">{r.from}</span>
-                    </div>
-                    <p className="text-[13px] font-medium">→ {r.to}</p>
-                    <p className="text-[11px] text-[var(--text-tertiary)] mt-1">{r.how}</p>
-                  </CardContent>
-                </Card>
+                <GlassCard key={i} intensity="ghost" className="p-3.5">
+                  <p className="text-[10px] text-[var(--text-muted)]">De: {r.from}</p>
+                  <p className="text-[12px] text-[var(--text-secondary)] font-medium mt-0.5">&rarr; {r.to}</p>
+                  <p className="text-[10px] text-[var(--text-muted)] mt-0.5">{r.how}</p>
+                </GlassCard>
               ))}
             </div>
           )}
 
-          {/* Engagement */}
-          {engagement && (
-            <Card>
-              <CardContent className="pt-5 pb-5 space-y-4">
-                <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--text-tertiary)] font-medium">Engagement</p>
-                {engagement.comment_prompt && (
-                  <div className="flex items-center justify-between">
-                    <p className="text-[12px] text-[var(--text-secondary)]">{engagement.comment_prompt}</p>
-                    <button onClick={() => copyText(engagement.comment_prompt)} className="text-[10px] text-[var(--text-tertiary)] shrink-0 ml-2">{t("journal.copy")}</button>
-                  </div>
-                )}
-                {engagement.poll_idea && (
-                  <div className="p-3 rounded-[6px] bg-[var(--bg)] border border-[var(--border)]">
-                    <p className="text-[11px] font-medium mb-1">{engagement.poll_idea.question}</p>
-                    <div className="flex gap-2">
-                      <span className="text-[10px] px-2 py-0.5 rounded-[4px] bg-[var(--bg-hover)] text-[var(--text-secondary)]">{engagement.poll_idea.option_a}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-[4px] bg-[var(--bg-hover)] text-[var(--text-secondary)]">{engagement.poll_idea.option_b}</span>
-                    </div>
-                  </div>
-                )}
-                {brandNote && (
-                  <div className="p-3 rounded-[6px] border border-[var(--purple)]/20 bg-[var(--purple-bg)]">
-                    <p className="text-[10px] uppercase tracking-[0.06em] text-[var(--purple)] font-medium mb-1">{t("journal.personal_brand")}</p>
-                    <p className="text-[12px] text-[var(--text-secondary)]">{brandNote}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+          {/* Brand note */}
+          {brandNote && (
+            <GlassCard intensity="ghost" className="p-4">
+              <span className="text-[8px] tracking-[0.2em] uppercase font-mono text-[var(--depth)] mb-1 block">NOTA DE MARCA</span>
+              <p className="text-[12px] text-[var(--text-secondary)] italic" style={{ fontFamily: "var(--font-serif)" }}>{brandNote}</p>
+            </GlassCard>
           )}
-        </div>
+        </>
       ) : (
-        /* Briefing placeholder when not completed */
-        <div className="rounded-[12px] border border-dashed border-[var(--border)] p-6 text-center">
-          <p className="text-[13px] text-[var(--text-tertiary)]">
-            {a1.length > 0 || a2.length > 0 || a3.length > 0
-              ? t("journal.complete_to_generate")
-              : t("journal.answer_to_generate")}
+        <GlassCard intensity="ghost" className="p-6 text-center">
+          <p className="text-[12px] text-[var(--text-muted)]">
+            {a1.length > 0 || a2.length > 0 || a3.length > 0 ? "Completa las 3 preguntas (min. 20 caracteres) para generar tu briefing" : "Responde las 3 preguntas para generar tu briefing de contenido"}
           </p>
-        </div>
+        </GlassCard>
       )}
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* HISTORIAL                                               */}
-      {/* ═══════════════════════════════════════════════════════ */}
-
+      {/* ═══ ECOS ANTERIORES ═══ */}
       {history.length > 0 && (
-        <div className="space-y-2">
-          <h2 className="text-[14px] font-medium">{t("journal.previous_entries")}</h2>
-          {history.map((h) => {
-            const isExpanded = expandedHistoryId === h.id;
-            const hDate = h.entry_date;
-            const [hy, hm, hd] = hDate.split("-").map(Number);
-            const hDateObj = new Date(hy, hm - 1, hd);
-            const hDay = hDateObj.getDay();
-            const hContent = h.generated_content as Record<string, unknown> | null;
-            const hHooksCount = ((hContent?.hooks_bank || []) as unknown[]).length;
-            const hQuote = hContent?.quote_of_the_day as string | null;
+        <>
+          <LayerDivider />
+          <p className="text-center text-[10px] tracking-[0.2em] uppercase font-mono text-[var(--text-muted)]">ECOS ANTERIORES</p>
+          <div className="space-y-2">
+            {history.map((h, idx) => {
+              const isExpanded = expandedHistoryId === h.id;
+              const [hy, hm, hd] = h.entry_date.split("-").map(Number);
+              const hDay = new Date(hy, hm - 1, hd).getDay();
+              const hContent = h.generated_content as Record<string, unknown> | null;
+              const hQuote = hContent?.quote_of_the_day as string | null;
+              const hHooksCount = ((hContent?.hooks_bank || []) as unknown[]).length;
+              const fadeOpacity = idx < 2 ? 1 : idx < 5 ? 0.8 : 0.6;
+              const intensity = idx < 2 ? "subtle" as const : "ghost" as const;
 
-            return (
-              <div key={h.id} className="rounded-[10px] border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden transition-colors" style={{ backgroundImage: "var(--satin)" }}>
-                <button
-                  onClick={() => setExpandedHistoryId(isExpanded ? null : h.id)}
-                  className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-[var(--bg-hover)] transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    {isExpanded ? <ChevronDown size={14} className="text-[var(--text-tertiary)]" /> : <ChevronRight size={14} className="text-[var(--text-tertiary)]" />}
-                    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: dayColors[hDay] }} />
-                    <span className="text-[12px] text-[var(--text-secondary)]">{formatHistoryDate(hDate)}</span>
-                    {h.mood && <span className="text-[12px]">{moodEmojis[h.mood] || ""} <span className="text-[11px] text-[var(--text-secondary)] capitalize">{h.mood.replace("_", " ")}</span></span>}
-                    {hHooksCount > 0 && <span className="text-[10px] text-[var(--text-tertiary)]">{hHooksCount} hooks</span>}
-                    {h.themes?.slice(0, 2).map((tag, i) => <span key={i} className="text-[9px] px-1.5 py-0.5 rounded-[3px] bg-[var(--bg-hover)] text-[var(--text-tertiary)]">#{tag}</span>)}
+              return (
+                <GlassCard key={h.id} intensity={intensity} className="overflow-hidden" onClick={() => setExpandedHistoryId(isExpanded ? null : h.id)}>
+                  <div className="px-4 py-3 flex items-center justify-between cursor-pointer" style={{ opacity: fadeOpacity }}>
+                    <div className="flex items-center gap-2.5">
+                      {isExpanded ? <ChevronDown size={12} className="text-[var(--text-muted)]" /> : <ChevronRight size={12} className="text-[var(--text-muted)]" />}
+                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: dayColors[hDay] }} />
+                      <span className="text-[11px] text-[var(--text-secondary)]">{formatHistoryDate(h.entry_date)}</span>
+                      {h.mood && <span className="text-[11px]">{moodEmojis[h.mood] || ""}</span>}
+                      {hHooksCount > 0 && <span className="text-[9px] text-[var(--text-muted)]">{hHooksCount} hooks</span>}
+                    </div>
+                    <span className="text-[9px] px-2 py-0.5 rounded-md" style={{ background: h.status === "completed" ? "rgba(168,183,142,0.12)" : "rgba(200,170,80,0.12)", color: h.status === "completed" ? "var(--olive)" : "var(--amber)" }}>
+                      {h.status === "completed" ? "Completado" : "Sin completar"}
+                    </span>
                   </div>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-[3px] ${h.status === "completed" ? "bg-[var(--green-bg)] text-[var(--green)]" : "bg-[var(--amber-bg)] text-[var(--amber)]"}`}>
-                    {h.status === "completed" ? t("journal.completed") : t("journal.incomplete")}
-                  </span>
-                </button>
-
-                {isExpanded && (
-                  <div className="px-4 pb-4 pt-1 border-t border-[var(--border)] space-y-4">
-                    {/* Questions & Answers */}
-                    {[
-                      { q: h.question_1, a: h.answer_1, domain: getQuestionsForDay(hDay).questions[0].domain },
-                      { q: h.question_2, a: h.answer_2, domain: getQuestionsForDay(hDay).questions[1].domain },
-                      { q: h.question_3, a: h.answer_3, domain: getQuestionsForDay(hDay).questions[2].domain },
-                    ].map((item, i) => (
-                      <div key={i} className={`border-l-2 ${domainColors[item.domain] || "border-l-[var(--border)]"} pl-3`}>
-                        <p className={`text-[10px] uppercase tracking-[0.06em] font-medium mb-1 ${domainTextColors[item.domain] || "text-[var(--text-tertiary)]"}`}>
-                          {t(domainLabelKeys[item.domain] || "journal.your_practice")}
-                        </p>
-                        <p className="text-[12px] italic text-[var(--text-tertiary)]">"{item.q}"</p>
-                        {item.a ? (
-                          <p className="text-[12px] text-[var(--text-secondary)] mt-1 leading-relaxed">→ {item.a}</p>
-                        ) : (
-                          <p className="text-[10px] text-[var(--text-tertiary)] mt-1 italic">{t("journal.no_answer")}</p>
-                        )}
-                      </div>
-                    ))}
-
-                    {/* Generated content summary */}
-                    {h.status === "completed" && hContent && (
-                      <div className="pt-2 border-t border-[var(--border)] space-y-2">
-                        {hQuote && (
-                          <div className="flex items-start gap-2">
-                            <span className="text-[10px] text-[var(--amber)] font-medium uppercase shrink-0">{t("journal.phrase_label")}</span>
-                            <p className="text-[12px] italic text-[var(--text-secondary)]">"{hQuote}"</p>
-                          </div>
-                        )}
-                        {hHooksCount > 0 && (
-                          <div>
-                            <span className="text-[10px] text-[var(--text-tertiary)] font-medium uppercase">{t("journal.hooks_label")}</span>
-                            <div className="mt-1 space-y-1">
-                              {((hContent.hooks_bank || []) as { text: string }[]).slice(0, 3).map((hook, i) => (
-                                <p key={i} className="text-[11px] text-[var(--text-secondary)]">{i + 1}. "{hook.text}"</p>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                  {isExpanded && (
+                    <div className="px-4 pb-4 pt-1 border-t border-[var(--border-subtle)] space-y-3">
+                      {[
+                        { q: h.question_1, a: h.answer_1, domain: getQuestionsForDay(hDay).questions[0].domain },
+                        { q: h.question_2, a: h.answer_2, domain: getQuestionsForDay(hDay).questions[1].domain },
+                        { q: h.question_3, a: h.answer_3, domain: getQuestionsForDay(hDay).questions[2].domain },
+                      ].map((item, i) => (
+                        <div key={i} style={{ borderLeft: `2px solid ${domainColors[item.domain] || "var(--border)"}`, paddingLeft: "12px" }}>
+                          <span className="text-[8px] tracking-[0.15em] uppercase font-mono" style={{ color: domainColors[item.domain] || "var(--text-muted)" }}>{domainLabels[item.domain] || "REFLEXION"}</span>
+                          <p className="text-[11px] italic text-[var(--text-muted)] mt-0.5">&ldquo;{item.q}&rdquo;</p>
+                          {item.a ? <p className="text-[11px] text-[var(--text-secondary)] mt-1">{item.a}</p> : <p className="text-[9px] text-[var(--text-muted)] italic mt-1">Sin respuesta</p>}
+                        </div>
+                      ))}
+                      {h.status === "completed" && hQuote && (
+                        <div className="pt-2 border-t border-[var(--border-subtle)]">
+                          <span className="text-[8px] text-[var(--amber)] font-mono uppercase">Frase:</span>
+                          <p className="text-[11px] italic text-[var(--text-secondary)] mt-0.5" style={{ fontFamily: "var(--font-serif)" }}>&ldquo;{hQuote}&rdquo;</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </GlassCard>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );
