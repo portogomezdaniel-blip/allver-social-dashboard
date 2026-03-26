@@ -204,5 +204,40 @@ export async function GET(req: NextRequest) {
     log.identityEvolved = identityEvolved;
   }
 
+  // === DAILY: Decay old ideas + expire stale ones ===
+  let decayed = 0;
+  let expired = 0;
+  const threeDaysAgo = new Date();
+  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+  const twoWeeksAgo = new Date();
+  twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+
+  // Expire ideas older than 14 days
+  const { data: expiredData } = await supabase
+    .from("scored_content_ideas")
+    .update({ status: "expired" })
+    .eq("status", "suggested")
+    .lt("created_at", twoWeeksAgo.toISOString())
+    .select("id");
+  expired = expiredData?.length || 0;
+
+  // Decay relevance of ideas older than 3 days
+  const { data: oldIdeas } = await supabase
+    .from("scored_content_ideas")
+    .select("id, relevance_score, virality_score, authority_score, conversion_score")
+    .eq("status", "suggested")
+    .lt("created_at", threeDaysAgo.toISOString())
+    .gt("created_at", twoWeeksAgo.toISOString());
+
+  for (const idea of oldIdeas || []) {
+    const newRel = Math.max(1, (idea.relevance_score || 5) - 0.5);
+    const newTotal = Number((newRel * 0.35 + (idea.virality_score || 5) * 0.25 + (idea.authority_score || 5) * 0.2 + (idea.conversion_score || 5) * 0.2).toFixed(1));
+    await supabase.from("scored_content_ideas").update({ relevance_score: newRel, total_score: newTotal }).eq("id", idea.id);
+    decayed++;
+  }
+
+  log.ideasDecayed = decayed;
+  log.ideasExpired = expired;
+
   return NextResponse.json({ success: true, ...log });
 }

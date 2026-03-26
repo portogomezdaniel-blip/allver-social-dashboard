@@ -22,6 +22,8 @@ export interface ScoredIdea {
   id: string;
   user_id: string;
   source_output_id: string;
+  source: string;
+  source_id: string | null;
   title: string;
   hook: string;
   format: string;

@@ -9,13 +9,28 @@ export async function POST(req: NextRequest) {
     const { userId, entryId, question_1, question_2, question_3, answer_1, answer_2, answer_3 } = await req.json();
     if (!userId || !answer_1) return NextResponse.json({ error: "userId and answers required" }, { status: 400 });
 
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+
     const identity = await getIdentity(userId);
     const knowledgeCtx = await getKnowledgeContext(userId);
     const temperature = await getCreatorTemperature(userId);
     const tempCtx = buildTemperatureContext(temperature);
 
+    // Cross-context: program phase
+    const { data: lastProgram } = await supabase
+      .from("weekly_program_output")
+      .select("phase, key_themes, temperature_score")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const programCtx = lastProgram
+      ? `\nFASE DEL PROGRAMA: ${lastProgram.phase}. Temas: ${(lastProgram.key_themes || []).join(", ")}. Conecta el briefing con estos temas cuando sea natural.`
+      : "";
+
     const { text, tokensUsed, durationMs } = await callClaude(
-      `Eres el director creativo personal de un creador de contenido fitness.\n\n${identity?.compiled_prompt || "Genera contenido autentico."}${knowledgeCtx}${tempCtx}`,
+      `Eres el director creativo personal de un creador de contenido fitness.\n\n${identity?.compiled_prompt || "Genera contenido autentico."}${knowledgeCtx}${tempCtx}${programCtx}`,
       `Hoy el creador respondio estas preguntas en su diario:
 
 PREGUNTA 1: "${question_1}"
@@ -103,8 +118,6 @@ Genera un BRIEFING COMPLETO DE CONTENIDO. Responde SOLO en JSON valido:
       ],
     };
 
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-
     await supabase.from("journal_entries").update({
       answer_1, answer_2, answer_3,
       status: "completed",
@@ -114,7 +127,51 @@ Genera un BRIEFING COMPLETO DE CONTENIDO. Responde SOLO en JSON valido:
       themes: parsed.themes || [],
     }).eq("id", entryId);
 
-    await logAgentRun({ userId, agentName: "journal-analyze", inputSummary: `Briefing: mood ${parsed.mood}, hero post + ${(parsed.hooks_bank || []).length} hooks + ${(parsed.story_ideas || []).length} stories`, outputData: { mood: parsed.mood, hooksCount: (parsed.hooks_bank || []).length }, tokensUsed, durationMs });
+    // Insert ideas into unified scored_content_ideas
+    const ideasToScore: Record<string, unknown>[] = [];
+    if (parsed.content_plan?.hero_post?.hook) {
+      ideasToScore.push({
+        user_id: userId, source: "journal", source_id: entryId,
+        title: parsed.content_plan.hero_post.title || "Hero post",
+        hook: parsed.content_plan.hero_post.hook,
+        format: parsed.content_plan.hero_post.format || "reel",
+        funnel_role: "filter",
+        description: parsed.content_plan.hero_post.why || "",
+        outline: parsed.content_plan.hero_post.outline ? { points: parsed.content_plan.hero_post.outline } : null,
+        suggested_day: new Date().toLocaleDateString("en-US", { weekday: "long" }).toLowerCase(),
+        temperature_score: temperature, relevance_score: 9, virality_score: 7, authority_score: 6, conversion_score: 5,
+        total_score: 7.2, score_reasoning: "Hero post del journal", status: "suggested",
+      });
+    }
+    for (const p of parsed.content_plan?.secondary_posts || []) {
+      if (p.hook) ideasToScore.push({
+        user_id: userId, source: "journal", source_id: entryId,
+        title: p.title || "", hook: p.hook, format: p.format || "single", funnel_role: p.angle === "educational" ? "authority" : "filter",
+        description: p.brief || "", temperature_score: temperature,
+        relevance_score: 8, virality_score: 6, authority_score: 6, conversion_score: 5,
+        total_score: 6.5, score_reasoning: "Idea secundaria del journal", status: "suggested",
+      });
+    }
+    for (const h of parsed.hooks_bank || []) {
+      if (h.text) {
+        await supabase.from("hooks").insert({ user_id: userId, text: h.text, source: "journal", category: h.category || "data" }).select();
+        ideasToScore.push({
+          user_id: userId, source: "journal", source_id: entryId,
+          title: `Hook: ${h.text.slice(0, 50)}`, hook: h.text, format: "reel", funnel_role: "filter",
+          description: "Hook del journal", temperature_score: temperature,
+          relevance_score: 8, virality_score: h.power_score || 7, authority_score: 5, conversion_score: 4,
+          total_score: Number(((8 * 0.35 + (h.power_score || 7) * 0.25 + 5 * 0.2 + 4 * 0.2)).toFixed(1)),
+          score_reasoning: `Hook journal power:${h.power_score || "?"}`, status: "suggested",
+        });
+      }
+    }
+    if (ideasToScore.length) await supabase.from("scored_content_ideas").insert(ideasToScore);
+
+    // Recalculate temperature
+    const { recalculateTemperature } = await import("@/lib/temperature");
+    await recalculateTemperature(userId);
+
+    await logAgentRun({ userId, agentName: "journal-analyze", inputSummary: `Briefing: mood ${parsed.mood}, hero post + ${(parsed.hooks_bank || []).length} hooks + ${ideasToScore.length} scored ideas`, outputData: { mood: parsed.mood, hooksCount: (parsed.hooks_bank || []).length, scoredIdeas: ideasToScore.length }, tokensUsed, durationMs });
 
     return NextResponse.json({ content: backcompat, briefing: parsed });
   } catch (err: unknown) {

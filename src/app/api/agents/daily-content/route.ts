@@ -30,11 +30,21 @@ export async function POST(req: NextRequest) {
     const temperature = await getCreatorTemperature(userId);
     const tempCtx = buildTemperatureContext(temperature);
 
+    // Cross-context: journal + ideas + program
+    const supabaseCtx = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+    const { data: recentJournals } = await supabaseCtx.from("journal_entries").select("themes, mood").eq("user_id", userId).eq("status", "completed").order("entry_date", { ascending: false }).limit(3);
+    const { data: recentIdeas } = await supabaseCtx.from("idea_sessions").select("input_text").eq("user_id", userId).order("created_at", { ascending: false }).limit(3);
+    const { data: lastOutput } = await supabaseCtx.from("weekly_program_output").select("phase, key_themes, key_insights").eq("user_id", userId).order("created_at", { ascending: false }).limit(1).maybeSingle();
+
+    const journalCtx = recentJournals?.length ? `\nJOURNAL RECIENTE:\n${recentJournals.map(j => `- Mood: ${j.mood || "?"}, Temas: ${(j.themes || []).join(", ")}`).join("\n")}` : "";
+    const ideasCtx = recentIdeas?.length ? `\nIDEAS RECIENTES:\n${recentIdeas.map(i => `- "${i.input_text}"`).join("\n")}` : "";
+    const programCtx = lastOutput ? `\nPROGRAMA FTPAA:\nFase: ${lastOutput.phase}. Temas: ${(lastOutput.key_themes || []).join(", ")}. Insights: ${(lastOutput.key_insights || []).join(". ")}` : "";
+
     const systemPrompt = `Eres el estratega de contenido de ${identity.niche || "un creador de fitness"} en ${identity.city || "Medellin"}.
 
-${identity.compiled_prompt}${knowledgeCtx}${tempCtx}
+${identity.compiled_prompt}${knowledgeCtx}${tempCtx}${journalCtx}${ideasCtx}${programCtx}
 
-Tu tarea: generar la sugerencia de contenido para HOY.
+Tu tarea: generar la sugerencia de contenido para HOY. Cruza las fuentes anteriores para hacer la sugerencia mas conectada con el estado actual del creador.
 
 Reglas:
 1. No repetir un tema que se publico en los ultimos 7 dias
@@ -106,6 +116,21 @@ Genera la sugerencia de contenido para hoy.`;
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+
+    // Also insert as scored idea
+    if (parsed.hook && parsed.tema !== "Error parsing") {
+      await supabase.from("scored_content_ideas").insert({
+        user_id: userId, source: "daily_suggestion", source_id: data?.id || null,
+        title: parsed.tema, hook: parsed.hook, format: parsed.formato || "single",
+        funnel_role: "filter", description: parsed.razonamiento || "",
+        temperature_score: temperature,
+        relevance_score: 9, virality_score: 7, authority_score: 6, conversion_score: 5,
+        total_score: 7.2, score_reasoning: "Sugerencia diaria automatica", status: "suggested",
+      });
+    }
+
+    const { recalculateTemperature } = await import("@/lib/temperature");
+    await recalculateTemperature(userId);
 
     await logAgentRun({
       userId,

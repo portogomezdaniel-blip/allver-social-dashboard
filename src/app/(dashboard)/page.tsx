@@ -100,6 +100,7 @@ export default function CommandCenter() {
   const [creatorName, setCreatorName] = useState<string | null>(null);
   const [scoredIdeas, setScoredIdeas] = useState<ScoredIdea[]>([]);
   const [latestOutput, setLatestOutput] = useState<ProgramOutput | null>(null);
+  const [ideaSourceFilter, setIdeaSourceFilter] = useState<string>("all");
 
   const now = new Date();
   const hour = now.getHours();
@@ -124,7 +125,7 @@ export default function CommandCenter() {
       fetchPosts().catch((e) => { console.error("Posts:", e); return []; }),
       fetchTodayEntry().catch((e) => { console.error("Journal:", e); return null; }),
       fetchTopHotNews(3).catch((e) => { console.error("News:", e); return []; }),
-      fetchScoredIdeas({ status: "suggested", limit: 5 }).catch(() => []),
+      fetchScoredIdeas({ status: "suggested", limit: 20 }).catch(() => []),
       fetchLatestOutput().catch(() => null),
     ]).then(([r, s, a, p, j, hn, si, lo]) => {
       setReport(r);
@@ -340,10 +341,10 @@ export default function CommandCenter() {
         </CardContent>
       </Card>
 
-      {/* FTPaa Scored Ideas */}
+      {/* Unified Scored Ideas */}
       <Card>
         <CardHeader>
-          <CardTitle>{t("program_ideas.title")}</CardTitle>
+          <CardTitle>{t("unified_ideas.title")}</CardTitle>
           <CardAction>
             {latestOutput && (
               <span className="text-[10px] text-[var(--text-tertiary)]">
@@ -351,23 +352,46 @@ export default function CommandCenter() {
                   const temp = latestOutput.temperature_score || 5;
                   return `${temp >= 9 ? "\uD83D\uDCA5" : temp >= 7 ? "\uD83D\uDD25" : temp >= 4 ? "\u26A1" : "\u2744\uFE0F"} ${temp}/10`;
                 })()}
-                {latestOutput.phase ? ` · ${latestOutput.phase}` : ""}
               </span>
             )}
           </CardAction>
         </CardHeader>
         <CardContent className="p-0">
-          {scoredIdeas.length > 0 ? (
+          {scoredIdeas.length > 0 ? (<>
+            <div className="px-5 pt-3 pb-2 flex gap-2 flex-wrap">
+              {["all", "journal", "program", "ideas_bar", "intel", "daily_suggestion"].map((src) => {
+                const labels: Record<string, string> = { all: t("unified_ideas.filter_all"), journal: t("unified_ideas.filter_journal"), program: t("unified_ideas.filter_program"), ideas_bar: t("unified_ideas.filter_ideas"), intel: t("unified_ideas.filter_intel"), daily_suggestion: "Daily" };
+                const count = src === "all" ? scoredIdeas.length : scoredIdeas.filter(i => i.source === src).length;
+                if (src !== "all" && count === 0) return null;
+                return (
+                  <button key={src} onClick={() => setIdeaSourceFilter(src)}
+                    className={`text-[10px] px-2 py-1 rounded-[4px] border transition-colors ${ideaSourceFilter === src ? "border-[var(--text-primary)] text-[var(--text-primary)]" : "border-[var(--border)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"}`}>
+                    {labels[src] || src} {count > 0 && `(${count})`}
+                  </button>
+                );
+              })}
+            </div>
             <div className="divide-y divide-[var(--border)]">
-              {scoredIdeas.map((idea) => {
+              {scoredIdeas
+                .filter((i) => ideaSourceFilter === "all" || i.source === ideaSourceFilter)
+                .slice(0, 5)
+                .map((idea) => {
                 const fmtMap: Record<string, { label: string; cls: string }> = {
                   reel: { label: "REEL", cls: "bg-[var(--purple-bg)] text-[var(--purple)]" },
                   carousel: { label: "CARRUSEL", cls: "bg-[var(--blue-bg)] text-[var(--blue)]" },
                   single: { label: "SINGLE", cls: "bg-[var(--amber-bg)] text-[var(--amber)]" },
-                  story: { label: "STORY", cls: "bg-[var(--green-bg,var(--bg-hover))] text-[var(--green)]" },
+                  story: { label: "STORY", cls: "bg-[var(--bg-hover)] text-[var(--green)]" },
+                };
+                const srcBadge: Record<string, { emoji: string; cls: string }> = {
+                  journal: { emoji: "\uD83D\uDCD4", cls: "text-[var(--purple)]" },
+                  program: { emoji: "\uD83C\uDFAF", cls: "text-[var(--green)]" },
+                  ideas_bar: { emoji: "\uD83D\uDCA1", cls: "text-[var(--amber)]" },
+                  intel: { emoji: "\uD83D\uDCF0", cls: "text-[var(--blue)]" },
+                  daily_suggestion: { emoji: "\u2728", cls: "text-[var(--text-tertiary)]" },
                 };
                 const roleMap: Record<string, string> = { filter: "FILTRO", authority: "AUTORIDAD", conversion: "CONVERSION", brand: "MARCA" };
                 const fl = fmtMap[idea.format] || fmtMap.single;
+                const sb = srcBadge[idea.source || "program"] || srcBadge.program;
                 return (
                   <div key={idea.id} className="px-5 py-3 flex items-start gap-3">
                     <span className="text-[14px] font-mono font-medium text-[var(--text-primary)] mt-0.5 shrink-0 w-8">{idea.total_score}</span>
@@ -375,7 +399,7 @@ export default function CommandCenter() {
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className={`inline-flex items-center px-1.5 py-0.5 text-[9px] font-medium rounded-[3px] ${fl.cls}`}>{fl.label}</span>
                         <span className="text-[9px] text-[var(--text-tertiary)] uppercase">{roleMap[idea.funnel_role] || idea.funnel_role}</span>
-                        {idea.suggested_day && <span className="text-[9px] text-[var(--text-tertiary)]">{idea.suggested_day}</span>}
+                        <span className={`text-[10px] ${sb.cls}`}>{sb.emoji}</span>
                       </div>
                       <p className="text-[12px] italic text-[var(--text-secondary)] truncate">&ldquo;{idea.hook}&rdquo;</p>
                     </div>
@@ -386,7 +410,7 @@ export default function CommandCenter() {
                         await updateIdeaStatus(idea.id, "scheduled", dateStr);
                         await createPost({ caption: idea.hook + "\n\n" + (idea.description || ""), post_type: (idea.format === "carousel" ? "carousel" : idea.format === "story" ? "story" : idea.format === "single" ? "single" : "reel") as "reel" | "carousel" | "single" | "story", status: "scheduled", scheduled_date: dateStr, platform: "instagram" });
                         setScoredIdeas((prev) => prev.filter((i) => i.id !== idea.id));
-                      }}>{t("program_ideas.schedule")}</GlowButton>
+                      }}>{t("unified_ideas.schedule")}</GlowButton>
                       <GlowButton variant="ghost" className="text-[10px]" onClick={async () => {
                         await updateIdeaStatus(idea.id, "rejected");
                         setScoredIdeas((prev) => prev.filter((i) => i.id !== idea.id));
@@ -396,7 +420,12 @@ export default function CommandCenter() {
                 );
               })}
             </div>
-          ) : (
+            {scoredIdeas.filter(i => ideaSourceFilter === "all" || i.source === ideaSourceFilter).length > 5 && (
+              <div className="px-5 py-2 text-center border-t border-[var(--border)]">
+                <span className="text-[11px] text-[var(--text-tertiary)]">+{scoredIdeas.filter(i => ideaSourceFilter === "all" || i.source === ideaSourceFilter).length - 5} {t("unified_ideas.more")}</span>
+              </div>
+            )}
+          </>) : (
             <div className="px-5 py-6 text-center">
               <p className="text-[12px] text-[var(--text-tertiary)]">{t("program_ideas.no_ideas")}</p>
             </div>

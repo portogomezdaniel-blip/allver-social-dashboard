@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { callClaude } from "../_shared/call-claude";
-import { getIdentity } from "../_shared/get-identity";
+import { getIdentity, getCreatorTemperature } from "../_shared/get-identity";
 import { logAgentRun } from "../_shared/log-run";
 
 export async function POST(req: NextRequest) {
@@ -100,6 +100,27 @@ Responde SOLO en JSON sin markdown:
         { onConflict: "user_id,news_date,title" }
       );
     }
+
+    // Insert news as scored ideas
+    const temp = await getCreatorTemperature(userId);
+    const newsScored: Record<string, unknown>[] = [];
+    for (const item of newsData.news || []) {
+      if (item.suggested_hook) {
+        const urg = item.urgency || "warm";
+        newsScored.push({
+          user_id: userId, source: "intel",
+          title: `Intel: ${(item.title || "").slice(0, 60)}`, hook: item.suggested_hook,
+          format: item.suggested_format || "reel",
+          funnel_role: urg === "hot" ? "filter" : urg === "warm" ? "authority" : "brand",
+          description: item.summary || "", temperature_score: temp,
+          relevance_score: urg === "hot" ? 9 : urg === "warm" ? 7 : 5,
+          virality_score: urg === "hot" ? 8 : 6, authority_score: 7, conversion_score: 4,
+          total_score: urg === "hot" ? 7.5 : urg === "warm" ? 6.3 : 5.0,
+          score_reasoning: `Noticia ${urg}: ${item.source || ""}`, status: "suggested",
+        });
+      }
+    }
+    if (newsScored.length) await supabase.from("scored_content_ideas").insert(newsScored);
 
     await logAgentRun({
       userId,
