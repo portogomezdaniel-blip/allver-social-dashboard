@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { createPost } from "@/lib/supabase/posts";
 import { ErrorState } from "@/components/shared/states";
 import { useLocale } from "@/lib/locale-context";
+import { fetchScoredIdeas, fetchLatestOutput, updateIdeaStatus, type ScoredIdea, type ProgramOutput } from "@/lib/supabase/program-output";
 
 const dayNames = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
 const monthNames = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
@@ -97,6 +98,8 @@ export default function CommandCenter() {
   const [hotNews, setHotNews] = useState<DailyNews[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [creatorName, setCreatorName] = useState<string | null>(null);
+  const [scoredIdeas, setScoredIdeas] = useState<ScoredIdea[]>([]);
+  const [latestOutput, setLatestOutput] = useState<ProgramOutput | null>(null);
 
   const now = new Date();
   const hour = now.getHours();
@@ -121,13 +124,17 @@ export default function CommandCenter() {
       fetchPosts().catch((e) => { console.error("Posts:", e); return []; }),
       fetchTodayEntry().catch((e) => { console.error("Journal:", e); return null; }),
       fetchTopHotNews(3).catch((e) => { console.error("News:", e); return []; }),
-    ]).then(([r, s, a, p, j, hn]) => {
+      fetchScoredIdeas({ status: "suggested", limit: 5 }).catch(() => []),
+      fetchLatestOutput().catch(() => null),
+    ]).then(([r, s, a, p, j, hn, si, lo]) => {
       setReport(r);
       setSuggestion(s);
       setJournalEntry(j as JournalEntry | null);
       setHotNews((hn as DailyNews[]) || []);
       setRuns(a);
       setPosts(p);
+      setScoredIdeas(si as ScoredIdea[]);
+      setLatestOutput(lo as ProgramOutput | null);
       setLoading(false);
     }).catch((err) => {
       console.error("Dashboard load error:", err);
@@ -197,7 +204,14 @@ export default function CommandCenter() {
             {creatorName ? `${t(greetingKey)}, ${creatorName}` : t("dashboard.command_center")}
           </h1>
           <p className="text-[13px] text-[var(--text-tertiary)] mt-0.5">
-            {dateStr} {report?.ai_summary ? `· ${report.ai_summary}` : ""}
+            {dateStr}
+            {latestOutput ? (() => {
+              const temp = latestOutput.temperature_score || 5;
+              const icon = temp >= 9 ? "\uD83D\uDCA5" : temp >= 7 ? "\uD83D\uDD25" : temp >= 4 ? "\u26A1" : "\u2744\uFE0F";
+              const mode = temp >= 9 ? t("program_ideas.mode_explosive") : temp >= 7 ? t("program_ideas.mode_energetic") : temp >= 4 ? t("program_ideas.mode_educational") : t("program_ideas.mode_reflective");
+              return ` · ${icon} ${temp}/10 · ${mode}`;
+            })() : ""}
+            {report?.ai_summary ? ` · ${report.ai_summary}` : ""}
           </p>
         </div>
         <div className="flex gap-2">
@@ -321,6 +335,70 @@ export default function CommandCenter() {
           ) : (
             <div className="px-5 py-6 text-center">
               <p className="text-[12px] text-[var(--text-tertiary)]">{t("intel.no_news")}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* FTPaa Scored Ideas */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("program_ideas.title")}</CardTitle>
+          <CardAction>
+            {latestOutput && (
+              <span className="text-[10px] text-[var(--text-tertiary)]">
+                {t("program_ideas.temperature")}: {(() => {
+                  const temp = latestOutput.temperature_score || 5;
+                  return `${temp >= 9 ? "\uD83D\uDCA5" : temp >= 7 ? "\uD83D\uDD25" : temp >= 4 ? "\u26A1" : "\u2744\uFE0F"} ${temp}/10`;
+                })()}
+                {latestOutput.phase ? ` · ${latestOutput.phase}` : ""}
+              </span>
+            )}
+          </CardAction>
+        </CardHeader>
+        <CardContent className="p-0">
+          {scoredIdeas.length > 0 ? (
+            <div className="divide-y divide-[var(--border)]">
+              {scoredIdeas.map((idea) => {
+                const fmtMap: Record<string, { label: string; cls: string }> = {
+                  reel: { label: "REEL", cls: "bg-[var(--purple-bg)] text-[var(--purple)]" },
+                  carousel: { label: "CARRUSEL", cls: "bg-[var(--blue-bg)] text-[var(--blue)]" },
+                  single: { label: "SINGLE", cls: "bg-[var(--amber-bg)] text-[var(--amber)]" },
+                  story: { label: "STORY", cls: "bg-[var(--green-bg,var(--bg-hover))] text-[var(--green)]" },
+                };
+                const roleMap: Record<string, string> = { filter: "FILTRO", authority: "AUTORIDAD", conversion: "CONVERSION", brand: "MARCA" };
+                const fl = fmtMap[idea.format] || fmtMap.single;
+                return (
+                  <div key={idea.id} className="px-5 py-3 flex items-start gap-3">
+                    <span className="text-[14px] font-mono font-medium text-[var(--text-primary)] mt-0.5 shrink-0 w-8">{idea.total_score}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className={`inline-flex items-center px-1.5 py-0.5 text-[9px] font-medium rounded-[3px] ${fl.cls}`}>{fl.label}</span>
+                        <span className="text-[9px] text-[var(--text-tertiary)] uppercase">{roleMap[idea.funnel_role] || idea.funnel_role}</span>
+                        {idea.suggested_day && <span className="text-[9px] text-[var(--text-tertiary)]">{idea.suggested_day}</span>}
+                      </div>
+                      <p className="text-[12px] italic text-[var(--text-secondary)] truncate">&ldquo;{idea.hook}&rdquo;</p>
+                    </div>
+                    <div className="flex gap-1.5 shrink-0">
+                      <GlowButton className="text-[10px]" onClick={async () => {
+                        const tm = new Date(); tm.setDate(tm.getDate() + 1);
+                        const dateStr = tm.toLocaleDateString("en-CA");
+                        await updateIdeaStatus(idea.id, "scheduled", dateStr);
+                        await createPost({ caption: idea.hook + "\n\n" + (idea.description || ""), post_type: (idea.format === "carousel" ? "carousel" : idea.format === "story" ? "story" : idea.format === "single" ? "single" : "reel") as "reel" | "carousel" | "single" | "story", status: "scheduled", scheduled_date: dateStr, platform: "instagram" });
+                        setScoredIdeas((prev) => prev.filter((i) => i.id !== idea.id));
+                      }}>{t("program_ideas.schedule")}</GlowButton>
+                      <GlowButton variant="ghost" className="text-[10px]" onClick={async () => {
+                        await updateIdeaStatus(idea.id, "rejected");
+                        setScoredIdeas((prev) => prev.filter((i) => i.id !== idea.id));
+                      }}>&times;</GlowButton>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="px-5 py-6 text-center">
+              <p className="text-[12px] text-[var(--text-tertiary)]">{t("program_ideas.no_ideas")}</p>
             </div>
           )}
         </CardContent>

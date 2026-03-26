@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { callClaude } from "../_shared/call-claude";
-import { getIdentity, getKnowledgeContext } from "../_shared/get-identity";
+import { getIdentity, getKnowledgeContext, getCreatorTemperature, buildTemperatureContext } from "../_shared/get-identity";
 import { logAgentRun } from "../_shared/log-run";
 
 export async function POST(req: NextRequest) {
@@ -18,9 +18,11 @@ export async function POST(req: NextRequest) {
     const hooksContext = (recentHooks ?? []).map((h) => `- "${h.text}"`).join("\n") || "Sin hooks previos";
     const sessionsContext = (recentSessions ?? []).map((s) => `- "${s.input_text}"`).join("\n") || "Sin sesiones previas";
     const knowledgeCtx = await getKnowledgeContext(userId);
+    const temperature = await getCreatorTemperature(userId);
+    const tempCtx = buildTemperatureContext(temperature);
 
     const { text, tokensUsed, durationMs } = await callClaude(
-      `Eres el estratega creativo de un creador de contenido fitness.\n\n${identity?.compiled_prompt || "Genera contenido autentico y directo."}${knowledgeCtx}`,
+      `Eres el estratega creativo de un creador de contenido fitness.\n\n${identity?.compiled_prompt || "Genera contenido autentico y directo."}${knowledgeCtx}${tempCtx}`,
       `El creador acaba de escribir esto:\n"${input}"\n\nGenera:\n1. CINCO HOOKS — frases de apertura para Instagram, diferentes en estructura\n2. CINCO IDEAS DE CONTENIDO — cada una con formato y descripcion\n\nHooks existentes (NO repetir):\n${hooksContext}\n\nIdeas recientes (NO repetir):\n${sessionsContext}\n\nResponde SOLO en JSON:\n{\n  "hooks": [{"text": "...", "category": "controversy|question|data|story|challenge"}],\n  "ideas": [{"title": "...", "format": "reel|carousel|single|story", "description": "...", "angle": "educational|social_proof|controversial|personal|practical"}]\n}`,
       2000
     );

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { callClaude } from "../_shared/call-claude";
-import { getIdentity, getKnowledgeContext } from "../_shared/get-identity";
+import { getIdentity, getKnowledgeContext, getCreatorTemperature, buildTemperatureContext } from "../_shared/get-identity";
 import { logAgentRun } from "../_shared/log-run";
 
 export async function POST(req: NextRequest) {
@@ -11,9 +11,11 @@ export async function POST(req: NextRequest) {
 
     const identity = await getIdentity(userId);
     const knowledgeCtx = await getKnowledgeContext(userId);
+    const temperature = await getCreatorTemperature(userId);
+    const tempCtx = buildTemperatureContext(temperature);
 
     const { text, tokensUsed, durationMs } = await callClaude(
-      `Eres el director creativo personal de un creador de contenido fitness.\n\n${identity?.compiled_prompt || "Genera contenido autentico."}${knowledgeCtx}`,
+      `Eres el director creativo personal de un creador de contenido fitness.\n\n${identity?.compiled_prompt || "Genera contenido autentico."}${knowledgeCtx}${tempCtx}`,
       `Hoy el creador respondio estas preguntas en su diario:
 
 PREGUNTA 1: "${question_1}"

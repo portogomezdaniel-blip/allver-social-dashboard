@@ -245,6 +245,34 @@ hooks + recon + analytics + identity los lunes.
 
 ---
 
+## Conexion con FTPaa
+
+FTPaa (FullTp Awareness Avatar) es un proyecto SEPARADO donde el creador hace un programa de 10 modulos de autodescubrimiento. Vive en otro repo pero comparte la misma base de datos de Supabase.
+
+Cuando el creador completa un modulo en FTPaa:
+1. FTPaa escribe en weekly_program_output (raw_output, themes, temperature)
+2. FTPaa escribe en creator_knowledge (beliefs, stories, vocabulary)
+3. El panel detecta outputs nuevos no procesados (cron: /api/crons/process-new-outputs)
+4. El panel genera 15 ideas de contenido rankeadas con scoring
+5. Las ideas aparecen en el dashboard ordenadas por score
+6. La temperatura del creador afecta TODA la generacion de contenido
+
+Mapeo de modulos FTPaa:
+- Modulos 1-2: identity
+- Modulos 3-5: shadow
+- Modulo 6: vision
+- Modulos 7, 9: method
+- Modulo 8: audience
+- Modulo 10: voice
+
+Sistema de temperatura:
+- 1-3: Modo reflexivo (singles, reflexiones)
+- 4-6: Modo educativo (carruseles, tecnico)
+- 7-8: Modo energetico (reels, hot takes)
+- 9-10: Modo explosivo (polarizante, opiniones fuertes)
+
+---
+
 ## Contexto de Allver
 
 Este proyecto es parte del ecosistema **Allver** — marca personal y constructora de

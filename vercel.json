@@ -3,6 +3,10 @@
     {
       "path": "/api/crons/daily-all",
       "schedule": "30 10 * * *"
+    },
+    {
+      "path": "/api/crons/process-new-outputs",
+      "schedule": "0 12 * * *"
     }
   ]
 }

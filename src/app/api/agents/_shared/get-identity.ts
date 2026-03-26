@@ -78,3 +78,26 @@ export async function getKnowledgeContext(userId: string, limit: number = 10): P
 
   return `\n\nCONOCIMIENTO PROFUNDO DEL CREADOR (de sus reflexiones personales):\n${block}\n\nUSA estos fragmentos para hacer el contenido mas autentico. Referencia historias reales, usa su vocabulario natural, refleja sus creencias genuinas.`;
 }
+
+export async function getCreatorTemperature(userId: string): Promise<number> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { data } = await supabase
+    .from("weekly_program_output")
+    .select("temperature_score")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return data?.temperature_score || 5;
+}
+
+export function buildTemperatureContext(temperature: number): string {
+  if (temperature >= 8) return `\nTEMPERATURA DEL CREADOR: ${temperature}/10\nMODO EXPLOSIVO: Prioriza reels polarizantes, hot takes, opiniones fuertes. Adapta tono e intensidad.`;
+  if (temperature >= 5) return `\nTEMPERATURA DEL CREADOR: ${temperature}/10\nMODO EDUCATIVO: Prioriza carruseles tecnicos, contenido consistente. Adapta tono e intensidad.`;
+  return `\nTEMPERATURA DEL CREADOR: ${temperature}/10\nMODO REFLEXIVO: Prioriza singles profundos, reflexiones personales. Adapta tono e intensidad.`;
+}

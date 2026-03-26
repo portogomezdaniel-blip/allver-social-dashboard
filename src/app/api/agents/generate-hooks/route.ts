@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { callClaude } from "../_shared/call-claude";
-import { getIdentity } from "../_shared/get-identity";
+import { getIdentity, getCreatorTemperature, buildTemperatureContext } from "../_shared/get-identity";
 import { logAgentRun } from "../_shared/log-run";
 
 export async function POST(req: NextRequest) {
@@ -25,10 +25,12 @@ export async function POST(req: NextRequest) {
     }
 
     const niche = identity.niche || "fitness";
+    const temperature = await getCreatorTemperature(userId);
+    const tempCtx = buildTemperatureContext(temperature);
 
     const systemPrompt = `Eres el copywriter de ${niche} en ${identity.city || "Medellin"}.
 
-${identity.compiled_prompt}`;
+${identity.compiled_prompt}${tempCtx}`;
 
     const userMessage = `Hook original que funciono bien${engagementScore ? ` (engagement: ${engagementScore})` : ""}:
 "${hookText}"

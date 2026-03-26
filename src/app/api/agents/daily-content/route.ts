@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { callClaude } from "../_shared/call-claude";
-import { getIdentity, getKnowledgeContext, getRecentPosts, getWeekSchedule } from "../_shared/get-identity";
+import { getIdentity, getKnowledgeContext, getRecentPosts, getWeekSchedule, getCreatorTemperature, buildTemperatureContext } from "../_shared/get-identity";
 import { logAgentRun } from "../_shared/log-run";
 
 export async function POST(req: NextRequest) {
@@ -27,10 +27,12 @@ export async function POST(req: NextRequest) {
     const today = new Date(now.getTime() - 5 * 60 * 60 * 1000);
     const dayNames = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
     const knowledgeCtx = await getKnowledgeContext(userId);
+    const temperature = await getCreatorTemperature(userId);
+    const tempCtx = buildTemperatureContext(temperature);
 
     const systemPrompt = `Eres el estratega de contenido de ${identity.niche || "un creador de fitness"} en ${identity.city || "Medellin"}.
 
-${identity.compiled_prompt}${knowledgeCtx}
+${identity.compiled_prompt}${knowledgeCtx}${tempCtx}
 
 Tu tarea: generar la sugerencia de contenido para HOY.
 
