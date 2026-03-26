@@ -1,4 +1,5 @@
-import { Sidebar } from "@/components/sidebar";
+import TopBar from "@/components/layout/TopBar";
+import BottomNav from "@/components/layout/BottomNav";
 import { OnboardingGuard } from "@/components/onboarding-guard";
 import { LocaleProvider } from "@/lib/locale-context";
 
@@ -9,14 +10,15 @@ export default function DashboardLayout({
 }) {
   return (
     <LocaleProvider>
-      <div className="flex h-screen overflow-hidden">
-        <Sidebar />
-        <main className="flex-1 overflow-y-auto bg-[var(--bg)]">
-          <OnboardingGuard>
-            <div className="p-8">{children}</div>
-          </OnboardingGuard>
-        </main>
-      </div>
+      <OnboardingGuard>
+        <div className="mirror-bg min-h-screen">
+          <TopBar />
+          <main className="relative z-[1] pb-20 md:pb-0">
+            <div className="px-5 md:px-8 py-6 max-w-[1100px] mx-auto">{children}</div>
+          </main>
+          <BottomNav />
+        </div>
+      </OnboardingGuard>
     </LocaleProvider>
   );
 }

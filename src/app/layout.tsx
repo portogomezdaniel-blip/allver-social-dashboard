@@ -1,18 +1,24 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { DM_Sans, JetBrains_Mono } from "next/font/google";
+import { DM_Sans, Space_Mono, Syne } from "next/font/google";
 import { cn } from "@/lib/utils";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  variable: "--font-sans",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
 });
 
-const jetbrains = JetBrains_Mono({
+const spaceMono = Space_Mono({
   subsets: ["latin"],
-  weight: ["300", "400"],
+  weight: ["400", "700"],
   variable: "--font-mono",
+});
+
+const syne = Syne({
+  subsets: ["latin"],
+  weight: ["800"],
+  variable: "--font-display",
 });
 
 export const metadata: Metadata = {
@@ -26,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={cn("dark", dmSans.variable, jetbrains.variable)}>
+    <html lang="en" className={cn("dark", dmSans.variable, spaceMono.variable, syne.variable)}>
       <body>{children}</body>
     </html>
   );
