@@ -9,9 +9,7 @@ import { createPost } from "@/lib/supabase/posts";
 import { getTodayQuestions, getQuestionsForDay } from "@/lib/journal-questions";
 import Link from "next/link";
 import { useLocale } from "@/lib/locale-context";
-import GlassCard from "@/components/mirror/GlassCard";
-import LayerLabel from "@/components/mirror/LayerLabel";
-import LayerDivider from "@/components/mirror/LayerDivider";
+import GlassCardNew from "@/components/ui/GlassCardNew";
 
 const domainColors: Record<string, string> = { practice: "var(--green)", clients: "var(--blue)", philosophy: "var(--purple)" };
 const domainLabels: Record<string, string> = { practice: "TU PRACTICA", clients: "TUS CLIENTES", philosophy: "FILOSOFIA" };
@@ -154,23 +152,18 @@ export default function JournalPage() {
 
   return (
     <div className="max-w-[680px] mx-auto space-y-6">
-      {/* ═══ RITUAL HEADER ═══ */}
-      <div className="text-center pt-2">
-        <div className="flex justify-center mb-3">
-          <span className="w-3 h-3 rounded-full" style={{ backgroundColor: dayColors[dayOfWeek] }} />
-        </div>
-        <p className="text-[10px] font-mono tracking-[0.2em] uppercase text-[var(--text-muted)]">
-          {dayNames[dayOfWeek]} &middot; Preguntas {questionStartNum}, {questionStartNum + 1}, {questionStartNum + 2} de 21
+      {/* ═══ HEADER ═══ */}
+      <div className="mb-2">
+        <h1 className="text-[22px]" style={{ fontFamily: "var(--font-display)" }}>Journal</h1>
+        <p className="text-[12px] mt-1" style={{ color: "var(--text-secondary)" }}>
+          3 preguntas de hoy. Tus respuestas generan ideas de contenido.
         </p>
-        <h1 className="text-[24px] font-[800] tracking-[-0.03em] mt-2" style={{ fontFamily: "var(--font-display)" }}>
-          Tu reflexion de hoy
-        </h1>
-        <p className="text-[11px] text-[var(--text-muted)] italic mt-1" style={{ fontFamily: "var(--font-serif)" }}>
-          Las preguntas cambian cada dia
-        </p>
-        <div className="flex justify-center gap-3 mt-2">
-          {autoSaved && <span className="text-[9px] text-[var(--olive)]">Guardado \u2713</span>}
-          <Link href="/journal/knowledge" className="text-[9px] text-[var(--text-muted)] hover:text-[var(--text-secondary)]">Base de conocimiento &rarr;</Link>
+        <div className="flex items-center gap-3 mt-2">
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "var(--text-ghost)" }}>
+            {dayNames[dayOfWeek]} · Preguntas {questionStartNum}–{questionStartNum + 2} de 21
+          </span>
+          {autoSaved && <span className="text-[9px] text-[var(--olive)]">Guardado ✓</span>}
+          <Link href="/journal/knowledge" className="text-[9px] text-[var(--text-ghost)] hover:text-[var(--text-secondary)] ml-auto">Base de conocimiento →</Link>
         </div>
       </div>
 
@@ -186,14 +179,13 @@ export default function JournalPage() {
       {!questionsCollapsed && (
         <div className="space-y-4">
           {qItems.map((item, i) => (
-            <GlassCard key={i} intensity="medium" className="p-5" >
-              <div style={{ borderLeft: `2px solid ${domainColors[item.domain]}`, paddingLeft: "16px" }}>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono font-bold" style={{ background: `${domainColors[item.domain]}20`, color: domainColors[item.domain] }}>{i + 1}</span>
-                  <span className="text-[8px] tracking-[0.2em] uppercase font-mono" style={{ color: domainColors[item.domain] }}>{domainLabels[item.domain]}</span>
-                </div>
-                <p className="text-[16px] md:text-[18px] leading-relaxed mb-4" style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "var(--text-secondary)" }}>
-                  &ldquo;{item.q}&rdquo;
+            <GlassCardNew key={i} intensity="strong" className="p-5" borderLeft={domainColors[item.domain]}>
+              <div>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: domainColors[item.domain] }}>
+                  {domainLabels[item.domain]}
+                </span>
+                <p className="text-[13px] font-[500] mt-2 mb-3" style={{ color: "var(--text-primary)" }}>
+                  {item.q}
                 </p>
                 {isCompleted ? (
                   <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{item.a}</p>
@@ -203,21 +195,39 @@ export default function JournalPage() {
                       value={item.a}
                       onChange={(e) => item.set(e.target.value)}
                       placeholder="Escribe sin filtro..."
-                      className="w-full bg-[rgba(0,0,0,0.15)] border border-[var(--border)] rounded-[14px] px-4 py-3 text-[13px] text-[var(--text-primary)] placeholder:text-[var(--text-ghost)] focus:outline-none focus:border-[var(--border-focus)] min-h-[90px] resize-none"
+                      className="w-full border rounded-[6px] px-3 py-2.5 text-[12px] text-white placeholder:text-[var(--text-ghost)] focus:outline-none min-h-[50px] md:min-h-[60px] resize-y"
+                      style={{ background: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.12)" }}
+                      onFocus={(e) => { (e.target as HTMLTextAreaElement).style.borderColor = "var(--olive)"; (e.target as HTMLTextAreaElement).style.background = "rgba(255,255,255,0.12)"; }}
+                      onBlur={(e) => { (e.target as HTMLTextAreaElement).style.borderColor = "rgba(255,255,255,0.12)"; (e.target as HTMLTextAreaElement).style.background = "rgba(255,255,255,0.08)"; }}
                     />
                     {item.a.length > 0 && item.a.length < 20 && <p className="text-[9px] text-[var(--text-muted)] mt-1">{20 - item.a.length} caracteres mas</p>}
                   </>
                 )}
               </div>
-            </GlassCard>
+            </GlassCardNew>
           ))}
 
           {!isCompleted && (
-            <div className="text-center pt-2">
-              <button onClick={handleSubmit} disabled={!canSubmit || analyzing} className="px-8 py-2.5 rounded-[14px] text-[12px] font-medium transition-all" style={{ background: canSubmit ? "var(--depth)" : "rgba(0,0,0,0.12)", color: canSubmit ? "var(--text-primary)" : "var(--text-muted)", opacity: canSubmit ? 1 : 0.5 }}>
-                {analyzing ? <span className="inline-flex items-center gap-1.5"><Loader2 size={14} className="animate-spin" /> Generando briefing...</span> : "Guardar y generar contenido \u2192"}
+            <div className="pt-2">
+              <button
+                onClick={handleSubmit}
+                disabled={!canSubmit || analyzing}
+                className="w-full md:w-auto px-5 py-2.5 rounded-[8px] transition-all"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 9,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase" as const,
+                  background: canSubmit ? "var(--olive-dark)" : "rgba(255,255,255,0.04)",
+                  color: canSubmit ? "white" : "var(--text-ghost)",
+                  opacity: canSubmit ? 1 : 0.5,
+                }}
+              >
+                {analyzing ? <span className="inline-flex items-center gap-1.5"><Loader2 size={14} className="animate-spin" /> Generando...</span> : "Generar ideas desde mis respuestas"}
               </button>
-              {!canSubmit && <p className="text-[9px] text-[var(--text-muted)] mt-2">Responde las 3 preguntas (min. 20 caracteres)</p>}
+              <p className="text-[8px] mt-1.5" style={{ fontFamily: "var(--font-mono)", color: "var(--text-ghost)" }}>
+                {[a1, a2, a3].filter(a => a.trim().length >= 20).length} de 3 respondidas
+              </p>
             </div>
           )}
         </div>
@@ -226,11 +236,12 @@ export default function JournalPage() {
       {/* ═══ BRIEFING ═══ */}
       {isCompleted ? (
         <>
-          <LayerDivider />
-          <LayerLabel layer="depth" label="TU BRIEFING DE CONTENIDO" />
+          <div className="border-t pt-4 mt-2" style={{ borderColor: "var(--border)" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "var(--text-ghost)" }}>IDEAS GENERADAS DEL JOURNAL</span>
+          </div>
 
           {/* Mood + themes */}
-          <GlassCard intensity="subtle" className="p-4">
+          <GlassCardNew intensity="subtle" className="p-4">
             <div className="flex items-center gap-3">
               {entry?.mood && <span className="text-lg">{moodEmojis[entry.mood] || ""}</span>}
               <div>
@@ -240,11 +251,11 @@ export default function JournalPage() {
                 </div>
               </div>
             </div>
-          </GlassCard>
+          </GlassCardNew>
 
           {/* Quote */}
           {quote && (
-            <GlassCard intensity="medium" className="p-5" >
+            <GlassCardNew intensity="medium" className="p-5" >
               <span className="text-[8px] tracking-[0.2em] uppercase font-mono text-[var(--amber)] mb-2 block">FRASE DEL DIA</span>
               <p className="text-[18px] leading-relaxed" style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "var(--text-secondary)" }}>
                 &ldquo;{quote}&rdquo;
@@ -253,7 +264,7 @@ export default function JournalPage() {
                 <button onClick={() => copyText(quote)} className="text-[10px] px-3 py-1.5 rounded-lg border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]"><Copy size={10} className="inline mr-1" />Copiar</button>
                 <button onClick={async () => { const tm = new Date(); tm.setDate(tm.getDate() + 1); await createPost({ caption: quote, post_type: "story", status: "scheduled", scheduled_date: tm.toLocaleDateString("en-CA"), platform: "instagram" }); }} className="text-[10px] px-3 py-1.5 rounded-lg" style={{ background: "var(--depth)", color: "var(--text-primary)" }}>Publicar como story</button>
               </div>
-            </GlassCard>
+            </GlassCardNew>
           )}
 
           {/* Tabs */}
@@ -267,7 +278,7 @@ export default function JournalPage() {
 
           {/* Hero Post */}
           {activeTab === "hero" && hero && (
-            <GlassCard intensity="medium" className="p-5 space-y-3">
+            <GlassCardNew intensity="medium" className="p-5 space-y-3">
               <div className="flex items-center gap-2">
                 <span className="text-[8px] px-2 py-[2px] rounded-md" style={{ background: `${fmtColors[hero.format as string] || "var(--olive)"}15`, color: fmtColors[hero.format as string] || "var(--olive)" }}>{(hero.format as string || "").toUpperCase()}</span>
                 <span className="text-[10px] font-mono text-[var(--text-muted)]">{hero.best_time as string}</span>
@@ -294,14 +305,14 @@ export default function JournalPage() {
                 </button>
                 <button onClick={() => handleAddToCalendar(hero.hook as string, hero.format as string)} className="text-[10px] px-3 py-1.5 rounded-lg border border-[var(--border)] text-[var(--text-muted)]">Calendario</button>
               </div>
-            </GlassCard>
+            </GlassCardNew>
           )}
 
           {/* Secondary Posts */}
           {activeTab === "posts" && secondaryPosts.length > 0 && (
             <div className="space-y-3">
               {secondaryPosts.map((post, i) => (
-                <GlassCard key={i} intensity="subtle" className="p-4 space-y-2">
+                <GlassCardNew key={i} intensity="subtle" className="p-4 space-y-2">
                   <div className="flex items-center gap-2">
                     <span className="text-[8px] px-2 py-[2px] rounded-md" style={{ background: `${fmtColors[post.format as string] || "var(--olive)"}15`, color: fmtColors[post.format as string] || "var(--olive)" }}>{(post.format as string || "").toUpperCase()}</span>
                     <p className="text-[13px] font-medium">{post.title as string}</p>
@@ -313,7 +324,7 @@ export default function JournalPage() {
                     <button onClick={() => handleWriteCopy(`sec-${i}`, post.title as string, post.hook as string, post.format as string)} disabled={generatingCopy === `sec-${i}`} className="text-[9px] px-2 py-1 rounded-md" style={{ background: "rgba(155,126,184,0.12)", color: "var(--depth)" }}>{generatingCopy === `sec-${i}` ? "..." : "IA"}</button>
                     <button onClick={() => handleAddToCalendar(post.hook as string, post.format as string)} className="text-[9px] px-2 py-1 rounded-md text-[var(--text-muted)] border border-[var(--border)]">Cal</button>
                   </div>
-                </GlassCard>
+                </GlassCardNew>
               ))}
             </div>
           )}
@@ -322,7 +333,7 @@ export default function JournalPage() {
           {activeTab === "hooks" && hooksBank.length > 0 && (
             <div className="space-y-2">
               {hooksBank.map((h, i) => (
-                <GlassCard key={i} intensity="subtle" className="p-3.5">
+                <GlassCardNew key={i} intensity="subtle" className="p-3.5">
                   <div className="flex items-start gap-3">
                     <span className="text-[14px] font-mono font-[800]" style={{ color: "var(--amber)" }}>{h.power_score}/10</span>
                     <div className="flex-1">
@@ -334,7 +345,7 @@ export default function JournalPage() {
                       </div>
                     </div>
                   </div>
-                </GlassCard>
+                </GlassCardNew>
               ))}
             </div>
           )}
@@ -343,18 +354,18 @@ export default function JournalPage() {
           {activeTab === "stories" && storyIdeas.length > 0 && (
             <div className="space-y-2">
               {storyIdeas.map((s, i) => (
-                <GlassCard key={i} intensity="ghost" className="p-3.5">
+                <GlassCardNew key={i} intensity="ghost" className="p-3.5">
                   <span className="text-[9px] px-1.5 py-0.5 rounded-md uppercase" style={{ background: "rgba(0,0,0,0.1)", color: "var(--text-muted)" }}>{s.type}</span>
                   <p className="text-[12px] text-[var(--text-secondary)] mt-1.5">{s.content}</p>
                   <p className="text-[9px] text-[var(--text-muted)] mt-1">{s.engagement_tactic}</p>
-                </GlassCard>
+                </GlassCardNew>
               ))}
             </div>
           )}
 
           {/* Carousel */}
           {activeTab === "carousel" && carousel && (
-            <GlassCard intensity="medium" className="p-5 space-y-3">
+            <GlassCardNew intensity="medium" className="p-5 space-y-3">
               <p className="text-[14px] font-[800]" style={{ fontFamily: "var(--font-display)" }}>{carousel.title}</p>
               {carousel.slides.map((slide) => (
                 <div key={slide.slide} className="p-3 rounded-[12px]" style={{ background: "rgba(0,0,0,0.1)", border: "0.5px solid var(--border)" }}>
@@ -367,12 +378,12 @@ export default function JournalPage() {
                 <button onClick={() => handleWriteCopy("carousel", carousel.title, carousel.slides[0].content, "carousel")} disabled={generatingCopy === "carousel"} className="text-[10px] px-3 py-1.5 rounded-lg" style={{ background: "var(--depth)", color: "var(--text-primary)" }}>{generatingCopy === "carousel" ? "..." : "IA \u2192"}</button>
               </div>
               {generatedCopies["carousel"] && <div className="p-3 rounded-[12px] bg-[rgba(0,0,0,0.1)] border border-[var(--border)] text-[12px] text-[var(--text-secondary)] whitespace-pre-line">{generatedCopies["carousel"]}</div>}
-            </GlassCard>
+            </GlassCardNew>
           )}
 
           {/* Weekly Strategy */}
           {activeTab === "week" && weeklyStrategy && (
-            <GlassCard intensity="subtle" className="p-5 space-y-3">
+            <GlassCardNew intensity="subtle" className="p-5 space-y-3">
               <span className="text-[8px] tracking-[0.2em] uppercase font-mono text-[var(--text-muted)]">TEMA DE LA SEMANA</span>
               <p className="text-[14px] font-[800]" style={{ fontFamily: "var(--font-display)" }}>{weeklyStrategy.theme_of_week as string}</p>
               <div className="grid grid-cols-5 gap-1.5 mt-3">
@@ -390,43 +401,44 @@ export default function JournalPage() {
                 })}
               </div>
               <button onClick={() => handleApplyWeeklyPlan(weeklyStrategy as Record<string, { format: string; topic: string }>)} className="text-[10px] px-3 py-1.5 rounded-lg" style={{ background: "var(--depth)", color: "var(--text-primary)" }}>Aplicar al calendario</button>
-            </GlassCard>
+            </GlassCardNew>
           )}
 
           {/* Repurpose */}
           {activeTab === "repurpose" && repurpose.length > 0 && (
             <div className="space-y-2">
               {repurpose.map((r, i) => (
-                <GlassCard key={i} intensity="ghost" className="p-3.5">
+                <GlassCardNew key={i} intensity="ghost" className="p-3.5">
                   <p className="text-[10px] text-[var(--text-muted)]">De: {r.from}</p>
                   <p className="text-[12px] text-[var(--text-secondary)] font-medium mt-0.5">&rarr; {r.to}</p>
                   <p className="text-[10px] text-[var(--text-muted)] mt-0.5">{r.how}</p>
-                </GlassCard>
+                </GlassCardNew>
               ))}
             </div>
           )}
 
           {/* Brand note */}
           {brandNote && (
-            <GlassCard intensity="ghost" className="p-4">
+            <GlassCardNew intensity="ghost" className="p-4">
               <span className="text-[8px] tracking-[0.2em] uppercase font-mono text-[var(--depth)] mb-1 block">NOTA DE MARCA</span>
               <p className="text-[12px] text-[var(--text-secondary)] italic" style={{ fontFamily: "var(--font-serif)" }}>{brandNote}</p>
-            </GlassCard>
+            </GlassCardNew>
           )}
         </>
       ) : (
-        <GlassCard intensity="ghost" className="p-6 text-center">
+        <GlassCardNew intensity="ghost" className="p-6 text-center">
           <p className="text-[12px] text-[var(--text-muted)]">
             {a1.length > 0 || a2.length > 0 || a3.length > 0 ? "Completa las 3 preguntas (min. 20 caracteres) para generar tu briefing" : "Responde las 3 preguntas para generar tu briefing de contenido"}
           </p>
-        </GlassCard>
+        </GlassCardNew>
       )}
 
       {/* ═══ ECOS ANTERIORES ═══ */}
       {history.length > 0 && (
         <>
-          <LayerDivider />
-          <p className="text-center text-[10px] tracking-[0.2em] uppercase font-mono text-[var(--text-muted)]">ECOS ANTERIORES</p>
+          <div className="border-t pt-4 mt-2" style={{ borderColor: "var(--border)" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "var(--text-ghost)" }}>ENTRADAS ANTERIORES</span>
+          </div>
           <div className="space-y-2">
             {history.map((h, idx) => {
               const isExpanded = expandedHistoryId === h.id;
@@ -439,7 +451,7 @@ export default function JournalPage() {
               const intensity = idx < 2 ? "subtle" as const : "ghost" as const;
 
               return (
-                <GlassCard key={h.id} intensity={intensity} className="overflow-hidden" onClick={() => setExpandedHistoryId(isExpanded ? null : h.id)}>
+                <GlassCardNew key={h.id} intensity={intensity} className="overflow-hidden" onClick={() => setExpandedHistoryId(isExpanded ? null : h.id)}>
                   <div className="px-4 py-3 flex items-center justify-between cursor-pointer" style={{ opacity: fadeOpacity }}>
                     <div className="flex items-center gap-2.5">
                       {isExpanded ? <ChevronDown size={12} className="text-[var(--text-muted)]" /> : <ChevronRight size={12} className="text-[var(--text-muted)]" />}
@@ -473,7 +485,7 @@ export default function JournalPage() {
                       )}
                     </div>
                   )}
-                </GlassCard>
+                </GlassCardNew>
               );
             })}
           </div>
