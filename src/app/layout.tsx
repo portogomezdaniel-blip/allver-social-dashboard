@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { DM_Sans, Space_Mono, Syne } from "next/font/google";
+import { DM_Sans, IBM_Plex_Mono, Bungee } from "next/font/google";
 import { cn } from "@/lib/utils";
 
 const dmSans = DM_Sans({
@@ -9,15 +9,15 @@ const dmSans = DM_Sans({
   variable: "--font-body",
 });
 
-const spaceMono = Space_Mono({
+const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["300", "400", "500", "600"],
   variable: "--font-mono",
 });
 
-const syne = Syne({
+const bungee = Bungee({
   subsets: ["latin"],
-  weight: ["800"],
+  weight: "400",
   variable: "--font-display",
 });
 
@@ -32,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={cn("dark", dmSans.variable, spaceMono.variable, syne.variable)}>
+    <html lang="en" className={cn("dark", dmSans.variable, ibmPlexMono.variable, bungee.variable)}>
       <body>{children}</body>
     </html>
   );
