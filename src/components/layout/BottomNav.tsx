@@ -5,10 +5,11 @@ import Link from "next/link";
 import { useLocale } from "@/lib/locale-context";
 
 const NAV_ITEMS = [
-  { href: "/journal", icon: "✎", labelKey: "nav.journal" },
-  { href: "/ideas", icon: "★", labelKey: "nav.ideas", badge: true },
+  { href: "/", icon: "⌂", labelKey: "nav.home" },
+  { href: "/clients", icon: "◈", labelKey: "nav.clients" },
+  { href: "/programs", icon: "▦", labelKey: "nav.programs" },
+  { href: "/admin", icon: "◆", labelKey: "nav.admin" },
   { href: "/calendar", icon: "▣", labelKey: "nav.calendar" },
-  { href: "/agents", icon: "⚙", labelKey: "nav.agents" },
 ];
 
 export default function BottomNav() {
@@ -49,12 +50,6 @@ export default function BottomNav() {
                 style={{ color: isActive ? "var(--olive)" : "var(--text-ghost)" }}
               >
                 {item.icon}
-                {item.badge && (
-                  <span
-                    className="absolute -top-0.5 -right-1.5 w-[6px] h-[6px] rounded-full"
-                    style={{ background: "var(--red)" }}
-                  />
-                )}
               </span>
 
               {/* Label */}

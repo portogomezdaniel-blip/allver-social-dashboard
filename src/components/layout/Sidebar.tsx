@@ -42,6 +42,14 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
+    labelKey: "nav.operaciones",
+    items: [
+      { href: "/clients", icon: "◈", labelKey: "nav.clients" },
+      { href: "/admin", icon: "◆", labelKey: "nav.admin" },
+      { href: "/programs", icon: "▦", labelKey: "nav.programs" },
+    ],
+  },
+  {
     labelKey: "nav.sistema",
     items: [
       { href: "/agents", icon: "●", labelKey: "nav.agents" },
