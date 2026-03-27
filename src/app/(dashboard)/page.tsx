@@ -144,19 +144,9 @@ export default function Home() {
               &ldquo;{bestIdea?.hook || suggestion?.hook || ""}&rdquo;
             </p>
             <div className="flex gap-2">
-              <button onClick={async () => {
-                if (!bestIdea && !suggestion) return;
-                const hook = bestIdea?.hook || suggestion?.hook || "";
-                const desc = bestIdea?.description || suggestion?.razonamiento || "";
-                const fmt = bestIdea?.format || suggestion?.formato || "reel";
-                const tm = new Date(); tm.setDate(tm.getDate() + 1);
-                const dateStr = tm.toLocaleDateString("en-CA");
-                if (bestIdea) await updateIdeaStatus(bestIdea.id, "scheduled", dateStr);
-                await createPost({ caption: hook + "\n\n" + desc, post_type: fmt as "reel" | "carousel" | "single" | "story", status: "scheduled", scheduled_date: dateStr, platform: "instagram" });
-                if (bestIdea) setScoredIdeas(prev => prev.filter(i => i.id !== bestIdea.id));
-              }} className="text-[11px] px-3 py-1.5 rounded-lg font-medium" style={{ background: "var(--surface)", color: "var(--text-primary)" }}>
-                Crear ahora
-              </button>
+              <Link href="/ideas" className="text-[11px] px-3 py-1.5 rounded-lg font-medium inline-block" style={{ background: "var(--olive-dark)", color: "white" }}>
+                Ver en Ideas →
+              </Link>
               <button onClick={handleGenerateContent} disabled={generating} className="text-[11px] px-3 py-1.5 rounded-lg border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]">
                 {generating ? "..." : "Regenerar"}
               </button>
@@ -261,13 +251,7 @@ export default function Home() {
                 </div>
                 {idx < 3 && (
                   <div className="flex gap-1">
-                    <button onClick={async () => {
-                      const tm = new Date(); tm.setDate(tm.getDate() + 1);
-                      const ds = tm.toLocaleDateString("en-CA");
-                      await updateIdeaStatus(idea.id, "scheduled", ds);
-                      await createPost({ caption: idea.hook + "\n\n" + (idea.description || ""), post_type: (idea.format === "carousel" ? "carousel" : idea.format === "story" ? "story" : idea.format === "single" ? "single" : "reel") as "reel" | "carousel" | "single" | "story", status: "scheduled", scheduled_date: ds, platform: "instagram" });
-                      setScoredIdeas(prev => prev.filter(i => i.id !== idea.id));
-                    }} className="text-[9px] px-2 py-1 rounded-md" style={{ background: "rgba(168,183,142,0.12)", color: "var(--olive)" }}>Programar</button>
+                    <Link href="/ideas" className="text-[9px] px-2 py-1 rounded-md" style={{ background: "rgba(122,140,101,0.12)", color: "var(--olive)" }}>Ver en Ideas →</Link>
                     <button onClick={async () => { await updateIdeaStatus(idea.id, "rejected"); setScoredIdeas(prev => prev.filter(i => i.id !== idea.id)); }} className="text-[9px] px-1.5 py-1 rounded-md text-[var(--text-muted)] hover:text-[var(--text-secondary)]">&times;</button>
                   </div>
                 )}
