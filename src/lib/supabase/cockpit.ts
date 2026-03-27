@@ -3,50 +3,61 @@ import type { ScoredIdea } from "./program-output";
 import type { DbPost } from "./posts";
 import type { DailyNews } from "./daily-news";
 
-// Ideas de la semana + ideas sin fecha asignada
-export async function fetchWeekIdeas(weekStart: string, weekEnd: string): Promise<ScoredIdea[]> {
+// Ideas del mes (con scheduled_date en el rango)
+export async function fetchMonthIdeas(monthStart: string, monthEnd: string): Promise<ScoredIdea[]> {
   const supabase = createClient();
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) return [];
 
-  const { data: dated } = await supabase
+  const { data, error } = await supabase
     .from("scored_content_ideas")
     .select("*")
     .eq("user_id", user.user.id)
     .in("status", ["suggested", "approved", "scheduled"])
-    .gte("scheduled_date", weekStart)
-    .lte("scheduled_date", weekEnd)
+    .gte("scheduled_date", monthStart)
+    .lte("scheduled_date", monthEnd)
     .order("total_score", { ascending: false });
 
-  const { data: unassigned } = await supabase
+  if (error) throw error;
+  return data || [];
+}
+
+// Ideas sin fecha asignada (sugeridas disponibles)
+export async function fetchUnassignedIdeas(): Promise<ScoredIdea[]> {
+  const supabase = createClient();
+  const { data: user } = await supabase.auth.getUser();
+  if (!user.user) return [];
+
+  const { data, error } = await supabase
     .from("scored_content_ideas")
     .select("*")
     .eq("user_id", user.user.id)
     .eq("status", "suggested")
     .is("scheduled_date", null)
     .order("total_score", { ascending: false })
-    .limit(10);
+    .limit(20);
 
-  return [...(dated || []), ...(unassigned || [])];
+  if (error) throw error;
+  return data || [];
 }
 
-// Posts ya programados/publicados de la semana
-export async function fetchWeekPosts(weekStart: string, weekEnd: string): Promise<DbPost[]> {
+// Posts del mes
+export async function fetchMonthPosts(monthStart: string, monthEnd: string): Promise<DbPost[]> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("posts")
     .select("id, caption, post_type, status, scheduled_date, platform, created_at, user_id")
     .in("status", ["scheduled", "published"])
-    .gte("scheduled_date", weekStart)
-    .lte("scheduled_date", weekEnd)
+    .gte("scheduled_date", monthStart)
+    .lte("scheduled_date", monthEnd)
     .order("scheduled_date", { ascending: true });
 
   if (error) throw error;
   return (data || []) as DbPost[];
 }
 
-// Noticia hot de la semana para sugerencia YouTube
-export async function fetchWeekTopNews(): Promise<DailyNews | null> {
+// Noticia hot para sugerencia YouTube
+export async function fetchTopNews(): Promise<DailyNews | null> {
   const supabase = createClient();
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) return null;
@@ -63,20 +74,20 @@ export async function fetchWeekTopNews(): Promise<DailyNews | null> {
   return data as DailyNews | null;
 }
 
+// Aprobar idea
+export async function approveIdea(ideaId: string): Promise<void> {
+  const supabase = createClient();
+  await supabase
+    .from("scored_content_ideas")
+    .update({ status: "approved" })
+    .eq("id", ideaId);
+}
+
 // Asignar idea a un día
 export async function assignIdeaToDay(ideaId: string, date: string): Promise<void> {
   const supabase = createClient();
   await supabase
     .from("scored_content_ideas")
     .update({ scheduled_date: date, status: "approved" })
-    .eq("id", ideaId);
-}
-
-// Aprobar idea (sin cambiar fecha)
-export async function approveIdea(ideaId: string): Promise<void> {
-  const supabase = createClient();
-  await supabase
-    .from("scored_content_ideas")
-    .update({ status: "approved" })
     .eq("id", ideaId);
 }
