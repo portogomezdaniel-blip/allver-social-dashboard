@@ -125,7 +125,7 @@ export default function Home() {
   if (error) return <ErrorState message={error} />;
 
   // ====== SURFACE COLUMN ======
-  const SurfaceColumn = () => (
+  const surfaceColumn = (
     <div className="space-y-4">
       <LayerLabel layer="surface" label="SUPERFICIE \u00B7 ACT\u00DAA" />
 
@@ -215,7 +215,7 @@ export default function Home() {
   );
 
   // ====== MIDDLE COLUMN ======
-  const MiddleColumn = () => (
+  const middleColumn = (
     <div className="space-y-4">
       <LayerLabel layer="middle" label="MEDIO \u00B7 PIENSA" />
 
@@ -291,7 +291,7 @@ export default function Home() {
   );
 
   // ====== DEPTH COLUMN ======
-  const DepthColumn = () => {
+  const depthColumn = (() => {
     const quote = journalEntry?.generated_content
       ? String((journalEntry.generated_content as Record<string, unknown>)?.quote_of_the_day || "")
       : "";
@@ -351,7 +351,7 @@ export default function Home() {
         </div>
       </div>
     );
-  };
+  })();
 
   return (
     <div>
@@ -371,18 +371,18 @@ export default function Home() {
 
       {/* Mobile: vertical scroll with layer dividers */}
       <div className="md:hidden space-y-0">
-        <SurfaceColumn />
+        {surfaceColumn}
         <LayerDivider />
-        <MiddleColumn />
+        {middleColumn}
         <LayerDivider />
-        <DepthColumn />
+        {depthColumn}
       </div>
 
       {/* Desktop: 3 columns */}
       <div className="hidden md:grid md:grid-cols-3 md:gap-6">
-        <SurfaceColumn />
-        <MiddleColumn />
-        <DepthColumn />
+        {surfaceColumn}
+        {middleColumn}
+        {depthColumn}
       </div>
     </div>
   );

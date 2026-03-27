@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLVR Aves Library — 10 Specimens</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#5B5F53;color:#f0ede6;font-family:'DM Sans',system-ui,sans-serif;overflow-x:hidden}
+.pattern{position:fixed;inset:0;opacity:.04;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2220%22 height=%2220%22><text x=%225%22 y=%2214%22 font-size=%2210%22 fill=%22white%22>+</text></svg>');pointer-events:none;z-index:0}
+.header{text-align:center;padding:48px 28px 16px;position:relative;z-index:1}
+.specimen{position:relative;z-index:1;width:100%;padding:28px 0;border-bottom:.5px solid rgba(168,183,142,.06)}
+.specimen:last-of-type{border-bottom:none}
+.specimen-inner{max-width:100%;margin:0 auto;display:grid;grid-template-columns:1fr 260px;gap:0;align-items:center;min-height:420px}
+.specimen:nth-child(even) .specimen-inner{grid-template-columns:260px 1fr}
+.specimen:nth-child(even) .spec-info{order:1;text-align:right;padding-right:48px;padding-left:0}
+.specimen:nth-child(even) .spec-svg{order:0}
+.specimen:nth-child(odd) .spec-info{order:0;padding-left:48px}
+.specimen:nth-child(odd) .spec-svg{order:1}
+.spec-info{display:flex;flex-direction:column;justify-content:center}
+.spec-svg{display:flex;align-items:center;justify-content:center;padding:16px}
+.spec-svg svg{width:100%;height:auto}
+.spec-number{font-family:'Space Mono',monospace;font-size:56px;font-weight:700;opacity:.06;line-height:1;margin-bottom:-18px}
+.spec-name{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;letter-spacing:-.02em;margin-bottom:4px}
+.spec-latin{font-size:12px;color:#a5a39d;font-style:italic;font-family:Georgia,serif;margin-bottom:12px}
+.spec-desc{font-size:12px;color:#a5a39d;line-height:1.7;max-width:250px;margin-bottom:14px}
+.specimen:nth-child(even) .spec-desc{margin-left:auto}
+.spec-tags{display:flex;gap:5px;flex-wrap:wrap}
+.specimen:nth-child(even) .spec-tags{justify-content:flex-end}
+.spec-tag{font-size:8px;padding:3px 8px;border-radius:6px;font-family:'Space Mono',monospace;letter-spacing:.06em;text-transform:uppercase}
+.footer{text-align:center;padding:32px 28px 48px;position:relative;z-index:1;border-top:.5px solid rgba(168,183,142,.06)}
+@media(max-width:900px){
+.specimen-inner,.specimen:nth-child(even) .specimen-inner{grid-template-columns:1fr!important}
+.spec-info{padding:20px 28px!important;text-align:center!important;order:1!important}
+.spec-svg{order:0!important;max-width:520px;margin:0 auto}
+.spec-desc{max-width:100%!important;margin-left:auto!important;margin-right:auto!important}
+.spec-tags{justify-content:center!important}
+}
+</style>
+</head>
+<body>
+<div class="pattern"></div>
+
+<div class="header">
+<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px">
+<div style="width:28px;height:28px;border-radius:8px;background:#A8B78E;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#1A1A1A">F</div>
+<span style="font-size:14px;font-weight:700">FTP</span>
+<span style="font-size:9px;color:#a5a39d;font-family:'Space Mono',monospace;letter-spacing:.1em">BY LLVR</span>
+</div>
+<h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(28px,4vw,42px);letter-spacing:-.03em;margin-bottom:8px">Aves</h1>
+<p style="font-size:13px;color:#a5a39d;font-style:italic;font-family:Georgia,serif">10 especímenes · Trazo anatómico · Identidad LLVR Dark</p>
+</div>
+
+<!-- ═══ 01 — ÁGUILA REAL ═══ -->
+<div class="specimen">
+<div class="specimen-inner">
+<div class="spec-info">
+<p class="spec-number">01</p>
+<p class="spec-name" style="color:#C4453A">Águila Real</p>
+<p class="spec-latin">Aquila chrysaetos</p>
+<p class="spec-desc">Ve 8 veces más que el ojo humano. Caza en picada a 320 km/h. No busca presas — las elige. La visión no es un sentido, es una estrategia.</p>
+<div class="spec-tags">
+<span class="spec-tag" style="background:rgba(196,69,58,.1);color:#C4453A">Rapaz</span>
+<span class="spec-tag" style="background:rgba(196,69,58,.06);color:#C4453A">2m envergadura</span>
+<span class="spec-tag" style="background:rgba(200,170,80,.06);color:#C8AA50">Diurna</span>
+</div>
+</div>
+<div class="spec-svg">
+<svg viewBox="0 0 800 440" fill="none">
+<!-- Head -->
+<path d="M340 160Q330 148 325 135Q322 120 330 110Q340 102 355 105Q365 108 370 118" stroke="#C4453A" stroke-width="1.3" opacity=".65"/>
+<!-- Beak — hooked raptor beak -->
+<path d="M325 135Q318 138 312 135Q308 130 312 125Q318 122 322 125" stroke="#C4453A" stroke-width="1.4" opacity=".7"/>
+<path d="M312 130L308 128" stroke="#C4453A" stroke-width="1" opacity=".5"/>
+<!-- Eye -->
+<circle cx="338" cy="120" r="5" stroke="#C4453A" stroke-width="1.2" opacity=".65"/>
+<circle cx="338" cy="120" r="2.2" fill="#C4453A" opacity=".4"/>
+<circle cx="336" cy="118" r=".8" fill="#f0ede6" opacity=".15"/>
+<!-- Brow ridge -->
+<path d="M330 114Q338 110 346 114" stroke="#C4453A" stroke-width=".8" opacity=".4"/>
+<!-- Crown feathers -->
+<path d="M355 105Q362 100 368 105Q372 110 370 118" stroke="#C4453A" stroke-width="1" opacity=".5"/>
+<path d="M350 104Q355 98 362 100" stroke="#C4453A" stroke-width=".7" opacity=".35"/>
+<!-- Neck -->
+<path d="M340 160Q350 170 365 178Q380 185 395 188" stroke="#C4453A" stroke-width="1.2" opacity=".6"/>
+<path d="M370 118Q378 130 385 145Q390 165 395 188" stroke="#C4453A" stroke-width="1.2" opacity=".6"/>
+<!-- Neck feather texture -->
+<path d="M355 140Q360 138 365 142" stroke="#C4453A" stroke-width=".5" opacity=".25"/>
+<path d="M360 150Q366 148 370 152" stroke="#C4453A" stroke-width=".5" opacity=".25"/>
+<path d="M365 160Q372 158 376 163" stroke="#C4453A" stroke-width=".5" opacity=".22"/>
+
+<!-- Body -->
+<path d="M395 188Q420 195 450 200Q490 205 520 200Q545 192 555 178" stroke="#C4453A" stroke-width="1.3" opacity=".6"/>
+<path d="M395 188Q415 210 440 225Q470 238 500 240Q530 238 548 225Q558 215 555 200" stroke="#C4453A" stroke-width="1.2" opacity=".55"/>
+<!-- Body feather texture -->
+<path d="M420 200Q430 198 440 202" stroke="#C4453A" stroke-width=".5" opacity=".2"/>
+<path d="M450 205Q462 202 472 207" stroke="#C4453A" stroke-width=".5" opacity=".2"/>
+<path d="M430 215Q442 212 452 218" stroke="#C4453A" stroke-width=".5" opacity=".18"/>
+<path d="M460 220Q472 217 480 222" stroke="#C4453A" stroke-width=".45" opacity=".18"/>
+<path d="M490 215Q498 212 505 216" stroke="#C4453A" stroke-width=".45" opacity=".15"/>
+
+<!-- LEFT WING — extended, soaring -->
+<path d="M395 195Q350 185 290 175Q220 168 150 172Q100 180 65 200Q42 218 35 240" stroke="#C4453A" stroke-width="1.4" opacity=".6"/>
+<!-- Wing coverts -->
+<path d="M395 198Q355 192 310 188Q265 185 225 190Q190 198 165 210" stroke="#C4453A" stroke-width=".8" opacity=".35"/>
+<path d="M390 202Q358 198 325 196Q288 196 258 204Q232 214 215 228" stroke="#C4453A" stroke-width=".7" opacity=".3"/>
+<!-- Primary feathers — separated at tips -->
+<path d="M65 200Q55 205 48 215Q42 228 35 240" stroke="#C4453A" stroke-width="1.2" opacity=".55"/>
+<path d="M75 198Q62 208 52 222" stroke="#C4453A" stroke-width="1" opacity=".45"/>
+<path d="M88 196Q72 210 60 228" stroke="#C4453A" stroke-width="1" opacity=".42"/>
+<path d="M102 194Q85 212 72 232" stroke="#C4453A" stroke-width=".9" opacity=".4"/>
+<path d="M118 192Q100 214 88 236" stroke="#C4453A" stroke-width=".9" opacity=".38"/>
+<path d="M138 190Q118 215 108 238" stroke="#C4453A" stroke-width=".8" opacity=".35"/>
+<path d="M160 188Q140 216 132 240" stroke="#C4453A" stroke-width=".8" opacity=".32"/>
+<!-- Secondary feathers -->
+<path d="M185 186Q170 218 168 245" stroke="#C4453A" stroke-width=".7" opacity=".3"/>
+<path d="M210 185Q198 220 200 248" stroke="#C4453A" stroke-width=".7" opacity=".28"/>
+<path d="M240 185Q232 222 236 250" stroke="#C4453A" stroke-width=".6" opacity=".25"/>
+<!-- Wing trailing edge -->
+<path d="M35 240Q70 248 108 248Q150 250 200 250Q250 252 300 245Q350 235 390 218" stroke="#C4453A" stroke-width="1" opacity=".4"/>
+
+<!-- RIGHT WING -->
+<path d="M555 178Q600 165 660 158Q720 155 760 168Q785 182 795 205" stroke="#C4453A" stroke-width="1.4" opacity=".55"/>
+<path d="M550 182Q592 175 640 170Q690 168 730 178Q758 190 772 208" stroke="#C4453A" stroke-width=".8" opacity=".3"/>
+<path d="M548 188Q585 182 628 180Q672 180 710 192Q740 205 758 222" stroke="#C4453A" stroke-width=".7" opacity=".28"/>
+<!-- Right primaries -->
+<path d="M760 168Q772 175 782 188Q790 200 795 205" stroke="#C4453A" stroke-width="1.2" opacity=".5"/>
+<path d="M748 165Q762 178 775 195" stroke="#C4453A" stroke-width="1" opacity=".42"/>
+<path d="M732 162Q750 180 762 200" stroke="#C4453A" stroke-width="1" opacity=".4"/>
+<path d="M715 160Q738 182 750 205" stroke="#C4453A" stroke-width=".9" opacity=".38"/>
+<path d="M695 158Q722 185 735 210" stroke="#C4453A" stroke-width=".9" opacity=".35"/>
+<path d="M672 158Q702 188 718 215" stroke="#C4453A" stroke-width=".8" opacity=".32"/>
+<!-- Right trailing edge -->
+<path d="M795 205Q770 220 735 228Q695 235 650 238Q600 240 555 232Q540 228 530 220" stroke="#C4453A" stroke-width="1" opacity=".38"/>
+
+<!-- Tail feathers -->
+<path d="M520 240Q530 260 535 285Q538 305 535 320" stroke="#C4453A" stroke-width="1" opacity=".45"/>
+<path d="M510 240Q518 262 520 288Q522 308 518 325" stroke="#C4453A" stroke-width=".9" opacity=".4"/>
+<path d="M500 240Q505 265 505 292Q505 312 500 328" stroke="#C4453A" stroke-width=".9" opacity=".38"/>
+<path d="M488 238Q490 268 488 298Q486 318 482 332" stroke="#C4453A" stroke-width=".8" opacity=".35"/>
+<path d="M475 235Q475 270 472 300Q470 322 465 335" stroke="#C4453A" stroke-width=".8" opacity=".32"/>
+<!-- Tail band -->
+<path d="M465 310Q475 308 488 310Q500 312 518 310Q530 308 535 305" stroke="#C4453A" stroke-width=".5" opacity=".2"/>
+
+<!-- Talons hint -->
+<path d="M460 240Q455 258 452 270" stroke="#C8AA50" stroke-width=".8" opacity=".3"/>
+<path d="M452 270Q448 278 442 282Q438 278 435 274" stroke="#C8AA50" stroke-width=".7" opacity=".3"/>
+<path d="M452 270Q455 278 458 282" stroke="#C8AA50" stroke-width=".6" opacity=".25"/>
+</svg>
+</div>
+</div>
+</div>
+
+<!-- ═══ 02 — COLIBRÍ ═══ -->
+<div class="specimen">
+<div class="specimen-inner">
+<div class="spec-info">
+<p class="spec-number">02</p>
+<p class="spec-name" style="color:#A8B78E">Colibrí</p>
+<p class="spec-latin">Trochilidae</p>
+<p class="spec-desc">Bate las alas 80 veces por segundo. Es el único pájaro que vuela hacia atrás. Su corazón late 1,200 veces por minuto. La velocidad no es hacer más — es no perder energía en nada.</p>
+<div class="spec-tags">
+<span class="spec-tag" style="background:rgba(168,183,142,.1);color:#A8B78E">Américas</span>
+<span class="spec-tag" style="background:rgba(168,183,142,.06);color:#A8B78E">5-13cm</span>
+<span class="spec-tag" style="background:rgba(196,69,58,.06);color:#C4453A">1,200 bpm</span>
+</div>
+</div>
+<div class="spec-svg">
+<svg viewBox="0 0 800 400" fill="none">
+<!-- Body — tiny, compact, iridescent -->
+<path d="M420 180Q440 175 458 178Q475 182 485 195Q492 210 488 228Q482 242 470 250Q458 255 445 252Q432 248 425 238Q418 225 420 210Z" stroke="#A8B78E" stroke-width="1.3" opacity=".65"/>
+<!-- Gorget (throat patch - iridescent) -->
+<path d="M432 200Q440 195 450 198Q458 202 455 212Q448 218 440 215Q434 210 432 200Z" stroke="#C4453A" stroke-width="1" opacity=".5"/>
+<circle cx="445" cy="206" r="4" fill="#C4453A" opacity=".06"/>
+<!-- Head -->
+<path d="M420 180Q412 172 405 168Q398 165 392 168Q388 172 390 178Q393 184 400 188Q408 190 418 188" stroke="#A8B78E" stroke-width="1.3" opacity=".65"/>
+<!-- Eye — proportionally large -->
+<circle cx="402" cy="176" r="4.5" stroke="#A8B78E" stroke-width="1.1" opacity=".6"/>
+<circle cx="402" cy="176" r="2" fill="#1A1A1A" opacity=".4"/>
+<circle cx="400" cy="174" r=".8" fill="#f0ede6" opacity=".12"/>
+<!-- BEAK — extremely long, thin, defining feature -->
+<path d="M392 168Q350 148 305 132Q268 120 235 115" stroke="#A8B78E" stroke-width="1.2" opacity=".6"/>
+<path d="M388 172Q348 155 310 142Q275 132 242 128" stroke="#A8B78E" stroke-width="1" opacity=".5"/>
+<path d="M235 115Q238 120 242 128" stroke="#A8B78E" stroke-width=".8" opacity=".45"/>
+<!-- Beak detail line -->
+<path d="M350 148Q348 152 350 155" stroke="#A8B78E" stroke-width=".4" opacity=".2"/>
+<path d="M310 135Q308 140 310 142" stroke="#A8B78E" stroke-width=".4" opacity=".18"/>
+
+<!-- LEFT WING — blur of speed, multiple positions suggested -->
+<!-- Position 1 (up) -->
+<path d="M460 188Q480 160 505 135Q530 115 558 105Q580 100 598 108Q610 118 608 135Q600 155 582 172Q558 190 530 200Q500 205 475 200" stroke="#A8B78E" stroke-width="1.2" opacity=".5"/>
+<!-- Wing feather lines -->
+<path d="M460 190Q485 168 515 148Q545 132 572 125" stroke="#A8B78E" stroke-width=".6" opacity=".28"/>
+<path d="M462 194Q490 175 522 160Q555 148 580 142" stroke="#A8B78E" stroke-width=".55" opacity=".25"/>
+<path d="M465 198Q495 182 530 172Q560 165 585 162" stroke="#A8B78E" stroke-width=".5" opacity=".22"/>
+<!-- Position 2 (ghost — motion blur) -->
+<path d="M458 192Q478 178 502 168Q528 160 555 158Q575 160 588 170" stroke="#A8B78E" stroke-width=".5" opacity=".1"/>
+<path d="M462 200Q488 195 518 195Q548 198 572 208" stroke="#A8B78E" stroke-width=".4" opacity=".08"/>
+<!-- Speed lines -->
+<line x1="598" y1="108" x2="620" y2="98" stroke="#A8B78E" stroke-width=".3" opacity=".1" stroke-dasharray="2 4"/>
+<line x1="608" y1="135" x2="628" y2="130" stroke="#A8B78E" stroke-width=".3" opacity=".08" stroke-dasharray="2 4"/>
+
+<!-- RIGHT WING — partially visible (body angle) -->
+<path d="M435 195Q415 175 398 155Q385 138 380 122Q378 110 385 105Q395 102 408 112Q418 125 425 142Q432 162 435 182" stroke="#A8B78E" stroke-width="1.1" opacity=".4"/>
+<path d="M432 192Q415 178 402 160Q392 145 388 132" stroke="#A8B78E" stroke-width=".5" opacity=".2"/>
+<path d="M430 188Q418 180 408 168Q400 155 396 145" stroke="#A8B78E" stroke-width=".45" opacity=".18"/>
+
+<!-- Tail feathers — forked, spread -->
+<path d="M488 228Q498 245 505 268Q510 290 508 310" stroke="#A8B78E" stroke-width="1" opacity=".45"/>
+<path d="M485 232Q492 252 496 275Q498 298 495 318" stroke="#A8B78E" stroke-width=".9" opacity=".4"/>
+<path d="M482 235Q485 258 485 282Q484 305 480 322" stroke="#A8B78E" stroke-width=".9" opacity=".38"/>
+<path d="M478 238Q478 262 475 288Q472 310 468 325" stroke="#A8B78E" stroke-width=".8" opacity=".35"/>
+<path d="M472 240Q470 268 465 295Q462 315 458 328" stroke="#A8B78E" stroke-width=".8" opacity=".32"/>
+<!-- Tail feather barb lines -->
+<path d="M505 268Q498 272 496 275" stroke="#A8B78E" stroke-width=".3" opacity=".12"/>
+<path d="M496 275Q490 280 485 282" stroke="#A8B78E" stroke-width=".3" opacity=".1"/>
+
+<!-- Feet — tiny, tucked -->
+<path d="M452 252Q450 262 448 268" stroke="#A8B78E" stroke-width=".6" opacity=".25"/>
+<path d="M448 268Q445 272 442 270Q440 268 442 265" stroke="#A8B78E" stroke-width=".5" opacity=".2"/>
+
+<!-- Flower suggestion (context) -->
+<path d="M220 105Q215 95 210 88Q205 82 198 85Q192 90 195 100Q200 108 210 112" stroke="#C4453A" stroke-width=".6" opacity=".15"/>
+<path d="M210 112Q218 115 225 112Q230 108 228 100" stroke="#C4453A" stroke-width=".5" opacity=".12"/>
+<circle cx="210" cy="100" r="3" fill="#C4453A" opacity=".04"/>
+</svg>
+</div>
+</div>
+</div>
+
+<!-- ═══ 03 — BÚHO ═══ -->
+<div class="specimen">
+<div class="specimen-inner">
+<div class="spec-info">
+<p class="spec-number">03</p>
+<p class="spec-name" style="color:#9B7EB8">Búho Real</p>
+<p class="spec-latin">Bubo bubo</p>
+<p class="spec-desc">Vuela en silencio absoluto. Sus plumas tienen micro-serraduras que eliminan la turbulencia del aire. No necesita ser ruidoso para ser letal. El verdadero poder no se anuncia.</p>
+<div class="spec-tags">
+<span class="spec-tag" style="background:rgba(155,126,184,.1);color:#9B7EB8">Rapaz nocturna</span>
+<span class="spec-tag" style="background:rgba(155,126,184,.06);color:#9B7EB8">60-75cm</span>
+<span class="spec-tag" style="background:rgba(155,126,184,.06);color:#a5a39d">Vuelo silencioso</span>
+</div>
+</div>
+<div class="spec-svg">
+<svg viewBox="0 0 800 480" fill="none">
+<!-- Facial disc — the defining owl feature -->
+<path d="M360 140Q340 160 330 190Q325 220 335 250Q348 275 370 288Q395 298 420 295Q445 288 460 272Q475 250 478 220Q478 190 468 162Q455 140 435 130Q415 125 395 128Q375 132 360 140Z" stroke="#9B7EB8" stroke-width="1.4" opacity=".6"/>
+<!-- Inner facial disc -->
+<path d="M370 152Q355 168 348 195Q345 222 355 248Q368 268 388 278Q408 285 428 280Q445 270 455 252Q462 232 462 208Q460 182 450 162Q438 148 422 142Q405 138 388 142Q375 147 370 152Z" stroke="#9B7EB8" stroke-width=".8" opacity=".3"/>
+<!-- Facial disc radiating feather lines -->
+<path d="M390 200Q375 185 365 165" stroke="#9B7EB8" stroke-width=".5" opacity=".2"/>
+<path d="M395 200Q385 178 380 155" stroke="#9B7EB8" stroke-width=".45" opacity=".18"/>
+<path d="M405 200Q410 178 418 158" stroke="#9B7EB8" stroke-width=".45" opacity=".18"/>
+<path d="M410 200Q425 185 438 168" stroke="#9B7EB8" stroke-width=".5" opacity=".2"/>
+<path d="M390 210Q372 218 355 230" stroke="#9B7EB8" stroke-width=".45" opacity=".18"/>
+<path d="M410 210Q428 218 445 232" stroke="#9B7EB8" stroke-width=".45" opacity=".18"/>
+<path d="M395 220Q382 238 372 258" stroke="#9B7EB8" stroke-width=".4" opacity=".15"/>
+<path d="M405 220Q418 238 430 258" stroke="#9B7EB8" stroke-width=".4" opacity=".15"/>
+
+<!-- EYES — enormous, forward-facing, hypnotic -->
+<circle cx="378" cy="195" r="16" stroke="#9B7EB8" stroke-width="1.3" opacity=".6"/>
+<circle cx="378" cy="195" r="10" stroke="#9B7EB8" stroke-width=".8" opacity=".45"/>
+<circle cx="378" cy="195" r="6" fill="#C8AA50" opacity=".12"/>
+<circle cx="378" cy="195" r="3.5" fill="#1A1A1A" opacity=".35"/>
+<circle cx="375" cy="192" r="1.5" fill="#f0ede6" opacity=".1"/>
+<circle cx="422" cy="195" r="16" stroke="#9B7EB8" stroke-width="1.3" opacity=".6"/>
+<circle cx="422" cy="195" r="10" stroke="#9B7EB8" stroke-width=".8" opacity=".45"/>
+<circle cx="422" cy="195" r="6" fill="#C8AA50" opacity=".12"/>
+<circle cx="422" cy="195" r="3.5" fill="#1A1A1A" opacity=".35"/>
+<circle cx="419" cy="192" r="1.5" fill="#f0ede6" opacity=".1"/>
+<!-- Brow line between eyes -->
+<path d="M362 182Q378 175 400 172Q422 175 438 182" stroke="#9B7EB8" stroke-width=".8" opacity=".35"/>
+
+<!-- Beak -->
+<path d="M395 210Q400 215 405 210" stroke="#9B7EB8" stroke-width="1.2" opacity=".55"/>
+<path d="M400 215Q398 222 400 228Q402 222 400 215" stroke="#9B7EB8" stroke-width="1" opacity=".5"/>
+<!-- Ear tufts -->
+<path d="M360 140Q355 125 350 108Q348 95 355 88Q362 85 368 92Q372 102 370 118" stroke="#9B7EB8" stroke-width="1.2" opacity=".55"/>
+<path d="M357 130Q354 118 352 105" stroke="#9B7EB8" stroke-width=".6" opacity=".25"/>
+<path d="M363 135Q358 120 356 108" stroke="#9B7EB8" stroke-width=".5" opacity=".22"/>
+<path d="M440 140Q445 125 450 108Q452 95 445 88Q438 85 432 92Q428 102 430 118" stroke="#9B7EB8" stroke-width="1.2" opacity=".55"/>
+<path d="M443 130Q446 118 448 105" stroke="#9B7EB8" stroke-width=".6" opacity=".25"/>
+<path d="M437 135Q442 120 444 108" stroke="#9B7EB8" stroke-width=".5" opacity=".22"/>
+
+<!-- Body -->
+<path d="M350 280Q340 310 338 345Q340 375 355 395Q375 410 400 415Q425 410 445 395Q460 375 462 345Q460 310 450 280" stroke="#9B7EB8" stroke-width="1.3" opacity=".55"/>
+<!-- Body feather pattern -->
+<path d="M360 300Q370 296 380 300Q390 304 400 300Q410 296 420 300Q430 304 440 300" stroke="#9B7EB8" stroke-width=".5" opacity=".2"/>
+<path d="M355 320Q368 315 380 320Q392 325 405 320Q418 315 430 320Q442 325 452 320" stroke="#9B7EB8" stroke-width=".5" opacity=".18"/>
+<path d="M358 340Q370 335 382 340Q395 345 408 340Q420 335 432 340Q445 345 455 340" stroke="#9B7EB8" stroke-width=".45" opacity=".15"/>
+<path d="M362 360Q375 355 388 360Q400 365 412 360Q425 355 438 360" stroke="#9B7EB8" stroke-width=".4" opacity=".12"/>
+
+<!-- Wings — folded against body -->
+<path d="M350 280Q320 285 295 300Q275 318 265 342Q260 368 270 390Q285 405 305 408Q325 408 345 398" stroke="#9B7EB8" stroke-width="1.1" opacity=".45"/>
+<path d="M295 300Q288 315 282 335" stroke="#9B7EB8" stroke-width=".6" opacity=".22"/>
+<path d="M310 295Q302 312 298 332" stroke="#9B7EB8" stroke-width=".55" opacity=".2"/>
+<path d="M325 290Q318 310 315 330" stroke="#9B7EB8" stroke-width=".5" opacity=".18"/>
+<path d="M450 280Q480 285 505 300Q525 318 535 342Q540 368 530 390Q515 405 495 408Q475 408 455 398" stroke="#9B7EB8" stroke-width="1.1" opacity=".42"/>
+<path d="M505 300Q512 315 518 335" stroke="#9B7EB8" stroke-width=".6" opacity=".2"/>
+<path d="M490 295Q498 312 502 332" stroke="#9B7EB8" stroke-width=".55" opacity=".18"/>
+
+<!-- Talons -->
+<path d="M380 415Q378 428 375 438" stroke="#C8AA50" stroke-width=".8" opacity=".35"/>
+<path d="M375 438Q370 444 365 442Q368 438 372 435" stroke="#C8AA50" stroke-width=".7" opacity=".3"/>
+<path d="M375 438Q378 445 382 442" stroke="#C8AA50" stroke-width=".6" opacity=".25"/>
+<path d="M420 415Q422 428 425 438" stroke="#C8AA50" stroke-width=".8" opacity=".35"/>
+<path d="M425 438Q430 444 435 442Q432 438 428 435" stroke="#C8AA50" stroke-width=".7" opacity=".3"/>
+<path d="M425 438Q422 445 418 442" stroke="#C8AA50" stroke-width=".6" opacity=".25"/>
+</svg>
+</div>
+</div>
+</div>
+
+<!-- ═══ 04 — CÓNDOR ═══ -->
+<div class="specimen">
+<div class="specimen-inner">
+<div class="spec-info">
+<p class="spec-number">04</p>
+<p class="spec-name" style="color:#C4453A">Cóndor Andino</p>
+<p class="spec-latin">Vultur gryphus</p>
+<p class="spec-desc">Vuela sin batir las alas durante horas. Usa las corrientes térmicas como combustible gratuito. No lucha contra el viento — lo usa. La eficiencia suprema es no gastar energía que no necesitas.</p>
+<div class="spec-tags">
+<span class="spec-tag" style="background:rgba(196,69,58,.1);color:#C4453A">Andes</span>
+<span class="spec-tag" style="background:rgba(196,69,58,.06);color:#C4453A">3.2m envergadura</span>
+<span class="spec-tag" style="background:rgba(168,183,142,.06);color:#A8B78E">Planeo térmico</span>
+</div>
+</div>
+<div class="spec-svg">
+<svg viewBox="0 0 800 340" fill="none">
+<!-- Head — bald, with caruncle -->
+<path d="M390 128Q385 118 382 108Q380 98 385 90Q392 85 400 88Q405 92 405 100" stroke="#C4453A" stroke-width="1.3" opacity=".6"/>
+<!-- Caruncle (fleshy crest) -->
+<path d="M385 90Q388 82 395 78Q402 80 405 88" stroke="#C4453A" stroke-width="1.1" opacity=".5"/>
+<path d="M390 82Q395 78 400 82" stroke="#C4453A" stroke-width=".8" opacity=".35"/>
+<!-- Beak -->
+<path d="M382 108Q376 112 372 108Q370 102 374 98Q380 96 382 100" stroke="#C4453A" stroke-width="1.2" opacity=".6"/>
+<!-- Eye -->
+<circle cx="392" cy="102" r="3.5" stroke="#C4453A" stroke-width="1" opacity=".55"/>
+<circle cx="392" cy="102" r="1.5" fill="#C4453A" opacity=".3"/>
+<!-- Neck ruff (white collar) -->
+<path d="M390 128Q378 135 370 145Q365 155 368 165Q375 172 388 170Q395 165 398 155" stroke="#A8B78E" stroke-width="1.2" opacity=".5"/>
+<path d="M405 128Q415 135 422 145Q428 155 425 165Q418 172 408 170Q400 165 398 155" stroke="#A8B78E" stroke-width="1.2" opacity=".5"/>
+<!-- Ruff feather texture -->
+<path d="M375 148Q382 145 388 150" stroke="#A8B78E" stroke-width=".5" opacity=".2"/>
+<path d="M410 148Q416 145 422 150" stroke="#A8B78E" stroke-width=".5" opacity=".2"/>
+
+<!-- Body -->
+<path d="M368 165Q380 175 398 178Q415 175 428 165" stroke="#1A1A1A" stroke-width="1.2" opacity=".5"/>
+<path d="M368 165Q360 180 358 195Q360 210 375 218" stroke="#1A1A1A" stroke-width="1.1" opacity=".45"/>
+<path d="M428 165Q435 180 438 195Q435 210 425 218" stroke="#1A1A1A" stroke-width="1.1" opacity=".45"/>
+<path d="M375 218Q388 225 400 225Q412 225 425 218" stroke="#1A1A1A" stroke-width="1" opacity=".4"/>
+
+<!-- MASSIVE WINGS — full soaring span -->
+<!-- Left wing -->
+<path d="M358 185Q310 178 240 172Q160 170 90 182Q40 198 15 225" stroke="#1A1A1A" stroke-width="1.5" opacity=".6"/>
+<!-- Wing coverts -->
+<path d="M355 188Q315 185 262 182Q210 182 165 190Q128 200 100 215" stroke="#1A1A1A" stroke-width=".7" opacity=".3"/>
+<path d="M352 192Q320 192 278 192Q235 195 198 208Q168 222 148 238" stroke="#1A1A1A" stroke-width=".6" opacity=".25"/>
+<!-- Primary feathers — deeply slotted (condor signature) -->
+<path d="M40 198Q30 208 22 222Q18 232 15 225" stroke="#1A1A1A" stroke-width="1.2" opacity=".55"/>
+<path d="M55 195Q42 210 32 228" stroke="#1A1A1A" stroke-width="1.1" opacity=".48"/>
+<path d="M72 192Q56 212 45 235" stroke="#1A1A1A" stroke-width="1.1" opacity=".45"/>
+<path d="M92 190Q74 215 62 240" stroke="#1A1A1A" stroke-width="1" opacity=".42"/>
+<path d="M115 188Q95 218 82 248" stroke="#1A1A1A" stroke-width="1" opacity=".4"/>
+<path d="M140 186Q120 222 108 252" stroke="#1A1A1A" stroke-width=".9" opacity=".38"/>
+<path d="M168 184Q148 225 138 258" stroke="#1A1A1A" stroke-width=".9" opacity=".35"/>
+<path d="M200 183Q182 228 178 262" stroke="#1A1A1A" stroke-width=".8" opacity=".32"/>
+<path d="M235 182Q222 232 222 265" stroke="#1A1A1A" stroke-width=".8" opacity=".3"/>
+<!-- Trailing edge -->
+<path d="M15 225Q45 248 90 258Q140 268 200 268Q260 265 320 255Q350 245 365 230" stroke="#1A1A1A" stroke-width="1" opacity=".35"/>
+<!-- White wing patches (condor) -->
+<path d="M200 195Q220 192 240 196Q260 200 275 210" stroke="#A8B78E" stroke-width=".6" opacity=".2"/>
+
+<!-- Right wing -->
+<path d="M438 185Q490 178 560 172Q640 170 710 182Q760 198 785 225" stroke="#1A1A1A" stroke-width="1.5" opacity=".55"/>
+<path d="M440 188Q485 185 538 182Q590 182 635 190Q672 200 700 215" stroke="#1A1A1A" stroke-width=".7" opacity=".28"/>
+<!-- Right primaries -->
+<path d="M760 198Q770 208 778 222Q782 232 785 225" stroke="#1A1A1A" stroke-width="1.2" opacity=".5"/>
+<path d="M745 195Q758 210 768 228" stroke="#1A1A1A" stroke-width="1.1" opacity=".45"/>
+<path d="M728 192Q744 212 755 235" stroke="#1A1A1A" stroke-width="1.1" opacity=".42"/>
+<path d="M708 190Q726 215 738 240" stroke="#1A1A1A" stroke-width="1" opacity=".4"/>
+<path d="M685 188Q705 218 718 248" stroke="#1A1A1A" stroke-width="1" opacity=".38"/>
+<path d="M660 186Q680 222 692 252" stroke="#1A1A1A" stroke-width=".9" opacity=".35"/>
+<path d="M632 184Q652 225 662 258" stroke="#1A1A1A" stroke-width=".9" opacity=".32"/>
+<!-- Right trailing edge -->
+<path d="M785 225Q755 248 710 258Q660 268 600 268Q540 265 480 255Q450 245 435 230" stroke="#1A1A1A" stroke-width="1" opacity=".32"/>
+<!-- Right white patches -->
+<path d="M600 195Q580 192 560 196Q540 200 525 210" stroke="#A8B78E" stroke-width=".6" opacity=".18"/>
+
+<!-- Tail -->
+<path d="M400 225Q405 250 408 278Q410 298 405 310" stroke="#1A1A1A" stroke-width="1" opacity=".4"/>
+<path d="M395 225Q392 252 390 280Q388 300 392 312" stroke="#1A1A1A" stroke-width=".9" opacity=".38"/>
+<path d="M410 225Q415 248 418 272Q420 295 415 308" stroke="#1A1A1A" stroke-width=".9" opacity=".35"/>
+<path d="M388 225Q382 255 380 285Q378 302 382 315" stroke="#1A1A1A" stroke-width=".8" opacity=".32"/>
+</svg>
+</div>
+</div>
+</div>
+
+<!-- ═══ 05 — FLAMENCO ═══ -->
+<div class="specimen">
+<div class="specimen-inner">
+<div class="spec-info">
+<p class="spec-number">05</p>
+<p class="spec-name" style="color:#C4453A">Flamenco</p>
+<p class="spec-latin">Phoenicopterus roseus</p>
+<p class="spec-desc">Come de cabeza. Filtra boca abajo con una lengua que bombea 20 veces por segundo. Su color viene de lo que come. Eres lo que consumes — literalmente.</p>
+<div class="spec-tags">
+<span class="spec-tag" style="background:rgba(196,69,58,.1);color:#C4453A">Zancuda</span>
+<span class="spec-tag" style="background:rgba(196,69,58,.06);color:#C4453A">110-150cm</span>
+<span class="spec-tag" style="background:rgba(168,183,142,.06);color:#A8B78E">Filtrador</span>
+</div>
+</div>
+<div class="spec-svg">
+<svg viewBox="0 0 800 500" fill="none">
+<!-- Head -->
+<path d="M295 95Q288 88 282 85Q275 84 272 88Q270 94 275 100Q280 104 288 105" stroke="#C4453A" stroke-width="1.3" opacity=".65"/>
+<!-- Eye -->
+<circle cx="282" cy="92" r="3" stroke="#C4453A" stroke-width="1" opacity=".55"/>
+<circle cx="282" cy="92" r="1.3" fill="#C8AA50" opacity=".3"/>
+<!-- Beak — distinctive downward curve -->
+<path d="M272 88Q265 92 258 90Q252 85 255 78Q260 74 268 78Q272 82 272 88" stroke="#C4453A" stroke-width="1.4" opacity=".65"/>
+<path d="M258 90Q255 88 252 85" stroke="#1A1A1A" stroke-width="1" opacity=".4"/>
+<!-- Beak division line -->
+<path d="M272 88Q265 86 258 85" stroke="#1A1A1A" stroke-width=".6" opacity=".3"/>
+
+<!-- NECK — the iconic S-curve -->
+<path d="M295 95Q310 100 325 112Q342 128 348 150Q350 172 340 195Q325 218 310 238Q300 258 298 280Q300 305 310 325Q322 342 340 352" stroke="#C4453A" stroke-width="1.5" opacity=".6"/>
+<!-- Neck inner line -->
+<path d="M290 100Q305 108 318 120Q332 138 338 158Q340 178 332 200Q320 222 308 242Q300 262 298 285Q300 308 312 328Q325 345 342 355" stroke="#C4453A" stroke-width=".7" opacity=".25"/>
+<!-- Neck feather lines -->
+<path d="M318 120Q322 118 325 122" stroke="#C4453A" stroke-width=".4" opacity=".15"/>
+<path d="M340 155Q344 152 346 158" stroke="#C4453A" stroke-width=".4" opacity=".15"/>
+<path d="M332 200Q336 198 338 204" stroke="#C4453A" stroke-width=".4" opacity=".12"/>
+<path d="M305 245Q310 242 312 248" stroke="#C4453A" stroke-width=".4" opacity=".12"/>
+
+<!-- Body — round, compact -->
+<path d="M340 352Q365 360 400 362Q440 360 465 348Q480 332 482 310Q478 290 465 278Q445 268 420 265Q395 268 375 278Q358 292 350 312Q345 332 340 352Z" stroke="#C4453A" stroke-width="1.3" opacity=".55"/>
+<!-- Body feather layers -->
+<path d="M360 290Q380 285 400 288Q420 285 440 290Q458 298 468 310" stroke="#C4453A" stroke-width=".5" opacity=".2"/>
+<path d="M355 310Q375 305 400 308Q425 305 448 312Q465 322 472 335" stroke="#C4453A" stroke-width=".5" opacity=".18"/>
+<path d="M352 332Q375 325 400 328Q425 325 450 335Q465 345 470 355" stroke="#C4453A" stroke-width=".45" opacity=".15"/>
+
+<!-- Wing — folded, with cascading feathers -->
+<path d="M465 278Q488 280 510 290Q528 305 535 328Q538 355 525 375Q508 390 485 392Q462 388 448 375" stroke="#C4453A" stroke-width="1.1" opacity=".45"/>
+<path d="M498 290Q505 305 508 325" stroke="#C4453A" stroke-width=".6" opacity=".22"/>
+<path d="M485 285Q492 302 495 322" stroke="#C4453A" stroke-width=".55" opacity=".2"/>
+<path d="M472 282Q478 300 480 320" stroke="#C4453A" stroke-width=".5" opacity=".18"/>
+<!-- Black wing tip feathers -->
+<path d="M525 375Q535 378 540 385Q538 392 530 390" stroke="#1A1A1A" stroke-width=".8" opacity=".3"/>
+<path d="M515 380Q525 385 528 392" stroke="#1A1A1A" stroke-width=".7" opacity=".25"/>
+<path d="M505 385Q515 390 518 398" stroke="#1A1A1A" stroke-width=".7" opacity=".22"/>
+
+<!-- LEGS — extremely long, thin -->
+<!-- Right leg (standing) -->
+<path d="M420 362Q418 385 415 415Q412 445 410 472" stroke="#C4453A" stroke-width="1.2" opacity=".5"/>
+<path d="M410 472Q408 478 405 482Q402 478 400 475" stroke="#C4453A" stroke-width=".8" opacity=".35"/>
+<path d="M410 472Q412 480 415 482" stroke="#C4453A" stroke-width=".7" opacity=".3"/>
+<path d="M410 472Q407 480 404 484" stroke="#C4453A" stroke-width=".7" opacity=".3"/>
+<!-- Knee joint -->
+<circle cx="415" cy="415" r="2.5" stroke="#C4453A" stroke-width=".6" opacity=".25"/>
+
+<!-- Left leg (tucked — flamingo sleeping pose) -->
+<path d="M395 362Q392 380 390 398Q388 405 392 408Q396 405 398 398" stroke="#C4453A" stroke-width="1" opacity=".35"/>
+
+<!-- Tail -->
+<path d="M460 355Q468 365 472 378" stroke="#C4453A" stroke-width=".8" opacity=".3"/>
+<path d="M455 358Q462 370 465 382" stroke="#C4453A" stroke-width=".7" opacity=".25"/>
+<path d="M450 360Q455 374 458 388" stroke="#C4453A" stroke-width=".7" opacity=".22"/>
+</svg>
+</div>
+</div>
+</div>
+
+<!-- ═══ 06 — QUETZAL ═══ -->
+<div class="specimen">
+<div class="specimen-inner">
+<div class="spec-info">
+<p class="spec-number">06</p>
+<p class="spec-name" style="color:#A8B78E">Quetzal</p>
+<p class="spec-latin">Pharomachrus mocinno</p>
+<p class="spec-desc">Los mayas creían que no podía vivir en cautiverio — moría de tristeza. Su cola mide 3 veces su cuerpo. Lo sagrado no se posee. Se observa.</p>
+<div class="spec-tags">
+<span class="spec-tag" style="background:rgba(168,183,142,.1);color:#A8B78E">Mesoamérica</span>
+<span class="spec-tag" style="background:rgba(168,183,142,.06);color:#A8B78E">36cm + 65cm cola</span>
+<span class="spec-tag" style="background:rgba(196,69,58,.06);color:#C4453A">Sagrado</span>
+</div>
+</div>
+<div class="spec-svg">
+<svg viewBox="0 0 800 520" fill="none">
+<!-- Head crest -->
+<path d="M365 115Q358 105 355 92Q354 80 360 75Q368 72 375 78Q380 88 378 100Q375 110 370 118" stroke="#A8B78E" stroke-width="1.2" opacity=".6"/>
+<path d="M360 108Q355 98 356 88" stroke="#A8B78E" stroke-width=".6" opacity=".25"/>
+<path d="M372 112Q370 100 372 90" stroke="#A8B78E" stroke-width=".5" opacity=".22"/>
+<!-- Head -->
+<path d="M358 118Q350 125 348 135Q350 145 358 150Q368 152 375 148Q380 142 380 132Q378 122 370 118" stroke="#A8B78E" stroke-width="1.4" opacity=".65"/>
+<!-- Eye — large, dark -->
+<circle cx="362" cy="132" r="5" stroke="#A8B78E" stroke-width="1.1" opacity=".6"/>
+<circle cx="362" cy="132" r="2.5" fill="#1A1A1A" opacity=".4"/>
+<circle cx="360" cy="130" r="1" fill="#f0ede6" opacity=".1"/>
+<!-- Eye ring -->
+<circle cx="362" cy="132" r="7" stroke="#A8B78E" stroke-width=".5" opacity=".2"/>
+<!-- Beak — short, broad, yellow -->
+<path d="M348 135Q342 138 338 135Q336 130 340 128Q345 126 348 130" stroke="#C8AA50" stroke-width="1.2" opacity=".55"/>
+
+<!-- Body — compact, iridescent green -->
+<path d="M358 150Q350 165 348 185Q350 210 360 228Q372 240 388 245Q405 242 415 228Q425 210 428 185Q425 165 418 152Q410 145 398 142Q382 142 370 148" stroke="#A8B78E" stroke-width="1.4" opacity=".6"/>
+<!-- Iridescent breast (red) -->
+<path d="M362 190Q370 185 380 188Q390 192 395 200Q392 212 382 218Q372 220 365 215Q358 208 362 198Z" stroke="#C4453A" stroke-width="1" opacity=".5"/>
+<circle cx="378" cy="202" r="8" fill="#C4453A" opacity=".04"/>
+<!-- Body feather texture -->
+<path d="M358 165Q365 162 372 166" stroke="#A8B78E" stroke-width=".5" opacity=".2"/>
+<path d="M360 178Q368 175 375 180" stroke="#A8B78E" stroke-width=".45" opacity=".18"/>
+<path d="M410 170Q415 167 420 172" stroke="#A8B78E" stroke-width=".45" opacity=".18"/>
+<path d="M408 185Q414 182 418 188" stroke="#A8B78E" stroke-width=".4" opacity=".15"/>
+
+<!-- Wings — folded -->
+<path d="M418 152Q435 158 450 172Q462 190 465 215Q462 240 452 258Q438 270 420 272" stroke="#A8B78E" stroke-width="1.2" opacity=".5"/>
+<path d="M438 165Q445 178 448 195" stroke="#A8B78E" stroke-width=".6" opacity=".22"/>
+<path d="M428 160Q435 175 438 192" stroke="#A8B78E" stroke-width=".55" opacity=".2"/>
+<!-- Wing coverts -->
+<path d="M452 258Q458 265 460 275Q458 285 450 288" stroke="#1A1A1A" stroke-width=".8" opacity=".3"/>
+<path d="M442 262Q448 272 448 282" stroke="#1A1A1A" stroke-width=".7" opacity=".25"/>
+<path d="M432 268Q438 278 436 290" stroke="#1A1A1A" stroke-width=".7" opacity=".22"/>
+
+<!-- TAIL STREAMERS — the defining Quetzal feature -->
+<!-- Streamer 1 (longest) -->
+<path d="M388 245Q392 280 395 320Q398 365 395 415Q390 460 382 495Q378 510 380 518" stroke="#A8B78E" stroke-width="1.3" opacity=".55"/>
+<path d="M395 320Q392 325 395 330" stroke="#A8B78E" stroke-width=".4" opacity=".15"/>
+<path d="M395 380Q392 385 395 390" stroke="#A8B78E" stroke-width=".35" opacity=".12"/>
+<path d="M388 440Q385 445 388 450" stroke="#A8B78E" stroke-width=".3" opacity=".1"/>
+<!-- Streamer 2 -->
+<path d="M382 245Q385 282 388 325Q390 370 385 420Q380 465 375 498Q372 512 375 518" stroke="#A8B78E" stroke-width="1.2" opacity=".48"/>
+<!-- Streamer 3 -->
+<path d="M395 248Q400 285 402 330Q404 378 400 428Q395 470 388 500" stroke="#A8B78E" stroke-width="1" opacity=".4"/>
+<!-- Streamer 4 (shortest) -->
+<path d="M400 250Q405 290 408 338Q410 385 405 430Q400 468 395 490" stroke="#A8B78E" stroke-width=".9" opacity=".35"/>
+<!-- Barb detail on streamers -->
+<path d="M395 320Q400 318 405 322" stroke="#A8B78E" stroke-width=".35" opacity=".12"/>
+<path d="M388 380Q393 378 398 382" stroke="#A8B78E" stroke-width=".3" opacity=".1"/>
+<path d="M385 440Q390 438 395 442" stroke="#A8B78E" stroke-width=".3" opacity=".08"/>
+
+<!-- Regular tail feathers -->
+<path d="M405 248Q412 268 415 292" stroke="#1A1A1A" stroke-width=".8" opacity=".3"/>
+<path d="M410 250Q418 272 420 298" stroke="#1A1A1A" stroke-width=".7" opacity=".25"/>
+<path d="M375 248Q370 270 368 295" stroke="#1A1A1A" stroke-width=".7" opacity=".25"/>
+
+<!-- Feet -->
+<path d="M372 242Q368 255 365 265" stroke="#C8AA50" stroke-width=".7" opacity=".3"/>
+<path d="M365 265Q362 270 358 268" stroke="#C8AA50" stroke-width=".6" opacity=".25"/>
+<path d="M365 265Q368 272 372 270" stroke="#C8AA50" stroke-width=".6" opacity=".25"/>
+</svg>
+</div>
+</div>
+</div>
+
+<!-- ═══ 07 — GOLONDRINA ═══ -->
+<div class="specimen">
+<div class="specimen-inner">
+<div class="spec-info">
+<p class="spec-number">07</p>
+<p class="spec-name" style="color:#6B8CBA">Golondrina</p>
+<p class="spec-latin">Hirundo rustica</p>
+<p class="spec-desc">Migra 11,000 km dos veces al año sin GPS, sin mapa, sin dudar. Nace sabiendo a dónde ir. La dirección no se aprende — se siente.</p>
+<div class="spec-tags">
+<span class="spec-tag" style="background:rgba(107,140,186,.1);color:#6B8CBA">Global</span>
+<span class="spec-tag" style="background:rgba(107,140,186,.06);color:#6B8CBA">17-19cm</span>
+<span class="spec-tag" style="background:rgba(168,183,142,.06);color:#A8B78E">Migratoria</span>
+</div>
+</div>
+<div class="spec-svg">
+<svg viewBox="0 0 800 380" fill="none">
+<!-- Head -->
+<path d="M370 165Q362 158 358 148Q356 138 362 132Q370 128 378 132Q384 138 384 148Q382 158 378 165" stroke="#6B8CBA" stroke-width="1.3" opacity=".65"/>
+<!-- Eye -->
+<circle cx="370" cy="142" r="3" stroke="#6B8CBA" stroke-width="1" opacity=".55"/>
+<circle cx="370" cy="142" r="1.3" fill="#1A1A1A" opacity=".35"/>
+<!-- Beak — small, wide gape -->
+<path d="M358 148Q352 150 350 146Q352 140 356 140" stroke="#6B8CBA" stroke-width="1.1" opacity=".55"/>
+<!-- Red throat patch -->
+<path d="M365 158Q370 162 375 160Q378 155 375 150" stroke="#C4453A" stroke-width=".8" opacity=".35"/>
+
+<!-- Body — streamlined -->
+<path d="M378 165Q395 172 415 175Q440 176 460 172Q475 165 480 155" stroke="#6B8CBA" stroke-width="1.3" opacity=".6"/>
+<path d="M370 165Q382 178 400 185Q425 190 448 188Q468 182 478 170" stroke="#6B8CBA" stroke-width="1.2" opacity=".5"/>
+<!-- White underside -->
+<path d="M380 175Q395 180 415 182Q435 180 452 175" stroke="#A8B78E" stroke-width=".5" opacity=".2"/>
+
+<!-- LEFT WING — long, pointed, scythe-shaped -->
+<path d="M385 170Q345 155 290 138Q230 122 170 115Q120 115 80 128Q50 145 32 170" stroke="#6B8CBA" stroke-width="1.4" opacity=".6"/>
+<!-- Wing coverts -->
+<path d="M382 174Q348 162 305 150Q260 140 218 138Q182 140 152 150" stroke="#6B8CBA" stroke-width=".7" opacity=".3"/>
+<path d="M378 178Q352 170 320 162Q285 158 252 160Q225 168 205 180" stroke="#6B8CBA" stroke-width=".6" opacity=".25"/>
+<!-- Primaries -->
+<path d="M80 128Q62 138 48 155Q38 168 32 170" stroke="#6B8CBA" stroke-width="1.2" opacity=".55"/>
+<path d="M95 125Q75 142 58 162" stroke="#6B8CBA" stroke-width="1" opacity=".45"/>
+<path d="M115 122Q92 148 78 170" stroke="#6B8CBA" stroke-width="1" opacity=".42"/>
+<path d="M138 120Q112 152 98 178" stroke="#6B8CBA" stroke-width=".9" opacity=".38"/>
+<path d="M165 118Q138 155 125 185" stroke="#6B8CBA" stroke-width=".9" opacity=".35"/>
+<path d="M195 118Q170 158 160 192" stroke="#6B8CBA" stroke-width=".8" opacity=".32"/>
+<path d="M228 120Q208 162 200 198" stroke="#6B8CBA" stroke-width=".8" opacity=".3"/>
+<!-- Trailing edge -->
+<path d="M32 170Q65 192 110 200Q165 208 230 205Q295 198 350 185Q370 180 380 175" stroke="#6B8CBA" stroke-width=".9" opacity=".35"/>
+
+<!-- RIGHT WING -->
+<path d="M480 155Q520 142 575 130Q640 122 700 125Q745 135 770 158" stroke="#6B8CBA" stroke-width="1.4" opacity=".55"/>
+<path d="M478 160Q515 150 565 142Q620 138 672 142Q715 152 742 170" stroke="#6B8CBA" stroke-width=".7" opacity=".28"/>
+<!-- Right primaries -->
+<path d="M745 135Q758 148 768 162" stroke="#6B8CBA" stroke-width="1.2" opacity=".5"/>
+<path d="M730 132Q745 150 758 168" stroke="#6B8CBA" stroke-width="1" opacity=".42"/>
+<path d="M712 128Q732 155 745 178" stroke="#6B8CBA" stroke-width="1" opacity=".4"/>
+<path d="M690 126Q715 158 730 185" stroke="#6B8CBA" stroke-width=".9" opacity=".38"/>
+<path d="M665 125Q692 160 708 192" stroke="#6B8CBA" stroke-width=".9" opacity=".35"/>
+<!-- Right trailing edge -->
+<path d="M770 158Q748 180 715 192Q670 202 620 204Q570 202 525 195Q498 188 482 178" stroke="#6B8CBA" stroke-width=".9" opacity=".32"/>
+
+<!-- TAIL — deeply forked (swallow signature) -->
+<path d="M450 188Q458 210 462 240Q465 275 460 310Q455 340 445 365" stroke="#6B8CBA" stroke-width="1.2" opacity=".5"/>
+<path d="M445 190Q448 215 448 245Q445 280 440 310Q432 340 422 362" stroke="#6B8CBA" stroke-width=".8" opacity=".35"/>
+<!-- Fork gap -->
+<path d="M455 188Q460 205 462 225Q462 248 458 270Q455 290 452 305" stroke="#6B8CBA" stroke-width="1" opacity=".4"/>
+<path d="M458 190Q465 208 468 228Q470 252 465 278Q460 298 455 312" stroke="#6B8CBA" stroke-width=".9" opacity=".35"/>
+<!-- Outer tail feather barbs -->
+<path d="M460 310Q455 315 452 305" stroke="#6B8CBA" stroke-width=".4" opacity=".15"/>
+<path d="M445 340Q440 345 438 335" stroke="#6B8CBA" stroke-width=".35" opacity=".12"/>
+<!-- Short inner tail feathers -->
+<path d="M452 190Q455 208 456 225" stroke="#6B8CBA" stroke-width=".6" opacity=".25"/>
+<path d="M448 192Q450 212 450 230" stroke="#6B8CBA" stroke-width=".6" opacity=".22"/>
+</svg>
+</div>
+</div>
+</div>
+
+<!-- ═══ 08 — PAVO REAL ═══ -->
+<div class="specimen">
+<div class="specimen-inner">
+<div class="spec-info">
+<p class="spec-number">08</p>
+<p class="spec-name" style="color:#A8B78E">Pavo Real</p>
+<p class="spec-latin">Pavo cristatus</p>
+<p class="spec-desc">Su cola no es para volar. Es para ser visto. 200 plumas con ojos falsos que hipnotizan. La presencia digital es exactamente eso — un despliegue calculado de identidad.</p>
+<div class="spec-tags">
+<span class="spec-tag" style="background:rgba(168,183,142,.1);color:#A8B78E">Sur de Asia</span>
+<span class="spec-tag" style="background:rgba(168,183,142,.06);color:#A8B78E">100-115cm + 150cm cola</span>
+<span class="spec-tag" style="background:rgba(107,140,186,.06);color:#6B8CBA">Display</span>
+</div>
+</div>
+<div class="spec-svg">
+<svg viewBox="0 0 800 500" fill="none">
+<!-- Crown feathers -->
+<path d="M378 118Q375 102 378 88" stroke="#6B8CBA" stroke-width=".8" opacity=".4"/>
+<circle cx="378" cy="85" r="2.5" stroke="#6B8CBA" stroke-width=".6" opacity=".3"/>
+<path d="M384 120Q383 104 385 90" stroke="#6B8CBA" stroke-width=".7" opacity=".35"/>
+<circle cx="385" cy="87" r="2" stroke="#6B8CBA" stroke-width=".5" opacity=".25"/>
+<path d="M390 122Q390 106 392 92" stroke="#6B8CBA" stroke-width=".7" opacity=".35"/>
+<circle cx="392" cy="89" r="2" stroke="#6B8CBA" stroke-width=".5" opacity=".25"/>
+<path d="M372 120Q370 105 372 92" stroke="#6B8CBA" stroke-width=".6" opacity=".3"/>
+<circle cx="372" cy="89" r="1.8" stroke="#6B8CBA" stroke-width=".5" opacity=".22"/>
+<path d="M396 124Q398 108 400 95" stroke="#6B8CBA" stroke-width=".6" opacity=".28"/>
+<circle cx="400" cy="92" r="1.8" stroke="#6B8CBA" stroke-width=".4" opacity=".2"/>
+
+<!-- Head -->
+<path d="M370 125Q362 130 358 140Q360 150 368 155Q378 158 388 155Q395 148 395 138Q392 128 385 124" stroke="#6B8CBA" stroke-width="1.3" opacity=".65"/>
+<!-- Eye — with blue-green surround -->
+<circle cx="375" cy="138" r="4" stroke="#6B8CBA" stroke-width="1" opacity=".55"/>
+<circle cx="375" cy="138" r="1.8" fill="#1A1A1A" opacity=".35"/>
+<!-- White eye patch -->
+<path d="M365 132Q370 128 378 130" stroke="#A8B78E" stroke-width=".6" opacity=".25"/>
+<path d="M365 145Q370 148 378 146" stroke="#A8B78E" stroke-width=".6" opacity=".25"/>
+<!-- Beak -->
+<path d="M358 140Q352 142 350 138Q352 132 356 132" stroke="#6B8CBA" stroke-width="1.1" opacity=".55"/>
+
+<!-- Neck — blue-green, elegant -->
+<path d="M368 155Q362 170 358 190Q356 215 360 238Q368 258 380 268" stroke="#6B8CBA" stroke-width="1.4" opacity=".6"/>
+<path d="M388 155Q395 170 398 190Q400 215 395 238Q388 258 380 268" stroke="#6B8CBA" stroke-width="1.4" opacity=".6"/>
+<!-- Neck scale pattern -->
+<path d="M365 175Q372 172 380 175Q388 172 394 176" stroke="#6B8CBA" stroke-width=".5" opacity=".18"/>
+<path d="M362 195Q370 192 380 195Q390 192 396 196" stroke="#6B8CBA" stroke-width=".45" opacity=".15"/>
+<path d="M360 215Q368 212 380 215Q392 212 398 216" stroke="#6B8CBA" stroke-width=".45" opacity=".12"/>
+
+<!-- Body -->
+<path d="M360 238Q345 260 340 290Q342 320 360 340Q378 350 400 348Q420 345 435 330Q445 310 442 285Q438 262 420 245Q405 238 390 238" stroke="#A8B78E" stroke-width="1.3" opacity=".5"/>
+
+<!-- TRAIN (display) — the peacock's glory, fanned behind -->
+<!-- Central shaft feathers radiating outward -->
+<!-- Top center -->
+<path d="M400 290Q405 250 412 200Q418 150 420 105" stroke="#A8B78E" stroke-width=".8" opacity=".3"/>
+<ellipse cx="420" cy="105" rx="8" ry="12" stroke="#6B8CBA" stroke-width=".8" opacity=".35"/>
+<ellipse cx="420" cy="105" rx="4" ry="7" stroke="#A8B78E" stroke-width=".5" opacity=".25"/>
+<circle cx="420" cy="105" r="2" fill="#6B8CBA" opacity=".12"/>
+
+<!-- Upper left -->
+<path d="M395 292Q380 248 360 198Q342 152 325 115" stroke="#A8B78E" stroke-width=".7" opacity=".28"/>
+<ellipse cx="325" cy="115" rx="7" ry="11" stroke="#6B8CBA" stroke-width=".7" opacity=".3"/>
+<ellipse cx="325" cy="115" rx="3.5" ry="6" stroke="#A8B78E" stroke-width=".45" opacity=".2"/>
+<circle cx="325" cy="115" r="1.8" fill="#6B8CBA" opacity=".1"/>
+
+<!-- Upper right -->
+<path d="M408 288Q425 242 448 192Q468 148 485 112" stroke="#A8B78E" stroke-width=".7" opacity=".28"/>
+<ellipse cx="485" cy="112" rx="7" ry="11" stroke="#6B8CBA" stroke-width=".7" opacity=".3"/>
+<ellipse cx="485" cy="112" rx="3.5" ry="6" stroke="#A8B78E" stroke-width=".45" opacity=".2"/>
+<circle cx="485" cy="112" r="1.8" fill="#6B8CBA" opacity=".1"/>
+
+<!-- Mid left -->
+<path d="M388 295Q362 258 328 218Q295 182 262 155" stroke="#A8B78E" stroke-width=".6" opacity=".25"/>
+<ellipse cx="262" cy="155" rx="7" ry="10" stroke="#6B8CBA" stroke-width=".6" opacity=".25"/>
+<circle cx="262" cy="155" r="2" fill="#6B8CBA" opacity=".08"/>
+
+<!-- Mid right -->
+<path d="M415 292Q442 255 478 215Q512 180 545 152" stroke="#A8B78E" stroke-width=".6" opacity=".25"/>
+<ellipse cx="545" cy="152" rx="7" ry="10" stroke="#6B8CBA" stroke-width=".6" opacity=".25"/>
+<circle cx="545" cy="152" r="2" fill="#6B8CBA" opacity=".08"/>
+
+<!-- Far left -->
+<path d="M382 298Q348 272 305 248Q265 228 225 218" stroke="#A8B78E" stroke-width=".5" opacity=".2"/>
+<ellipse cx="225" cy="218" rx="6" ry="9" stroke="#6B8CBA" stroke-width=".5" opacity=".2"/>
+<circle cx="225" cy="218" r="1.5" fill="#6B8CBA" opacity=".06"/>
+
+<!-- Far right -->
+<path d="M422 296Q458 268 502 245Q542 225 582 215" stroke="#A8B78E" stroke-width=".5" opacity=".2"/>
+<ellipse cx="582" cy="215" rx="6" ry="9" stroke="#6B8CBA" stroke-width=".5" opacity=".2"/>
+<circle cx="582" cy="215" r="1.5" fill="#6B8CBA" opacity=".06"/>
+
+<!-- Lower side feathers -->
+<path d="M378 302Q345 290 305 285Q268 285 235 295" stroke="#A8B78E" stroke-width=".45" opacity=".15"/>
+<ellipse cx="235" cy="295" rx="5" ry="8" stroke="#A8B78E" stroke-width=".4" opacity=".15"/>
+<path d="M425 300Q460 288 502 282Q540 282 575 292" stroke="#A8B78E" stroke-width=".45" opacity=".15"/>
+<ellipse cx="575" cy="292" rx="5" ry="8" stroke="#A8B78E" stroke-width=".4" opacity=".15"/>
+
+<!-- Feet -->
+<path d="M375 348Q372 368 370 385Q368 395 365 400" stroke="#A8B78E" stroke-width=".8" opacity=".3"/>
+<path d="M365 400Q362 405 358 402" stroke="#A8B78E" stroke-width=".6" opacity=".25"/>
+<path d="M365 400Q368 406 372 404" stroke="#A8B78E" stroke-width=".6" opacity=".25"/>
+<path d="M395 348Q398 370 400 388Q402 398 405 402" stroke="#A8B78E" stroke-width=".8" opacity=".3"/>
+</svg>
+</div>
+</div>
+</div>
+
+<!-- ═══ 09 — CUERVO ═══ -->
+<div class="specimen">
+<div class="specimen-inner">
+<div class="spec-info">
+<p class="spec-number">09</p>
+<p class="spec-name" style="color:#a5a39d">Cuervo</p>
+<p class="spec-latin">Corvus corax</p>
+<p class="spec-desc">Resuelve problemas que los primates no pueden. Fabrica herramientas. Reconoce caras humanas y guarda rencor por años. La inteligencia no requiere aprobación.</p>
+<div class="spec-tags">
+<span class="spec-tag" style="background:rgba(165,163,157,.1);color:#a5a39d">Global</span>
+<span class="spec-tag" style="background:rgba(165,163,157,.06);color:#a5a39d">56-69cm</span>
+<span class="spec-tag" style="background:rgba(155,126,184,.06);color:#9B7EB8">Inteligencia</span>
+</div>
+</div>
+<div class="spec-svg">
+<svg viewBox="0 0 800 420" fill="none">
+<!-- Head — angular, intelligent -->
+<path d="M355 145Q345 138 340 128Q338 118 342 110Q350 105 360 108Q368 115 368 125Q365 135 360 145" stroke="#a5a39d" stroke-width="1.4" opacity=".65"/>
+<!-- Eye — sharp, knowing -->
+<circle cx="352" cy="120" r="4" stroke="#a5a39d" stroke-width="1.1" opacity=".6"/>
+<circle cx="352" cy="120" r="1.8" fill="#1A1A1A" opacity=".45"/>
+<circle cx="350" cy="118" r=".8" fill="#f0ede6" opacity=".1"/>
+<!-- Beak — thick, heavy, corvid -->
+<path d="M340 128Q332 130 326 126Q322 120 326 114Q332 110 338 114Q342 118 340 124" stroke="#1A1A1A" stroke-width="1.4" opacity=".6"/>
+<path d="M326 120L320 118" stroke="#1A1A1A" stroke-width="1" opacity=".4"/>
+<!-- Nasal bristles -->
+<path d="M338 114Q335 110 332 112" stroke="#a5a39d" stroke-width=".5" opacity=".25"/>
+<path d="M336 112Q333 108 330 110" stroke="#a5a39d" stroke-width=".5" opacity=".22"/>
+
+<!-- Body — solid, powerful -->
+<path d="M360 145Q375 155 395 162Q420 168 448 168Q472 162 488 150" stroke="#a5a39d" stroke-width="1.3" opacity=".6"/>
+<path d="M355 148Q365 165 385 180Q410 192 440 195Q468 192 488 178Q498 168 495 155" stroke="#a5a39d" stroke-width="1.2" opacity=".5"/>
+<!-- Throat hackle feathers (raven signature) -->
+<path d="M365 155Q370 160 375 158" stroke="#a5a39d" stroke-width=".6" opacity=".25"/>
+<path d="M370 162Q376 168 382 165" stroke="#a5a39d" stroke-width=".55" opacity=".22"/>
+<!-- Body sheen -->
+<path d="M400 170Q415 168 430 172" stroke="#9B7EB8" stroke-width=".4" opacity=".12"/>
+<path d="M410 180Q425 178 440 182" stroke="#9B7EB8" stroke-width=".35" opacity=".1"/>
+
+<!-- LEFT WING -->
+<path d="M380 165Q335 155 275 148Q210 145 150 155Q105 170 72 198" stroke="#a5a39d" stroke-width="1.4" opacity=".58"/>
+<path d="M375 170Q340 162 295 158Q248 158 208 168Q172 182 148 202" stroke="#a5a39d" stroke-width=".7" opacity=".28"/>
+<path d="M370 175Q345 172 315 170Q280 172 252 185Q228 200 210 220" stroke="#a5a39d" stroke-width=".6" opacity=".25"/>
+<!-- Primaries -->
+<path d="M105 170Q88 182 75 198" stroke="#a5a39d" stroke-width="1.2" opacity=".5"/>
+<path d="M120 168Q100 185 88 205" stroke="#a5a39d" stroke-width="1.1" opacity=".45"/>
+<path d="M140 165Q118 188 105 212" stroke="#a5a39d" stroke-width="1" opacity=".42"/>
+<path d="M162 162Q138 192 125 218" stroke="#a5a39d" stroke-width="1" opacity=".4"/>
+<path d="M188 160Q165 195 152 225" stroke="#a5a39d" stroke-width=".9" opacity=".38"/>
+<path d="M218 158Q198 198 188 232" stroke="#a5a39d" stroke-width=".9" opacity=".35"/>
+<!-- Trailing edge -->
+<path d="M72 198Q105 218 150 230Q210 240 280 238Q340 232 370 220Q378 215 382 205" stroke="#a5a39d" stroke-width="1" opacity=".35"/>
+
+<!-- RIGHT WING -->
+<path d="M488 150Q530 142 580 138Q640 140 695 155Q735 175 758 205" stroke="#a5a39d" stroke-width="1.4" opacity=".52"/>
+<path d="M485 155Q525 150 572 148Q625 150 672 165Q710 182 735 208" stroke="#a5a39d" stroke-width=".7" opacity=".25"/>
+<!-- Right primaries -->
+<path d="M735 175Q748 188 758 205" stroke="#a5a39d" stroke-width="1.2" opacity=".45"/>
+<path d="M718 172Q735 192 748 212" stroke="#a5a39d" stroke-width="1.1" opacity=".42"/>
+<path d="M698 168Q718 195 732 218" stroke="#a5a39d" stroke-width="1" opacity=".4"/>
+<path d="M675 165Q698 198 712 225" stroke="#a5a39d" stroke-width="1" opacity=".38"/>
+<!-- Right trailing edge -->
+<path d="M758 205Q730 225 685 238Q630 248 572 245Q520 240 490 228Q482 222 478 212" stroke="#a5a39d" stroke-width="1" opacity=".32"/>
+
+<!-- Tail — wedge-shaped (raven, not crow) -->
+<path d="M465 195Q472 220 478 252Q482 282 478 308" stroke="#a5a39d" stroke-width="1" opacity=".42"/>
+<path d="M458 198Q462 225 465 258Q468 288 465 315" stroke="#a5a39d" stroke-width=".9" opacity=".38"/>
+<path d="M450 200Q452 230 452 265Q452 295 448 322" stroke="#a5a39d" stroke-width=".9" opacity=".35"/>
+<path d="M440 200Q440 235 438 272Q436 302 432 328" stroke="#a5a39d" stroke-width=".8" opacity=".32"/>
+<path d="M430 198Q428 238 425 278Q422 310 418 335" stroke="#a5a39d" stroke-width=".8" opacity=".3"/>
+<!-- Wedge tip -->
+<path d="M478 308Q470 318 465 315Q460 320 452 322Q448 328 442 328Q438 335 430 335Q425 340 418 338" stroke="#a5a39d" stroke-width=".5" opacity=".2"/>
+</svg>
+</div>
+</div>
+</div>
+
+<!-- ═══ 10 — MARTÍN PESCADOR ═══ -->
+<div class="specimen">
+<div class="specimen-inner">
+<div class="spec-info">
+<p class="spec-number">10</p>
+<p class="spec-name" style="color:#6B8CBA">Martín Pescador</p>
+<p class="spec-latin">Alcedo atthis</p>
+<p class="spec-desc">Se lanza al agua a 40 km/h sin salpicar. Su pico rompe la tensión superficial con geometría perfecta. El Shinkansen japonés copió la forma de su pico para eliminar el ruido sónico.</p>
+<div class="spec-tags">
+<span class="spec-tag" style="background:rgba(107,140,186,.1);color:#6B8CBA">Eurasia · África</span>
+<span class="spec-tag" style="background:rgba(107,140,186,.06);color:#6B8CBA">16-17cm</span>
+<span class="spec-tag" style="background:rgba(196,69,58,.06);color:#C4453A">Biomimética</span>
+</div>
+</div>
+<div class="spec-svg">
+<svg viewBox="0 0 800 400" fill="none">
+<!-- Head — large relative to body -->
+<path d="M320 158Q310 148 305 135Q304 122 310 115Q320 110 332 115Q340 122 340 135Q338 148 332 158" stroke="#6B8CBA" stroke-width="1.4" opacity=".65"/>
+<!-- Head crest feathers -->
+<path d="M315 115Q310 108 312 100" stroke="#6B8CBA" stroke-width=".6" opacity=".3"/>
+<path d="M322 112Q318 104 320 96" stroke="#6B8CBA" stroke-width=".6" opacity=".28"/>
+<path d="M330 112Q328 104 330 96" stroke="#6B8CBA" stroke-width=".55" opacity=".25"/>
+<path d="M335 115Q335 108 338 100" stroke="#6B8CBA" stroke-width=".5" opacity=".22"/>
+<!-- Eye — large, adapted for underwater vision -->
+<circle cx="320" cy="128" r="5" stroke="#6B8CBA" stroke-width="1.1" opacity=".6"/>
+<circle cx="320" cy="128" r="2.5" fill="#1A1A1A" opacity=".4"/>
+<circle cx="318" cy="126" r="1" fill="#f0ede6" opacity=".12"/>
+<!-- Eye stripe -->
+<path d="M305 125Q298 128 292 125" stroke="#C4453A" stroke-width=".8" opacity=".35"/>
+<path d="M340 128Q348 132 355 128" stroke="#C4453A" stroke-width=".8" opacity=".35"/>
+
+<!-- BEAK — extremely long, dagger-like, the engineering marvel -->
+<path d="M305 135Q272 140 238 142Q205 142 175 138Q150 132 130 124" stroke="#1A1A1A" stroke-width="1.4" opacity=".6"/>
+<path d="M305 140Q275 148 245 150Q215 150 185 145Q158 138 135 130" stroke="#1A1A1A" stroke-width="1.2" opacity=".5"/>
+<path d="M130 124Q132 128 135 130" stroke="#1A1A1A" stroke-width="1" opacity=".5"/>
+<!-- Beak division line -->
+<path d="M305 138Q268 142 235 144Q202 144 172 140Q148 134 130 127" stroke="#1A1A1A" stroke-width=".5" opacity=".25"/>
+<!-- Beak serration hints -->
+<path d="M250 142Q248 145 250 148" stroke="#1A1A1A" stroke-width=".3" opacity=".12"/>
+<path d="M210 142Q208 146 210 149" stroke="#1A1A1A" stroke-width=".3" opacity=".1"/>
+
+<!-- Body — compact, rotund -->
+<path d="M332 158Q350 165 375 170Q405 172 430 168Q450 160 458 148" stroke="#6B8CBA" stroke-width="1.3" opacity=".6"/>
+<path d="M325 162Q340 175 365 185Q395 192 425 190Q448 182 458 168" stroke="#6B8CBA" stroke-width="1.2" opacity=".5"/>
+<!-- Orange breast -->
+<path d="M340 172Q350 178 365 182Q380 185 395 182Q408 178 415 172" stroke="#C4453A" stroke-width=".8" opacity=".35"/>
+<path d="M345 178Q358 184 372 186Q388 184 400 178" stroke="#C4453A" stroke-width=".6" opacity=".25"/>
+<!-- Blue back feathers -->
+<path d="M355 168Q368 165 382 168Q395 165 408 168" stroke="#6B8CBA" stroke-width=".5" opacity=".2"/>
+<path d="M365 162Q378 160 392 163" stroke="#6B8CBA" stroke-width=".45" opacity=".18"/>
+
+<!-- Wings — short, compact -->
+<path d="M430 168Q455 172 475 185Q490 202 495 225Q492 248 480 262Q465 272 445 270Q428 265 418 252" stroke="#6B8CBA" stroke-width="1.1" opacity=".48"/>
+<path d="M455 178Q465 190 470 208" stroke="#6B8CBA" stroke-width=".6" opacity=".22"/>
+<path d="M445 175Q455 188 458 205" stroke="#6B8CBA" stroke-width=".55" opacity=".2"/>
+<path d="M438 172Q448 186 450 202" stroke="#6B8CBA" stroke-width=".5" opacity=".18"/>
+<!-- Wing tip -->
+<path d="M480 262Q488 268 492 275Q488 282 480 278" stroke="#1A1A1A" stroke-width=".7" opacity=".25"/>
+<path d="M468 268Q475 275 478 282" stroke="#1A1A1A" stroke-width=".6" opacity=".22"/>
+
+<!-- Tail — very short (kingfisher characteristic) -->
+<path d="M445 195Q452 210 455 228" stroke="#6B8CBA" stroke-width=".9" opacity=".4"/>
+<path d="M440 198Q445 215 448 232" stroke="#6B8CBA" stroke-width=".8" opacity=".35"/>
+<path d="M435 200Q438 218 440 235" stroke="#6B8CBA" stroke-width=".8" opacity=".32"/>
+<path d="M428 202Q430 220 432 238" stroke="#6B8CBA" stroke-width=".7" opacity=".28"/>
+
+<!-- Feet — tiny, syndactyl -->
+<path d="M388 192Q385 210 382 225" stroke="#C4453A" stroke-width=".7" opacity=".3"/>
+<path d="M382 225Q378 232 375 228" stroke="#C4453A" stroke-width=".6" opacity=".25"/>
+<path d="M382 225Q385 232 388 230" stroke="#C4453A" stroke-width=".6" opacity=".25"/>
+<path d="M382 225Q380 232 378 235" stroke="#C4453A" stroke-width=".5" opacity=".2"/>
+
+<!-- Fish (context — prey in beak) -->
+<path d="M145 120Q148 115 155 114Q162 115 165 120Q162 125 155 126Q148 125 145 120Z" stroke="#A8B78E" stroke-width=".5" opacity=".15"/>
+<circle cx="152" cy="118" r="1" fill="#A8B78E" opacity=".1"/>
+<path d="M165 120Q172 118 178 120" stroke="#A8B78E" stroke-width=".35" opacity=".1"/>
+</svg>
+</div>
+</div>
+</div>
+
+</div>
+
+<div class="footer">
+<p style="font-size:10px;color:#a5a39d;font-family:'Space Mono',monospace;letter-spacing:.08em">LLVR AVES LIBRARY · 10 SPECIMENS · ANATOMICAL CONTOUR · 2026</p>
+<p style="font-size:9px;color:#a5a39d;margin-top:4px;opacity:.5">Águila · Colibrí · Búho · Cóndor · Flamenco · Quetzal · Golondrina · Pavo Real · Cuervo · Martín Pescador</p>
+<p style="font-size:8px;color:#a5a39d;margin-top:8px;opacity:.35;font-style:italic;font-family:Georgia,serif">"La inteligencia no requiere aprobación."</p>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLVR Lepidoptera Library — 5 Specimens</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#5B5F53;color:#f0ede6;font-family:'DM Sans',system-ui,sans-serif;overflow-x:hidden}
+.pattern{position:fixed;inset:0;opacity:.04;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2220%22 height=%2220%22><text x=%225%22 y=%2214%22 font-size=%2210%22 fill=%22white%22>+</text></svg>');pointer-events:none;z-index:0}
+
+.header{text-align:center;padding:48px 28px 16px;position:relative;z-index:1}
+.specimen{position:relative;z-index:1;width:100%;padding:32px 0;border-bottom:.5px solid rgba(168,183,142,.06)}
+.specimen:last-of-type{border-bottom:none}
+.specimen-inner{max-width:100%;margin:0 auto;display:grid;grid-template-columns:1fr 280px;gap:0;align-items:center;min-height:480px}
+.specimen:nth-child(odd) .specimen-inner{grid-template-columns:280px 1fr}
+.specimen:nth-child(odd) .spec-info{order:0}
+.specimen:nth-child(odd) .spec-svg{order:1}
+.specimen:nth-child(even) .spec-info{order:1;text-align:right;padding-right:48px;padding-left:0}
+.specimen:nth-child(even) .spec-svg{order:0}
+.spec-info{padding-left:48px;display:flex;flex-direction:column;justify-content:center}
+.spec-svg{display:flex;align-items:center;justify-content:center;padding:20px}
+.spec-svg svg{width:100%;height:auto}
+.spec-number{font-family:'Space Mono',monospace;font-size:64px;font-weight:700;opacity:.06;line-height:1;margin-bottom:-20px}
+.spec-name{font-family:'Syne',sans-serif;font-weight:800;font-size:28px;letter-spacing:-.02em;margin-bottom:4px}
+.spec-latin{font-size:13px;color:#a5a39d;font-style:italic;font-family:Georgia,serif;margin-bottom:12px}
+.spec-desc{font-size:12px;color:#a5a39d;line-height:1.7;max-width:260px;margin-bottom:16px}
+.spec-tags{display:flex;gap:5px;flex-wrap:wrap}
+.spec-tag{font-size:8px;padding:3px 8px;border-radius:6px;font-family:'Space Mono',monospace;letter-spacing:.06em;text-transform:uppercase}
+.footer{text-align:center;padding:32px 28px 48px;position:relative;z-index:1;border-top:.5px solid rgba(168,183,142,.06)}
+
+@media(max-width:900px){
+.specimen-inner,.specimen:nth-child(odd) .specimen-inner{grid-template-columns:1fr!important;text-align:center!important}
+.spec-info{padding:20px 28px!important;text-align:center!important;order:1!important}
+.spec-svg{order:0!important;max-width:500px;margin:0 auto}
+.spec-desc{max-width:100%!important;margin-left:auto;margin-right:auto}
+.spec-tags{justify-content:center}
+.spec-number{font-size:48px}
+}
+</style>
+</head>
+<body>
+<div class="pattern"></div>
+
+<div class="header">
+<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px">
+<div style="width:28px;height:28px;border-radius:8px;background:#A8B78E;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#1A1A1A">F</div>
+<span style="font-size:14px;font-weight:700">FTP</span>
+<span style="font-size:9px;color:#a5a39d;font-family:'Space Mono',monospace;letter-spacing:.1em">BY LLVR</span>
+</div>
+<h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(28px,4vw,42px);letter-spacing:-.03em;margin-bottom:8px">Lepidoptera</h1>
+<p style="font-size:13px;color:#a5a39d;font-style:italic;font-family:Georgia,serif">5 especímenes · Macro zoom · Vista dorsal 3D</p>
+<p style="font-size:10px;color:#a5a39d;font-family:'Space Mono',monospace;margin-top:6px;letter-spacing:.06em">Trazo fino · Venación alar · Identidad LLVR Dark</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SPECIMEN 01 — MORPHO (Blue Morpho)
+     Color: Blue #6B8CBA — iridescent depth
+═══════════════════════════════════════════════════════════ -->
+<div class="specimen">
+<div class="specimen-inner">
+<div class="spec-info">
+<p class="spec-number">01</p>
+<p class="spec-name" style="color:#6B8CBA">Morpho</p>
+<p class="spec-latin">Morpho menelaus</p>
+<p class="spec-desc">Alas iridiscentes que reflejan luz azul mediante nanoestructuras. No tiene pigmento azul — el color es una ilusión óptica creada por la arquitectura de sus escamas.</p>
+<div class="spec-tags">
+<span class="spec-tag" style="background:rgba(107,140,186,.1);color:#6B8CBA">Neotropical</span>
+<span class="spec-tag" style="background:rgba(107,140,186,.06);color:#6B8CBA">12-20cm</span>
+<span class="spec-tag" style="background:rgba(107,140,186,.06);color:#a5a39d">Iridiscente</span>
+</div>
+</div>
+<div class="spec-svg">
+<svg viewBox="0 0 800 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- Body -->
+<ellipse cx="400" cy="250" rx="8" ry="55" stroke="#6B8CBA" stroke-width="1.2" opacity=".7"/>
+<ellipse cx="400" cy="250" rx="4" ry="50" stroke="#6B8CBA" stroke-width=".6" opacity=".4"/>
+<!-- Head -->
+<circle cx="400" cy="190" r="10" stroke="#6B8CBA" stroke-width="1" opacity=".6"/>
+<circle cx="396" cy="187" r="2.5" fill="#6B8CBA" opacity=".2"/>
+<circle cx="404" cy="187" r="2.5" fill="#6B8CBA" opacity=".2"/>
+<!-- Antennae -->
+<path d="M396 182Q370 140 355 120Q348 112 342 115" stroke="#6B8CBA" stroke-width=".7" opacity=".4"/>
+<path d="M404 182Q430 140 445 120Q452 112 458 115" stroke="#6B8CBA" stroke-width=".7" opacity=".4"/>
+<circle cx="342" cy="115" r="3" stroke="#6B8CBA" stroke-width=".5" opacity=".3"/>
+<circle cx="458" cy="115" r="3" stroke="#6B8CBA" stroke-width=".5" opacity=".3"/>
+
+<!-- LEFT FOREWING — large, rounded, with 3D depth -->
+<path d="M392 210Q340 180 260 155Q180 135 120 150Q80 165 70 200Q65 240 90 270Q120 300 180 310Q240 315 310 295Q360 278 392 260" stroke="#6B8CBA" stroke-width="1.2" opacity=".6"/>
+<!-- Wing shadow/3D layer -->
+<path d="M392 215Q345 188 270 165Q195 148 135 162Q100 175 92 205Q88 238 108 265Q135 292 190 302Q245 308 315 290Q358 275 392 258" stroke="#6B8CBA" stroke-width=".5" opacity=".15"/>
+<!-- Venation — Costa -->
+<path d="M392 210Q340 185 280 168Q220 155 160 158Q120 162 90 175" stroke="#6B8CBA" stroke-width=".6" opacity=".3"/>
+<!-- Venation — Subcosta -->
+<path d="M392 215Q350 198 300 188Q250 180 200 185Q160 192 130 210" stroke="#6B8CBA" stroke-width=".5" opacity=".25"/>
+<!-- Venation — Radius branches -->
+<path d="M392 220Q360 210 320 205Q280 202 240 210Q200 222 170 240" stroke="#6B8CBA" stroke-width=".45" opacity=".22"/>
+<path d="M392 230Q365 225 330 225Q290 228 250 240Q220 252 195 268" stroke="#6B8CBA" stroke-width=".4" opacity=".2"/>
+<!-- Venation — Media -->
+<path d="M392 240Q370 242 340 248Q300 258 270 275Q245 290 230 300" stroke="#6B8CBA" stroke-width=".4" opacity=".18"/>
+<!-- Venation — Cubital -->
+<path d="M392 252Q375 258 350 268Q320 282 300 296" stroke="#6B8CBA" stroke-width=".35" opacity=".15"/>
+<!-- Cross veins -->
+<path d="M280 168Q282 180 280 188" stroke="#6B8CBA" stroke-width=".3" opacity=".12"/>
+<path d="M220 180Q225 195 225 210" stroke="#6B8CBA" stroke-width=".3" opacity=".1"/>
+<path d="M300 205Q298 218 295 228" stroke="#6B8CBA" stroke-width=".25" opacity=".1"/>
+<!-- Iridescent scales suggestion -->
+<circle cx="200" cy="200" r="20" fill="#6B8CBA" opacity=".03"/>
+<circle cx="260" cy="220" r="25" fill="#6B8CBA" opacity=".04"/>
+<circle cx="180" cy="250" r="18" fill="#6B8CBA" opacity=".03"/>
+<circle cx="300" cy="240" r="15" fill="#6B8CBA" opacity=".025"/>
+<!-- Edge detail — scalloped margin -->
+<path d="M90 270Q95 275 100 272Q108 278 115 275Q125 282 135 278Q148 285 160 280Q175 288 190 282Q208 290 225 284Q245 292 265 285Q285 294 305 288" stroke="#6B8CBA" stroke-width=".4" opacity=".2"/>
+
+<!-- RIGHT FOREWING — mirror with slight 3D tilt -->
+<path d="M408 210Q460 180 540 155Q620 135 680 150Q720 165 730 200Q735 240 710 270Q680 300 620 310Q560 315 490 295Q440 278 408 260" stroke="#6B8CBA" stroke-width="1.2" opacity=".55"/>
+<path d="M408 215Q455 188 530 165Q605 148 665 162Q700 175 708 205Q712 238 692 265Q665 292 610 302Q555 308 485 290Q442 275 408 258" stroke="#6B8CBA" stroke-width=".5" opacity=".12"/>
+<!-- Right venation -->
+<path d="M408 210Q460 185 520 168Q580 155 640 158Q680 162 710 175" stroke="#6B8CBA" stroke-width=".6" opacity=".28"/>
+<path d="M408 215Q450 198 500 188Q550 180 600 185Q640 192 670 210" stroke="#6B8CBA" stroke-width=".5" opacity=".22"/>
+<path d="M408 220Q440 210 480 205Q520 202 560 210Q600 222 630 240" stroke="#6B8CBA" stroke-width=".45" opacity=".2"/>
+<path d="M408 230Q435 225 470 225Q510 228 550 240Q580 252 605 268" stroke="#6B8CBA" stroke-width=".4" opacity=".18"/>
+<path d="M408 240Q430 242 460 248Q500 258 530 275Q555 290 570 300" stroke="#6B8CBA" stroke-width=".4" opacity=".15"/>
+<path d="M408 252Q425 258 450 268Q480 282 500 296" stroke="#6B8CBA" stroke-width=".35" opacity=".12"/>
+<!-- Right iridescent patches -->
+<circle cx="600" cy="200" r="20" fill="#6B8CBA" opacity=".025"/>
+<circle cx="540" cy="220" r="25" fill="#6B8CBA" opacity=".03"/>
+<circle cx="500" cy="250" r="15" fill="#6B8CBA" opacity=".02"/>
+
+<!-- LEFT HINDWING -->
+<path d="M395 268Q360 290 310 320Q260 348 220 355Q180 360 150 345Q125 325 120 295Q118 270 130 260" stroke="#6B8CBA" stroke-width="1" opacity=".5"/>
+<path d="M395 270Q365 295 325 318Q285 338 250 348Q218 355 190 345Q165 332 158 310Q155 290 162 275" stroke="#6B8CBA" stroke-width=".4" opacity=".15"/>
+<!-- Hindwing venation -->
+<path d="M395 272Q370 288 340 305Q310 320 280 330" stroke="#6B8CBA" stroke-width=".4" opacity=".2"/>
+<path d="M395 280Q375 298 355 312Q330 328 305 338" stroke="#6B8CBA" stroke-width=".35" opacity=".18"/>
+<path d="M395 288Q380 305 365 320Q345 335 325 345" stroke="#6B8CBA" stroke-width=".3" opacity=".15"/>
+<!-- Tail eyespot hints -->
+<circle cx="220" cy="340" r="6" stroke="#6B8CBA" stroke-width=".5" opacity=".2"/>
+<circle cx="220" cy="340" r="2.5" fill="#6B8CBA" opacity=".1"/>
+<circle cx="185" cy="348" r="4" stroke="#6B8CBA" stroke-width=".4" opacity=".15"/>
+
+<!-- RIGHT HINDWING -->
+<path d="M405 268Q440 290 490 320Q540 348 580 355Q620 360 650 345Q675 325 680 295Q682 270 670 260" stroke="#6B8CBA" stroke-width="1" opacity=".45"/>
+<path d="M405 272Q430 288 460 305Q490 320 520 330" stroke="#6B8CBA" stroke-width=".4" opacity=".18"/>
+<path d="M405 280Q425 298 445 312Q470 328 495 338" stroke="#6B8CBA" stroke-width=".35" opacity=".15"/>
+<path d="M405 288Q420 305 435 320Q455 335 475 345" stroke="#6B8CBA" stroke-width=".3" opacity=".12"/>
+<circle cx="580" cy="340" r="6" stroke="#6B8CBA" stroke-width=".5" opacity=".18"/>
+<circle cx="580" cy="340" r="2.5" fill="#6B8CBA" opacity=".08"/>
+
+<!-- Legs hint -->
+<path d="M396 260Q385 270 380 282" stroke="#6B8CBA" stroke-width=".4" opacity=".2"/>
+<path d="M404 260Q415 270 420 282" stroke="#6B8CBA" stroke-width=".4" opacity=".2"/>
+<path d="M398 275Q390 288 385 298" stroke="#6B8CBA" stroke-width=".3" opacity=".15"/>
+<path d="M402 275Q410 288 415 298" stroke="#6B8CBA" stroke-width=".3" opacity=".15"/>
+</svg>
+</div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SPECIMEN 02 — ATLAS MOTH
+     Color: Red #C4453A + Amber — massive, detailed
+═══════════════════════════════════════════════════════════ -->
+<div class="specimen">
+<div class="specimen-inner">
+<div class="spec-info">
+<p class="spec-number">02</p>
+<p class="spec-name" style="color:#C4453A">Attacus Atlas</p>
+<p class="spec-latin">Attacus atlas</p>
+<p class="spec-desc">La polilla más grande del mundo. Sus alas imitan la cabeza de una serpiente como defensa. No tiene boca — vive de la energía acumulada en su fase de larva. Cada hora es prestada.</p>
+<div class="spec-tags">
+<span class="spec-tag" style="background:rgba(196,69,58,.1);color:#C4453A">Sudeste Asiático</span>
+<span class="spec-tag" style="background:rgba(196,69,58,.06);color:#C4453A">25-30cm</span>
+<span class="spec-tag" style="background:rgba(200,170,80,.06);color:#C8AA50">Nocturna</span>
+</div>
+</div>
+<div class="spec-svg">
+<svg viewBox="0 0 800 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- Body — thick, furry moth body -->
+<ellipse cx="400" cy="260" rx="12" ry="60" stroke="#C4453A" stroke-width="1.3" opacity=".6"/>
+<ellipse cx="400" cy="260" rx="7" ry="55" stroke="#C4453A" stroke-width=".7" opacity=".3"/>
+<!-- Thorax segments -->
+<path d="M388 220Q400 215 412 220" stroke="#C4453A" stroke-width=".5" opacity=".25"/>
+<path d="M387 240Q400 235 413 240" stroke="#C4453A" stroke-width=".5" opacity=".25"/>
+<!-- Head -->
+<circle cx="400" cy="196" r="11" stroke="#C4453A" stroke-width="1" opacity=".6"/>
+<circle cx="400" cy="196" r="6" stroke="#C4453A" stroke-width=".5" opacity=".3"/>
+<!-- Feathered antennae — characteristic of Atlas moth -->
+<path d="M394 188Q365 155 340 130" stroke="#C8AA50" stroke-width=".8" opacity=".4"/>
+<path d="M340 130Q335 126 330 128Q332 122 328 120Q330 115 326 114Q328 108 324 108" stroke="#C8AA50" stroke-width=".5" opacity=".3"/>
+<path d="M340 130Q338 135 334 134Q336 138 332 140Q334 144 330 145" stroke="#C8AA50" stroke-width=".5" opacity=".3"/>
+<path d="M406 188Q435 155 460 130" stroke="#C8AA50" stroke-width=".8" opacity=".4"/>
+<path d="M460 130Q465 126 470 128Q468 122 472 120Q470 115 474 114Q472 108 476 108" stroke="#C8AA50" stroke-width=".5" opacity=".3"/>
+<path d="M460 130Q462 135 466 134Q464 138 468 140Q466 144 470 145" stroke="#C8AA50" stroke-width=".5" opacity=".3"/>
+
+<!-- LEFT FOREWING — angular, with snake-head tip -->
+<path d="M388 215Q330 175 240 140Q160 115 95 125Q55 138 40 175Q30 220 55 265Q85 305 150 325Q220 340 300 320Q355 300 388 275" stroke="#C4453A" stroke-width="1.2" opacity=".55"/>
+<!-- 3D shadow layer -->
+<path d="M388 220Q335 182 252 150Q178 128 115 138Q75 150 62 182Q52 222 72 260Q98 298 158 318Q225 335 305 315Q352 298 388 272" stroke="#C4453A" stroke-width=".5" opacity=".12"/>
+<!-- Window (transparent triangle — Atlas moth signature) -->
+<path d="M180 210Q195 195 215 200Q225 215 210 230Q195 235 180 225Z" stroke="#C8AA50" stroke-width=".8" opacity=".4"/>
+<path d="M185 212Q197 200 212 204Q220 215 208 226Q197 230 185 222Z" stroke="#C8AA50" stroke-width=".4" opacity=".2"/>
+<!-- Snake head tip -->
+<path d="M55 265Q48 272 45 280Q48 288 58 285Q65 278 60 270" stroke="#C4453A" stroke-width=".7" opacity=".35"/>
+<circle cx="52" cy="275" r="3" stroke="#C4453A" stroke-width=".5" opacity=".3"/>
+<circle cx="52" cy="275" r="1.2" fill="#C4453A" opacity=".2"/>
+<!-- Venation -->
+<path d="M388 218Q340 192 280 175Q220 160 170 165Q130 172 100 190" stroke="#C4453A" stroke-width=".5" opacity=".25"/>
+<path d="M388 230Q350 215 310 208Q260 202 220 212Q180 225 150 248" stroke="#C4453A" stroke-width=".45" opacity=".2"/>
+<path d="M388 245Q360 240 330 240Q290 245 260 260Q230 278 210 298" stroke="#C4453A" stroke-width=".4" opacity=".18"/>
+<path d="M388 260Q370 262 350 268Q320 280 295 298Q275 312 260 322" stroke="#C4453A" stroke-width=".35" opacity=".15"/>
+<!-- Scalloped edge -->
+<path d="M55 265Q62 272 68 268Q78 278 88 272Q102 282 115 276Q132 286 148 280Q168 290 185 282Q205 292 225 285Q248 295 270 288Q292 298 310 290" stroke="#C4453A" stroke-width=".4" opacity=".18"/>
+<!-- Pattern bands -->
+<path d="M130 165Q145 195 150 230Q155 265 150 300" stroke="#C8AA50" stroke-width=".5" opacity=".15"/>
+<path d="M250 150Q252 190 248 230Q245 270 250 310" stroke="#C8AA50" stroke-width=".4" opacity=".12"/>
+
+<!-- RIGHT FOREWING -->
+<path d="M412 215Q470 175 560 140Q640 115 705 125Q745 138 760 175Q770 220 745 265Q715 305 650 325Q580 340 500 320Q445 300 412 275" stroke="#C4453A" stroke-width="1.2" opacity=".5"/>
+<path d="M412 220Q465 182 548 150Q622 128 685 138Q725 150 738 182Q748 222 728 260Q702 298 642 318Q575 335 495 315Q448 298 412 272" stroke="#C4453A" stroke-width=".5" opacity=".1"/>
+<!-- Right window -->
+<path d="M620 210Q605 195 585 200Q575 215 590 230Q605 235 620 225Z" stroke="#C8AA50" stroke-width=".8" opacity=".35"/>
+<path d="M615 212Q603 200 588 204Q580 215 592 226Q603 230 615 222Z" stroke="#C8AA50" stroke-width=".4" opacity=".18"/>
+<!-- Right snake head -->
+<path d="M745 265Q752 272 755 280Q752 288 742 285Q735 278 740 270" stroke="#C4453A" stroke-width=".7" opacity=".3"/>
+<circle cx="748" cy="275" r="3" stroke="#C4453A" stroke-width=".5" opacity=".25"/>
+<circle cx="748" cy="275" r="1.2" fill="#C4453A" opacity=".15"/>
+<!-- Right venation -->
+<path d="M412 218Q460 192 520 175Q580 160 630 165Q670 172 700 190" stroke="#C4453A" stroke-width=".5" opacity=".22"/>
+<path d="M412 230Q450 215 490 208Q540 202 580 212Q620 225 650 248" stroke="#C4453A" stroke-width=".45" opacity=".18"/>
+<path d="M412 245Q440 240 470 240Q510 245 540 260Q570 278 590 298" stroke="#C4453A" stroke-width=".4" opacity=".15"/>
+<path d="M550 150Q548 190 552 230Q555 270 550 310" stroke="#C8AA50" stroke-width=".4" opacity=".1"/>
+
+<!-- LEFT HINDWING -->
+<path d="M395 280Q355 310 300 350Q250 385 210 400Q170 408 140 395Q115 375 112 340Q112 310 130 290" stroke="#C4453A" stroke-width="1" opacity=".48"/>
+<path d="M395 285Q365 308 325 335Q290 358 260 372Q230 382 205 378Q180 368 172 348Q168 325 178 305" stroke="#C4453A" stroke-width=".4" opacity=".12"/>
+<path d="M395 285Q370 305 345 325Q320 345 298 360" stroke="#C4453A" stroke-width=".4" opacity=".18"/>
+<path d="M395 295Q378 318 360 338Q340 355 322 368" stroke="#C4453A" stroke-width=".35" opacity=".15"/>
+<!-- Hindwing window -->
+<circle cx="225" cy="370" r="8" stroke="#C8AA50" stroke-width=".6" opacity=".25"/>
+<circle cx="225" cy="370" r="3.5" stroke="#C8AA50" stroke-width=".4" opacity=".15"/>
+<!-- Hindwing tail lobe -->
+<path d="M140 395Q132 410 138 420Q148 425 155 415Q150 405 140 395" stroke="#C4453A" stroke-width=".6" opacity=".3"/>
+
+<!-- RIGHT HINDWING -->
+<path d="M405 280Q445 310 500 350Q550 385 590 400Q630 408 660 395Q685 375 688 340Q688 310 670 290" stroke="#C4453A" stroke-width="1" opacity=".42"/>
+<path d="M405 285Q430 305 455 325Q480 345 502 360" stroke="#C4453A" stroke-width=".4" opacity=".15"/>
+<path d="M405 295Q422 318 440 338Q460 355 478 368" stroke="#C4453A" stroke-width=".35" opacity=".12"/>
+<circle cx="575" cy="370" r="8" stroke="#C8AA50" stroke-width=".6" opacity=".2"/>
+<circle cx="575" cy="370" r="3.5" stroke="#C8AA50" stroke-width=".4" opacity=".12"/>
+<path d="M660 395Q668 410 662 420Q652 425 645 415Q650 405 660 395" stroke="#C4453A" stroke-width=".6" opacity=".25"/>
+
+<!-- Abdomen segments -->
+<path d="M393 280Q400 278 407 280" stroke="#C4453A" stroke-width=".4" opacity=".2"/>
+<path d="M394 295Q400 293 406 295" stroke="#C4453A" stroke-width=".4" opacity=".18"/>
+<path d="M395 310Q400 308 405 310" stroke="#C4453A" stroke-width=".3" opacity=".15"/>
+</svg>
+</div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SPECIMEN 03 — MONARCH
+     Color: Olive #A8B78E + Red accents — migration
+═══════════════════════════════════════════════════════════ -->
+<div class="specimen">
+<div class="specimen-inner">
+<div class="spec-info">
+<p class="spec-number">03</p>
+<p class="spec-name" style="color:#A8B78E">Monarca</p>
+<p class="spec-latin">Danaus plexippus</p>
+<p class="spec-desc">Migra 4,000 km guiándose por el campo magnético de la Tierra. La generación que llega a México nunca hizo el viaje antes — heredan la ruta en su ADN. La memoria está en el cuerpo.</p>
+<div class="spec-tags">
+<span class="spec-tag" style="background:rgba(168,183,142,.1);color:#A8B78E">Norteamérica</span>
+<span class="spec-tag" style="background:rgba(168,183,142,.06);color:#A8B78E">8-12cm</span>
+<span class="spec-tag" style="background:rgba(196,69,58,.06);color:#C4453A">Migratoria</span>
+</div>
+</div>
+<div class="spec-svg">
+<svg viewBox="0 0 800 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- Body -->
+<ellipse cx="400" cy="240" rx="7" ry="48" stroke="#1A1A1A" stroke-width="1.2" opacity=".5"/>
+<ellipse cx="400" cy="240" rx="3.5" ry="44" stroke="#A8B78E" stroke-width=".5" opacity=".3"/>
+<!-- White dots on body (Monarch characteristic) -->
+<circle cx="396" cy="210" r="1" fill="#A8B78E" opacity=".2"/>
+<circle cx="404" cy="210" r="1" fill="#A8B78E" opacity=".2"/>
+<circle cx="396" cy="225" r="1" fill="#A8B78E" opacity=".18"/>
+<circle cx="404" cy="225" r="1" fill="#A8B78E" opacity=".18"/>
+<!-- Head -->
+<circle cx="400" cy="188" r="9" stroke="#1A1A1A" stroke-width="1" opacity=".5"/>
+<circle cx="397" cy="185" r="2" fill="#A8B78E" opacity=".15"/>
+<circle cx="403" cy="185" r="2" fill="#A8B78E" opacity=".15"/>
+<!-- Antennae — thin, clubbed -->
+<path d="M396 180Q375 148 358 118" stroke="#1A1A1A" stroke-width=".7" opacity=".4"/>
+<circle cx="358" cy="118" r="2.5" fill="#1A1A1A" opacity=".2"/>
+<path d="M404 180Q425 148 442 118" stroke="#1A1A1A" stroke-width=".7" opacity=".4"/>
+<circle cx="442" cy="118" r="2.5" fill="#1A1A1A" opacity=".2"/>
+
+<!-- LEFT FOREWING -->
+<path d="M393 205Q345 175 270 148Q200 128 145 140Q108 155 98 188Q92 225 115 260Q145 292 210 305Q275 312 340 295Q370 282 393 262" stroke="#A8B78E" stroke-width="1.1" opacity=".55"/>
+<!-- Black vein network (Monarch signature) -->
+<path d="M393 208Q345 185 285 170Q230 158 185 162Q150 168 125 185" stroke="#1A1A1A" stroke-width=".8" opacity=".3"/>
+<path d="M393 218Q355 205 315 198Q275 195 240 205Q210 218 185 240" stroke="#1A1A1A" stroke-width=".7" opacity=".28"/>
+<path d="M393 232Q365 228 340 230Q310 235 280 250Q255 268 235 285" stroke="#1A1A1A" stroke-width=".6" opacity=".25"/>
+<path d="M393 248Q375 250 358 258Q335 272 315 290" stroke="#1A1A1A" stroke-width=".55" opacity=".22"/>
+<!-- Cross veins -->
+<path d="M285 170Q288 185 288 198" stroke="#1A1A1A" stroke-width=".4" opacity=".15"/>
+<path d="M240 178Q242 195 240 208" stroke="#1A1A1A" stroke-width=".35" opacity=".12"/>
+<path d="M315 198Q312 212 310 230" stroke="#1A1A1A" stroke-width=".35" opacity=".12"/>
+<!-- Wing tip black area with white dots -->
+<path d="M145 140Q160 135 180 138Q195 142 200 155" stroke="#1A1A1A" stroke-width=".6" opacity=".2"/>
+<circle cx="165" cy="148" r="1.5" fill="#A8B78E" opacity=".15"/>
+<circle cx="180" cy="145" r="1.5" fill="#A8B78E" opacity=".15"/>
+<circle cx="150" cy="155" r="1.5" fill="#A8B78E" opacity=".12"/>
+<!-- Orange fill suggestion -->
+<circle cx="250" cy="220" r="22" fill="#C4453A" opacity=".025"/>
+<circle cx="200" cy="250" r="18" fill="#C4453A" opacity=".02"/>
+
+<!-- RIGHT FOREWING -->
+<path d="M407 205Q455 175 530 148Q600 128 655 140Q692 155 702 188Q708 225 685 260Q655 292 590 305Q525 312 460 295Q430 282 407 262" stroke="#A8B78E" stroke-width="1.1" opacity=".5"/>
+<path d="M407 208Q455 185 515 170Q570 158 615 162Q650 168 675 185" stroke="#1A1A1A" stroke-width=".8" opacity=".28"/>
+<path d="M407 218Q445 205 485 198Q525 195 560 205Q590 218 615 240" stroke="#1A1A1A" stroke-width=".7" opacity=".25"/>
+<path d="M407 232Q435 228 460 230Q490 235 520 250Q545 268 565 285" stroke="#1A1A1A" stroke-width=".6" opacity=".22"/>
+<path d="M407 248Q425 250 442 258Q465 272 485 290" stroke="#1A1A1A" stroke-width=".55" opacity=".2"/>
+<circle cx="635" cy="148" r="1.5" fill="#A8B78E" opacity=".12"/>
+<circle cx="620" cy="145" r="1.5" fill="#A8B78E" opacity=".12"/>
+<circle cx="550" cy="220" r="22" fill="#C4453A" opacity=".02"/>
+
+<!-- LEFT HINDWING -->
+<path d="M396 268Q360 292 312 322Q265 348 228 358Q195 362 172 348Q152 330 150 305Q152 280 165 268" stroke="#A8B78E" stroke-width="1" opacity=".5"/>
+<path d="M396 272Q368 295 335 318Q305 338 280 348" stroke="#1A1A1A" stroke-width=".5" opacity=".22"/>
+<path d="M396 282Q375 305 355 325Q335 342 318 352" stroke="#1A1A1A" stroke-width=".45" opacity=".2"/>
+<path d="M396 292Q382 312 370 332Q358 348 348 358" stroke="#1A1A1A" stroke-width=".4" opacity=".18"/>
+<!-- Black border spots -->
+<circle cx="228" cy="352" r="2.5" fill="#1A1A1A" opacity=".15"/>
+<circle cx="248" cy="355" r="2" fill="#1A1A1A" opacity=".12"/>
+<circle cx="205" cy="358" r="2" fill="#1A1A1A" opacity=".12"/>
+
+<!-- RIGHT HINDWING -->
+<path d="M404 268Q440 292 488 322Q535 348 572 358Q605 362 628 348Q648 330 650 305Q648 280 635 268" stroke="#A8B78E" stroke-width="1" opacity=".45"/>
+<path d="M404 272Q432 295 465 318Q495 338 520 348" stroke="#1A1A1A" stroke-width=".5" opacity=".2"/>
+<path d="M404 282Q425 305 445 325Q465 342 482 352" stroke="#1A1A1A" stroke-width=".45" opacity=".18"/>
+<circle cx="572" cy="352" r="2.5" fill="#1A1A1A" opacity=".12"/>
+<circle cx="552" cy="355" r="2" fill="#1A1A1A" opacity=".1"/>
+</svg>
+</div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SPECIMEN 04 — LUNA MOTH
+     Color: Purple #9B7EB8 — nocturnal, ethereal
+═══════════════════════════════════════════════════════════ -->
+<div class="specimen">
+<div class="specimen-inner">
+<div class="spec-info">
+<p class="spec-number">04</p>
+<p class="spec-name" style="color:#9B7EB8">Luna</p>
+<p class="spec-latin">Actias luna</p>
+<p class="spec-desc">Vive solo 7 días como adulta. Sin boca, sin estómago. Existe únicamente para reproducirse. Sus colas redirigen el sonar de los murciélagos — un camuflaje acústico.</p>
+<div class="spec-tags">
+<span class="spec-tag" style="background:rgba(155,126,184,.1);color:#9B7EB8">Norteamérica</span>
+<span class="spec-tag" style="background:rgba(155,126,184,.06);color:#9B7EB8">8-12cm</span>
+<span class="spec-tag" style="background:rgba(155,126,184,.06);color:#a5a39d">Nocturna · 7 días</span>
+</div>
+</div>
+<div class="spec-svg">
+<svg viewBox="0 0 800 550" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- Body -->
+<ellipse cx="400" cy="250" rx="8" ry="45" stroke="#9B7EB8" stroke-width="1.1" opacity=".6"/>
+<ellipse cx="400" cy="250" rx="4" ry="40" stroke="#9B7EB8" stroke-width=".5" opacity=".3"/>
+<!-- Furry thorax -->
+<path d="M388 225Q400 220 412 225" stroke="#9B7EB8" stroke-width=".6" opacity=".25"/>
+<path d="M390 215Q400 212 410 215" stroke="#9B7EB8" stroke-width=".5" opacity=".2"/>
+<!-- Head -->
+<circle cx="400" cy="200" r="8" stroke="#9B7EB8" stroke-width=".9" opacity=".5"/>
+<!-- Feathered antennae -->
+<path d="M394 194Q368 165 348 140" stroke="#9B7EB8" stroke-width=".7" opacity=".4"/>
+<path d="M348 140Q344 136 340 138Q342 132 338 130Q340 126 336 124" stroke="#9B7EB8" stroke-width=".4" opacity=".25"/>
+<path d="M348 140Q346 144 342 143Q344 148 340 149Q342 152 338 154" stroke="#9B7EB8" stroke-width=".4" opacity=".25"/>
+<path d="M406 194Q432 165 452 140" stroke="#9B7EB8" stroke-width=".7" opacity=".4"/>
+<path d="M452 140Q456 136 460 138Q458 132 462 130Q460 126 464 124" stroke="#9B7EB8" stroke-width=".4" opacity=".25"/>
+<path d="M452 140Q454 144 458 143Q456 148 460 149Q458 152 462 154" stroke="#9B7EB8" stroke-width=".4" opacity=".25"/>
+
+<!-- LEFT FOREWING — broad, sweeping -->
+<path d="M392 215Q332 178 245 148Q165 125 105 140Q68 158 58 195Q52 240 78 280Q110 315 180 330Q250 340 328 318Q368 300 392 275" stroke="#9B7EB8" stroke-width="1.1" opacity=".55"/>
+<!-- Venation -->
+<path d="M392 218Q340 192 280 175Q225 162 178 168Q140 178 115 198" stroke="#9B7EB8" stroke-width=".5" opacity=".25"/>
+<path d="M392 228Q348 215 308 208Q268 205 232 218Q200 235 178 258" stroke="#9B7EB8" stroke-width=".45" opacity=".22"/>
+<path d="M392 242Q360 238 332 242Q298 252 270 272Q248 292 235 310" stroke="#9B7EB8" stroke-width=".4" opacity=".2"/>
+<path d="M392 258Q372 260 352 268Q328 282 310 300" stroke="#9B7EB8" stroke-width=".35" opacity=".18"/>
+<!-- Eyespot -->
+<circle cx="195" cy="228" r="14" stroke="#9B7EB8" stroke-width=".8" opacity=".35"/>
+<circle cx="195" cy="228" r="8" stroke="#9B7EB8" stroke-width=".5" opacity=".25"/>
+<circle cx="195" cy="228" r="3.5" fill="#9B7EB8" opacity=".15"/>
+<circle cx="193" cy="226" r="1.5" fill="#f0ede6" opacity=".08"/>
+<!-- Scalloped edge -->
+<path d="M78 280Q85 285 92 282Q102 290 112 285Q125 295 138 288Q155 298 170 290Q188 300 205 292Q225 302 245 294Q268 305 288 296Q308 306 325 298" stroke="#9B7EB8" stroke-width=".4" opacity=".18"/>
+
+<!-- RIGHT FOREWING -->
+<path d="M408 215Q468 178 555 148Q635 125 695 140Q732 158 742 195Q748 240 722 280Q690 315 620 330Q550 340 472 318Q432 300 408 275" stroke="#9B7EB8" stroke-width="1.1" opacity=".5"/>
+<path d="M408 218Q460 192 520 175Q575 162 622 168Q660 178 685 198" stroke="#9B7EB8" stroke-width=".5" opacity=".22"/>
+<path d="M408 228Q452 215 492 208Q532 205 568 218Q600 235 622 258" stroke="#9B7EB8" stroke-width=".45" opacity=".2"/>
+<path d="M408 242Q440 238 468 242Q502 252 530 272Q552 292 565 310" stroke="#9B7EB8" stroke-width=".4" opacity=".18"/>
+<!-- Right eyespot -->
+<circle cx="605" cy="228" r="14" stroke="#9B7EB8" stroke-width=".8" opacity=".3"/>
+<circle cx="605" cy="228" r="8" stroke="#9B7EB8" stroke-width=".5" opacity=".2"/>
+<circle cx="605" cy="228" r="3.5" fill="#9B7EB8" opacity=".12"/>
+
+<!-- LEFT HINDWING with LONG TAIL -->
+<path d="M396 278Q358 305 305 340Q258 368 222 378Q190 382 168 370Q148 352 148 325Q152 300 168 285" stroke="#9B7EB8" stroke-width="1" opacity=".5"/>
+<!-- TAIL — Luna moth signature -->
+<path d="M222 378Q210 395 195 420Q182 450 178 480Q176 500 185 510Q195 515 205 505Q212 490 215 465Q220 440 230 420Q240 405 250 395" stroke="#9B7EB8" stroke-width=".8" opacity=".4"/>
+<path d="M195 420Q188 435 185 455" stroke="#9B7EB8" stroke-width=".35" opacity=".2"/>
+<path d="M215 465Q208 475 205 490" stroke="#9B7EB8" stroke-width=".3" opacity=".15"/>
+<!-- Hindwing venation -->
+<path d="M396 282Q368 305 340 328Q315 348 295 362" stroke="#9B7EB8" stroke-width=".4" opacity=".2"/>
+<path d="M396 290Q375 315 358 335Q340 352 325 365" stroke="#9B7EB8" stroke-width=".35" opacity=".18"/>
+<!-- Hindwing eyespot -->
+<circle cx="240" cy="355" r="8" stroke="#9B7EB8" stroke-width=".6" opacity=".25"/>
+<circle cx="240" cy="355" r="3.5" fill="#9B7EB8" opacity=".12"/>
+
+<!-- RIGHT HINDWING with TAIL -->
+<path d="M404 278Q442 305 495 340Q542 368 578 378Q610 382 632 370Q652 352 652 325Q648 300 632 285" stroke="#9B7EB8" stroke-width="1" opacity=".45"/>
+<path d="M578 378Q590 395 605 420Q618 450 622 480Q624 500 615 510Q605 515 595 505Q588 490 585 465Q580 440 570 420Q560 405 550 395" stroke="#9B7EB8" stroke-width=".8" opacity=".35"/>
+<path d="M605 420Q612 435 615 455" stroke="#9B7EB8" stroke-width=".35" opacity=".18"/>
+<path d="M404 282Q432 305 460 328Q485 348 505 362" stroke="#9B7EB8" stroke-width=".4" opacity=".18"/>
+<circle cx="560" cy="355" r="8" stroke="#9B7EB8" stroke-width=".6" opacity=".2"/>
+<circle cx="560" cy="355" r="3.5" fill="#9B7EB8" opacity=".1"/>
+</svg>
+</div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SPECIMEN 05 — GLASSWING
+     Color: Olive + subtle — transparency master
+═══════════════════════════════════════════════════════════ -->
+<div class="specimen">
+<div class="specimen-inner">
+<div class="spec-info">
+<p class="spec-number">05</p>
+<p class="spec-name" style="color:#A8B78E">Glasswing</p>
+<p class="spec-latin">Greta oto</p>
+<p class="spec-desc">Sus alas son transparentes. Las nanoestructuras de la membrana eliminan el reflejo de la luz. Es invisible en vuelo. La perfección no es verse bien — es no verse en absoluto.</p>
+<div class="spec-tags">
+<span class="spec-tag" style="background:rgba(168,183,142,.1);color:#A8B78E">Centroamérica</span>
+<span class="spec-tag" style="background:rgba(168,183,142,.06);color:#A8B78E">5-6cm</span>
+<span class="spec-tag" style="background:rgba(168,183,142,.06);color:#a5a39d">Transparente</span>
+</div>
+</div>
+<div class="spec-svg">
+<svg viewBox="0 0 800 460" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- Body — dark, delicate -->
+<ellipse cx="400" cy="230" rx="5" ry="38" stroke="#A8B78E" stroke-width="1" opacity=".5"/>
+<ellipse cx="400" cy="230" rx="2.5" ry="34" stroke="#1A1A1A" stroke-width=".6" opacity=".3"/>
+<!-- Head -->
+<circle cx="400" cy="188" r="7" stroke="#1A1A1A" stroke-width=".9" opacity=".5"/>
+<circle cx="397" cy="186" r="1.8" fill="#A8B78E" opacity=".15"/>
+<circle cx="403" cy="186" r="1.8" fill="#A8B78E" opacity=".15"/>
+<!-- Antennae -->
+<path d="M396 182Q378 155 362 130" stroke="#1A1A1A" stroke-width=".6" opacity=".35"/>
+<circle cx="362" cy="130" r="2" fill="#C4453A" opacity=".15"/>
+<path d="M404 182Q422 155 438 130" stroke="#1A1A1A" stroke-width=".6" opacity=".35"/>
+<circle cx="438" cy="130" r="2" fill="#C4453A" opacity=".15"/>
+
+<!-- LEFT FOREWING — transparent with dark borders -->
+<!-- Outer border (opaque brown edge) -->
+<path d="M395 205Q348 178 275 155Q210 140 158 148Q128 158 118 180Q112 208 130 238Q155 268 210 282Q265 290 332 275Q368 262 395 248" stroke="#A8B78E" stroke-width="1" opacity=".45"/>
+<!-- Inner transparent area — very faint -->
+<path d="M390 210Q350 188 290 170Q238 158 195 165Q168 174 160 192Q155 215 170 240Q192 265 235 276Q278 284 335 270Q362 260 390 246" stroke="#A8B78E" stroke-width=".5" opacity=".12"/>
+<!-- Venation — the main visual element on glass wings -->
+<path d="M395 208Q350 190 298 178Q248 170 210 175Q175 182 150 200" stroke="#1A1A1A" stroke-width=".7" opacity=".3"/>
+<path d="M395 215Q358 205 320 200Q282 198 250 210Q225 225 205 245" stroke="#1A1A1A" stroke-width=".6" opacity=".28"/>
+<path d="M395 225Q368 222 342 225Q312 232 288 248Q268 265 255 278" stroke="#1A1A1A" stroke-width=".55" opacity=".25"/>
+<path d="M395 238Q375 240 358 248Q340 260 325 275" stroke="#1A1A1A" stroke-width=".5" opacity=".22"/>
+<!-- Cross veins — more visible on glass wings -->
+<path d="M298 178Q300 192 298 200" stroke="#1A1A1A" stroke-width=".35" opacity=".15"/>
+<path d="M248 182Q252 198 250 210" stroke="#1A1A1A" stroke-width=".3" opacity=".12"/>
+<path d="M320 200Q318 215 315 225" stroke="#1A1A1A" stroke-width=".3" opacity=".12"/>
+<path d="M282 205Q285 220 282 232" stroke="#1A1A1A" stroke-width=".25" opacity=".1"/>
+<path d="M340 225Q338 238 335 248" stroke="#1A1A1A" stroke-width=".25" opacity=".1"/>
+<!-- Opaque wing border (red-brown edge - Glasswing signature) -->
+<path d="M118 180Q115 175 120 168Q128 155 140 148Q150 145 158 148" stroke="#C4453A" stroke-width=".6" opacity=".2"/>
+<path d="M130 238Q138 248 148 252Q160 255 175 252Q188 255 200 252Q215 258 230 254Q248 260 265 255Q282 262 298 256Q315 264 332 258" stroke="#C4453A" stroke-width=".5" opacity=".18"/>
+<!-- Transparency effect — dotted cells -->
+<circle cx="260" cy="210" r="15" stroke="#A8B78E" stroke-width=".2" opacity=".06" stroke-dasharray="1 2"/>
+<circle cx="220" cy="230" r="12" stroke="#A8B78E" stroke-width=".2" opacity=".05" stroke-dasharray="1 2"/>
+<circle cx="300" cy="228" r="10" stroke="#A8B78E" stroke-width=".2" opacity=".04" stroke-dasharray="1 2"/>
+
+<!-- RIGHT FOREWING -->
+<path d="M405 205Q452 178 525 155Q590 140 642 148Q672 158 682 180Q688 208 670 238Q645 268 590 282Q535 290 468 275Q432 262 405 248" stroke="#A8B78E" stroke-width="1" opacity=".4"/>
+<path d="M410 210Q450 188 510 170Q562 158 605 165Q632 174 640 192Q645 215 630 240Q608 265 565 276Q522 284 465 270Q438 260 410 246" stroke="#A8B78E" stroke-width=".5" opacity=".1"/>
+<path d="M405 208Q450 190 502 178Q552 170 590 175Q625 182 650 200" stroke="#1A1A1A" stroke-width=".7" opacity=".28"/>
+<path d="M405 215Q442 205 480 200Q518 198 550 210Q575 225 595 245" stroke="#1A1A1A" stroke-width=".6" opacity=".25"/>
+<path d="M405 225Q432 222 458 225Q488 232 512 248Q532 265 545 278" stroke="#1A1A1A" stroke-width=".55" opacity=".22"/>
+<path d="M405 238Q425 240 442 248Q460 260 475 275" stroke="#1A1A1A" stroke-width=".5" opacity=".2"/>
+<path d="M502 178Q500 192 502 200" stroke="#1A1A1A" stroke-width=".35" opacity=".12"/>
+<path d="M552 182Q548 198 550 210" stroke="#1A1A1A" stroke-width=".3" opacity=".1"/>
+<path d="M480 200Q482 215 485 225" stroke="#1A1A1A" stroke-width=".3" opacity=".1"/>
+<circle cx="540" cy="210" r="15" stroke="#A8B78E" stroke-width=".2" opacity=".05" stroke-dasharray="1 2"/>
+<circle cx="580" cy="230" r="12" stroke="#A8B78E" stroke-width=".2" opacity=".04" stroke-dasharray="1 2"/>
+<path d="M670 238Q662 248 652 252Q640 255 625 252Q612 255 600 252Q585 258 570 254Q552 260 535 255Q518 262 502 256Q485 264 468 258" stroke="#C4453A" stroke-width=".5" opacity=".15"/>
+
+<!-- LEFT HINDWING -->
+<path d="M397 252Q365 278 318 308Q272 332 240 342Q212 348 192 338Q175 322 175 300Q178 280 190 268" stroke="#A8B78E" stroke-width=".9" opacity=".42"/>
+<path d="M397 256Q372 278 342 300Q315 320 295 332" stroke="#1A1A1A" stroke-width=".5" opacity=".22"/>
+<path d="M397 264Q378 288 360 308Q342 325 328 338" stroke="#1A1A1A" stroke-width=".45" opacity=".2"/>
+<path d="M397 272Q382 295 370 315Q358 332 350 345" stroke="#1A1A1A" stroke-width=".4" opacity=".18"/>
+<path d="M192 338Q198 345 208 345Q218 348 228 342Q238 348 248 340" stroke="#C4453A" stroke-width=".4" opacity=".15"/>
+<circle cx="268" cy="318" r="10" stroke="#A8B78E" stroke-width=".2" opacity=".04" stroke-dasharray="1 2"/>
+
+<!-- RIGHT HINDWING -->
+<path d="M403 252Q435 278 482 308Q528 332 560 342Q588 348 608 338Q625 322 625 300Q622 280 610 268" stroke="#A8B78E" stroke-width=".9" opacity=".38"/>
+<path d="M403 256Q428 278 458 300Q485 320 505 332" stroke="#1A1A1A" stroke-width=".5" opacity=".2"/>
+<path d="M403 264Q422 288 440 308Q458 325 472 338" stroke="#1A1A1A" stroke-width=".45" opacity=".18"/>
+<path d="M403 272Q418 295 430 315Q442 332 450 345" stroke="#1A1A1A" stroke-width=".4" opacity=".15"/>
+<path d="M608 338Q602 345 592 345Q582 348 572 342Q562 348 552 340" stroke="#C4453A" stroke-width=".4" opacity=".12"/>
+<circle cx="532" cy="318" r="10" stroke="#A8B78E" stroke-width=".2" opacity=".04" stroke-dasharray="1 2"/>
+
+<!-- Legs -->
+<path d="M396 240Q388 250 384 262" stroke="#1A1A1A" stroke-width=".3" opacity=".15"/>
+<path d="M404 240Q412 250 416 262" stroke="#1A1A1A" stroke-width=".3" opacity=".15"/>
+<path d="M397 252Q392 265 388 275" stroke="#1A1A1A" stroke-width=".25" opacity=".12"/>
+<path d="M403 252Q408 265 412 275" stroke="#1A1A1A" stroke-width=".25" opacity=".12"/>
+</svg>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- Footer -->
+<div class="footer">
+<p style="font-size:10px;color:#a5a39d;font-family:'Space Mono',monospace;letter-spacing:.08em">LLVR LEPIDOPTERA LIBRARY · 5 SPECIMENS · FINE LINE 3D CONTOUR · 2026</p>
+<p style="font-size:9px;color:#a5a39d;margin-top:4px;opacity:.5">Morpho · Atlas · Monarca · Luna · Glasswing</p>
+<p style="font-size:8px;color:#a5a39d;margin-top:8px;opacity:.35;font-style:italic;font-family:Georgia,serif">"La perfección no es verse bien — es no verse en absoluto."</p>
+</div>
+
+</div>
+</body>
+</html>

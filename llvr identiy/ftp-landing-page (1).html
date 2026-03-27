@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FTP by LLVR — Digital Operator Pack</title>
+<meta name="description" content="Tu sistema operativo de contenido. Convertimos tu autoridad en presencia digital que genera clientes mientras entrenas.">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#5B5F53;--olive:#A8B78E;--red:#C4453A;--black:#1A1A1A;--purple:#9B7EB8;--blue:#6B8CBA;--amber:#C8AA50;
+--t1:#f0ede6;--t2:#e0ddd6;--t3:#a5a39d;
+--glass:rgba(0,0,0,0.2);--glass-s:rgba(0,0,0,0.15);--glass-g:rgba(0,0,0,0.08);
+--border:rgba(168,183,142,0.1);--border-s:rgba(168,183,142,0.06);
+--r:16px;
+}
+body{background:var(--bg);color:var(--t1);font-family:'DM Sans',system-ui,sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.pattern{position:fixed;inset:0;opacity:.04;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2220%22 height=%2220%22><text x=%225%22 y=%2214%22 font-size=%2210%22 fill=%22white%22>+</text></svg>');pointer-events:none;z-index:0}
+.wrap{max-width:1100px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
+.mono{font-family:'Space Mono',monospace}
+.syne{font-family:'Syne',sans-serif;font-weight:800}
+.serif{font-family:'Georgia',serif;font-style:italic}
+.label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;font-family:'Space Mono',monospace}
+
+/* Nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;transition:all .3s}
+.nav.scrolled{background:rgba(91,95,83,.92);backdrop-filter:blur(12px);border-bottom:.5px solid var(--border)}
+.nav-inner{max-width:1100px;margin:0 auto;padding:0 28px;display:flex;justify-content:space-between;align-items:center}
+.nav-logo{display:flex;align-items:center;gap:8px}
+.nav-mark{width:28px;height:28px;border-radius:8px;background:var(--olive);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--black)}
+.nav-cta{padding:8px 20px;font-size:12px;background:var(--olive);color:var(--black);border-radius:8px;font-weight:600;text-decoration:none;transition:opacity .2s}
+.nav-cta:hover{opacity:.85}
+
+/* Sections */
+section{position:relative;z-index:1;padding:80px 0}
+.hero-section{min-height:100vh;display:flex;align-items:center;padding-top:120px}
+
+/* Glass cards */
+.glass{background:var(--glass);backdrop-filter:blur(4px);border-radius:var(--r);border:.5px solid var(--border)}
+.glass-s{background:var(--glass-s);border-radius:var(--r);border:.5px solid var(--border-s)}
+.glass-g{background:var(--glass-g);border-radius:12px;border:.5px solid rgba(168,183,142,.03)}
+
+/* Animate */
+.reveal{opacity:0;transform:translateY(24px);transition:all .8s cubic-bezier(.16,1,.3,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* Grid */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* Buttons */
+.btn-primary{display:inline-block;padding:14px 28px;font-size:14px;background:var(--olive);color:var(--black);border-radius:10px;font-weight:600;text-decoration:none;transition:opacity .2s}
+.btn-primary:hover{opacity:.85}
+.btn-secondary{display:inline-block;padding:14px 28px;font-size:14px;background:rgba(0,0,0,.2);color:var(--t2);border-radius:10px;text-decoration:none;border:.5px solid rgba(168,183,142,.12);transition:border-color .2s}
+.btn-secondary:hover{border-color:rgba(168,183,142,.25)}
+.btn-red{background:var(--red);color:var(--t1)}
+
+/* SVG illustrations */
+.illus{width:100%;max-width:200px;height:auto}
+.illus-sm{max-width:120px}
+.illus-lg{max-width:240px}
+.illus-eye{max-width:280px}
+
+/* Pricing */
+.tier{border-radius:20px;padding:24px;position:relative;overflow:hidden}
+.tier-badge{position:absolute;top:0;right:0;padding:4px 14px;background:var(--olive);color:var(--black);font-size:8px;font-weight:700;border-radius:0 0 0 10px;letter-spacing:.08em;text-transform:uppercase}
+.tier-feature{display:flex;gap:6px;align-items:flex-start;margin-bottom:5px}
+.tier-check{font-size:10px;margin-top:1px;flex-shrink:0}
+.tier-cta{display:block;margin-top:18px;padding:12px;text-align:center;border-radius:10px;font-weight:600;text-decoration:none;transition:opacity .2s}
+.tier-cta:hover{opacity:.85}
+
+/* Funnel bars */
+.funnel-bar{background:rgba(0,0,0,.12);border-radius:10px;padding:10px 14px;transition:all .3s}
+.funnel-bar:hover{background:rgba(0,0,0,.18)}
+
+/* Module list */
+.module-item{background:rgba(0,0,0,.12);border-radius:10px;padding:10px 14px;display:flex;gap:10px;align-items:center}
+
+/* Responsive */
+@media(max-width:768px){
+  .hero-grid{grid-template-columns:1fr!important}
+  .hero-illus{display:none}
+  .g3{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .framework-grid{grid-template-columns:1fr!important}
+  .framework-spine{display:none}
+  .ftpaa-grid{grid-template-columns:1fr!important}
+  .ftpaa-lungs{display:none}
+  section{padding:60px 0}
+  .wrap{padding:0 20px}
+  h1{font-size:32px!important}
+  h2{font-size:24px!important}
+  .stats-grid{grid-template-columns:1fr 1fr 1fr!important}
+}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(168,183,142,.1);border-radius:2px}
+::selection{background:var(--olive);color:var(--black)}
+</style>
+</head>
+<body>
+
+<div class="pattern"></div>
+
+<!-- ═══ NAV ═══ -->
+<nav class="nav" id="nav">
+<div class="nav-inner">
+<div class="nav-logo">
+<div class="nav-mark">F</div>
+<span style="font-size:14px;font-weight:700">FTP</span>
+<span class="mono" style="font-size:9px;color:var(--t3);letter-spacing:.1em">BY LLVR</span>
+</div>
+<a href="#pricing" class="nav-cta">Comenzar →</a>
+</div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero-section">
+<div class="wrap">
+<div class="hero-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center">
+<div>
+<p class="label" style="color:var(--t3);margin-bottom:16px">
+<span style="display:inline-block;width:24px;height:.5px;background:var(--olive);vertical-align:middle;margin-right:8px"></span>
+Digital Operator Pack
+</p>
+<h1 class="syne" style="font-size:clamp(36px,5vw,56px);letter-spacing:-.03em;line-height:1.1;margin-bottom:20px">
+Tu contenido<br>es el reflejo<br>de <span style="color:var(--red)">quién eres</span>
+</h1>
+<p class="serif" style="font-size:16px;color:var(--t3);line-height:1.7;max-width:440px;margin-bottom:32px">
+Un sistema operativo que convierte tu autoridad en presencia digital que genera clientes — mientras entrenas.
+</p>
+<div style="display:flex;gap:12px;flex-wrap:wrap">
+<a href="#pricing" class="btn-primary">Ver planes →</a>
+<a href="#mirror" class="btn-secondary">Cómo funciona</a>
+</div>
+</div>
+<div class="hero-illus" style="display:flex;justify-content:center;position:relative">
+<!-- Brain SVG -->
+<svg viewBox="0 0 200 200" fill="none" class="illus" style="max-width:260px">
+<path d="M100 170C100 170 60 160 50 130C40 100 55 80 55 80C45 70 40 55 50 40C60 25 80 20 100 25C120 20 140 25 150 40C160 55 155 70 145 80C145 80 160 100 150 130C140 160 100 170 100 170Z" stroke="#A8B78E" stroke-width="1" opacity=".6"/>
+<path d="M100 25L100 170" stroke="#A8B78E" stroke-width=".5" opacity=".3" stroke-dasharray="3 3"/>
+<path d="M70 55C75 50 85 48 100 50C115 48 125 50 130 55" stroke="#A8B78E" stroke-width=".7" opacity=".4"/>
+<path d="M65 80C75 75 90 73 100 75C110 73 125 75 135 80" stroke="#A8B78E" stroke-width=".7" opacity=".4"/>
+<path d="M60 105C70 95 85 92 100 95C115 92 130 95 140 105" stroke="#A8B78E" stroke-width=".7" opacity=".4"/>
+<path d="M75 45Q80 60 75 75" stroke="#A8B78E" stroke-width=".5" opacity=".3"/>
+<path d="M125 45Q120 60 125 75" stroke="#A8B78E" stroke-width=".5" opacity=".3"/>
+<circle cx="82" cy="62" r="2" fill="#A8B78E" opacity=".3"/><circle cx="118" cy="62" r="2" fill="#A8B78E" opacity=".3"/><circle cx="100" cy="90" r="2" fill="#A8B78E" opacity=".3"/>
+</svg>
+<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100px;height:100px;border-radius:50%;background:radial-gradient(circle at 40% 40%,rgba(196,69,58,.15),rgba(168,183,142,.03));border:1px solid rgba(168,183,142,.1)"></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ═══ PROBLEM ═══ -->
+<section>
+<div class="wrap reveal" id="r1">
+<div style="display:grid;grid-template-columns:120px 1fr;gap:48px;align-items:flex-start" class="framework-grid">
+<!-- Heart SVG -->
+<svg viewBox="0 0 200 200" fill="none" class="illus-sm framework-spine" style="max-width:120px">
+<path d="M100 170C100 170 30 120 30 75C30 45 55 30 75 35C90 38 100 55 100 55C100 55 110 38 125 35C145 30 170 45 170 75C170 120 100 170 100 170Z" stroke="#C4453A" stroke-width="1" opacity=".6"/>
+<path d="M100 55L100 85L80 100" stroke="#C4453A" stroke-width=".7" opacity=".4"/>
+<path d="M100 55L100 85L120 100" stroke="#C4453A" stroke-width=".7" opacity=".4"/>
+<path d="M100 85L100 130" stroke="#C4453A" stroke-width=".7" opacity=".4"/>
+<path d="M80 100Q70 115 65 130" stroke="#C4453A" stroke-width=".5" opacity=".3"/>
+<path d="M120 100Q130 115 135 130" stroke="#C4453A" stroke-width=".5" opacity=".3"/>
+<circle cx="100" cy="85" r="2.5" fill="#C4453A" opacity=".3"/>
+</svg>
+<div>
+<p class="label" style="color:var(--red);margin-bottom:12px">El problema</p>
+<h2 class="syne" style="font-size:clamp(24px,3.5vw,36px);letter-spacing:-.02em;line-height:1.2;margin-bottom:16px">Sabes entrenar.<br>No sabes comunicar.</h2>
+<p style="font-size:15px;color:var(--t3);line-height:1.8;max-width:560px;margin-bottom:28px">Publicas contenido inconsistente. Copias lo que funciona a otros. Culpas al algoritmo. Pero el problema no es Instagram — es que no tienes un sistema que convierta lo que SABES en presencia digital que VENDA.</p>
+<div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+<div class="glass-s" style="padding:16px 14px;text-align:center">
+<p class="syne" style="font-size:22px;margin-bottom:4px">73%</p>
+<p style="font-size:10px;color:var(--t3)">publican sin estrategia</p>
+</div>
+<div class="glass-s" style="padding:16px 14px;text-align:center">
+<p class="syne" style="font-size:22px;color:var(--red);margin-bottom:4px">2.1%</p>
+<p style="font-size:10px;color:var(--t3)">engagement promedio</p>
+</div>
+<div class="glass-s" style="padding:16px 14px;text-align:center">
+<p class="syne" style="font-size:22px;margin-bottom:4px">90%</p>
+<p style="font-size:10px;color:var(--t3)">dejan de publicar antes de 6 meses</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ═══ THE MIRROR ═══ -->
+<section id="mirror">
+<div class="wrap reveal" id="r2" style="text-align:center">
+<!-- Eye SVG -->
+<svg viewBox="0 0 240 120" fill="none" class="illus-eye" style="margin:0 auto 24px;display:block">
+<path d="M20 60Q60 15 120 15Q180 15 220 60Q180 105 120 105Q60 105 20 60Z" stroke="#A8B78E" stroke-width="1" opacity=".5"/>
+<circle cx="120" cy="60" r="28" stroke="#A8B78E" stroke-width=".8" opacity=".5"/>
+<circle cx="120" cy="60" r="14" stroke="#A8B78E" stroke-width="1" opacity=".6"/>
+<circle cx="120" cy="60" r="5" fill="#A8B78E" opacity=".3"/>
+<line x1="92" y1="60" x2="56" y2="60" stroke="#A8B78E" stroke-width=".3" opacity=".15" stroke-dasharray="2 4"/>
+<line x1="148" y1="60" x2="184" y2="60" stroke="#A8B78E" stroke-width=".3" opacity=".15" stroke-dasharray="2 4"/>
+</svg>
+<p class="label" style="color:var(--olive);margin-bottom:12px">La solución</p>
+<h2 class="syne" style="font-size:clamp(28px,4vw,44px);letter-spacing:-.03em;max-width:700px;margin:0 auto 16px;line-height:1.15">El Espejo: un sistema que<br>te conoce mejor que tú</h2>
+<p class="serif" style="font-size:15px;color:var(--t3);line-height:1.8;max-width:520px;margin:0 auto 40px">No es una herramienta de redes sociales. Es un sistema operativo de conciencia que transforma quién eres en contenido que atrae, convence, y convierte.</p>
+<div class="g3" style="max-width:800px;margin:0 auto">
+<div class="glass" style="padding:20px;border-top:2px solid rgba(196,69,58,.3);text-align:left">
+<p class="label" style="color:var(--red);margin-bottom:6px">Superficie · Actúa</p>
+<p style="font-size:13px;color:var(--t2);line-height:1.5">Qué publicar hoy. La idea con mayor score. El post listo para salir.</p>
+</div>
+<div class="glass" style="padding:20px;border-top:2px solid rgba(168,183,142,.3);text-align:left">
+<p class="label" style="color:var(--olive);margin-bottom:6px">Medio · Piensa</p>
+<p style="font-size:13px;color:var(--t2);line-height:1.5">Tus ideas rankeadas. Las más potentes brillan, las débiles se desvanecen.</p>
+</div>
+<div class="glass" style="padding:20px;border-top:2px solid rgba(155,126,184,.3);text-align:left">
+<p class="label" style="color:var(--purple);margin-bottom:6px">Profundidad · Siente</p>
+<p style="font-size:13px;color:var(--t2);line-height:1.5">Tu Journal diario. Tu identidad. El espejo de quién eres como creador.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ═══ FRAMEWORK ═══ -->
+<section>
+<div class="wrap reveal" id="r3">
+<div class="framework-grid" style="display:grid;grid-template-columns:1fr 80px 1fr;gap:32px;align-items:center">
+<div>
+<p class="label" style="color:var(--olive);margin-bottom:12px">El framework</p>
+<h2 class="syne" style="font-size:clamp(24px,3vw,34px);letter-spacing:-.02em;line-height:1.2;margin-bottom:20px">3 formatos.<br>3 roles en tu funnel.</h2>
+<p style="font-size:14px;color:var(--t3);line-height:1.7;margin-bottom:24px">Cada pieza de contenido tiene un propósito exacto en tu embudo de conversión.</p>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div class="glass-s" style="padding:14px 16px;border-left:2px solid var(--red);display:flex;gap:12px;align-items:flex-start">
+<span style="font-size:18px;flex-shrink:0;margin-top:2px">🎬</span>
+<div>
+<div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">
+<span style="font-size:13px;font-weight:600">Reels</span>
+<span style="font-size:9px;padding:2px 8px;border-radius:6px;color:var(--red);background:rgba(196,69,58,.12)">Filtro de identidad</span>
+</div>
+<p style="font-size:12px;color:var(--t3);line-height:1.5">Atraen a la audiencia correcta. Repelen a la incorrecta. Opiniones fuertes.</p>
+</div>
+</div>
+<div class="glass-s" style="padding:14px 16px;border-left:2px solid var(--olive);display:flex;gap:12px;align-items:flex-start">
+<span style="font-size:18px;flex-shrink:0;margin-top:2px">📚</span>
+<div>
+<div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">
+<span style="font-size:13px;font-weight:600">Carruseles</span>
+<span style="font-size:9px;padding:2px 8px;border-radius:6px;color:var(--olive);background:rgba(168,183,142,.12)">Autoridad</span>
+</div>
+<p style="font-size:12px;color:var(--t3);line-height:1.5">Convencen de que sabes. Guías técnicas. Datos. Educación profunda.</p>
+</div>
+</div>
+<div class="glass-s" style="padding:14px 16px;border-left:2px solid var(--blue);display:flex;gap:12px;align-items:flex-start">
+<span style="font-size:18px;flex-shrink:0;margin-top:2px">📸</span>
+<div>
+<div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">
+<span style="font-size:13px;font-weight:600">Stories</span>
+<span style="font-size:9px;padding:2px 8px;border-radius:6px;color:var(--blue);background:rgba(107,140,186,.12)">Conversión</span>
+</div>
+<p style="font-size:12px;color:var(--t3);line-height:1.5">Convierten seguidores en clientes. Behind the scenes. CTAs directos.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Spine SVG -->
+<svg viewBox="0 0 100 300" fill="none" class="framework-spine" style="max-width:60px;margin:0 auto">
+<path d="M50 10Q52 30 48 50Q46 70 52 90Q54 110 48 130Q46 150 52 170Q54 190 48 210Q46 230 50 250Q52 270 50 290" stroke="#A8B78E" stroke-width="1.2" opacity=".5"/>
+<ellipse cx="50" cy="30" rx="12" ry="6" stroke="#A8B78E" stroke-width=".6" opacity=".3"/>
+<ellipse cx="50" cy="80" rx="12" ry="6" stroke="#A8B78E" stroke-width=".6" opacity=".3"/>
+<ellipse cx="50" cy="130" rx="12" ry="6" stroke="#A8B78E" stroke-width=".6" opacity=".25"/>
+<ellipse cx="50" cy="180" rx="12" ry="6" stroke="#A8B78E" stroke-width=".6" opacity=".2"/>
+<ellipse cx="50" cy="230" rx="12" ry="6" stroke="#A8B78E" stroke-width=".6" opacity=".15"/>
+</svg>
+<div>
+<p class="label" style="color:var(--purple);margin-bottom:12px">El funnel</p>
+<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:28px">
+<div class="funnel-bar" style="width:100%"><div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--red)">Reel filtra</span><span class="mono" style="font-size:9px;color:var(--t3)">Views + Follows</span></div></div>
+<div class="funnel-bar" style="width:75%"><div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--olive)">Carrusel convence</span><span class="mono" style="font-size:9px;color:var(--t3)">Saves + Shares</span></div></div>
+<div class="funnel-bar" style="width:45%"><div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--blue)">Story convierte</span><span class="mono" style="font-size:9px;color:var(--t3)">DMs + Clicks</span></div></div>
+<div class="funnel-bar" style="width:18%"><div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--t1)">Cliente</span><span class="mono" style="font-size:9px;color:var(--olive)">$$$</span></div></div>
+</div>
+<div class="glass-s" style="padding:16px;border-left:2px solid var(--purple)">
+<p class="label" style="color:var(--purple);margin-bottom:8px">Temperatura viva</p>
+<p style="font-size:12px;color:var(--t3);line-height:1.5">El sistema lee tu energía. Si estás en llamas → reels polarizantes. Si estás reflexivo → singles profundos. Nunca te pide publicar lo que no sientes.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ═══ FTPAA ═══ -->
+<section>
+<div class="wrap reveal" id="r4">
+<div class="ftpaa-grid" style="display:grid;grid-template-columns:1fr 160px;gap:40px;align-items:center">
+<div>
+<p class="label" style="color:var(--purple);margin-bottom:12px">FTPaa · 10 módulos</p>
+<h2 class="syne" style="font-size:clamp(24px,3vw,34px);letter-spacing:-.02em;line-height:1.2;margin-bottom:12px">Un programa que te descubre.<br>Un sistema que te opera.</h2>
+<p style="font-size:14px;color:var(--t3);line-height:1.7;margin-bottom:24px">10 módulos de autodescubrimiento. Cada módulo que completas genera 15 ideas de contenido rankeadas por potencial.</p>
+<div class="g2" style="gap:6px">
+<div class="module-item"><span class="mono" style="font-size:10px;color:var(--purple);opacity:.6">01</span><div><p style="font-size:12px">El Inventario</p><p style="font-size:9px;color:var(--t3)">Identidad</p></div></div>
+<div class="module-item"><span class="mono" style="font-size:10px;color:var(--purple);opacity:.6">02</span><div><p style="font-size:12px">Tus Números</p><p style="font-size:9px;color:var(--t3)">Identidad</p></div></div>
+<div class="module-item"><span class="mono" style="font-size:10px;color:var(--purple);opacity:.6">03</span><div><p style="font-size:12px">El Software</p><p style="font-size:9px;color:var(--t3)">Sombra</p></div></div>
+<div class="module-item"><span class="mono" style="font-size:10px;color:var(--purple);opacity:.6">04</span><div><p style="font-size:12px">La Desinstalación</p><p style="font-size:9px;color:var(--t3)">Sombra</p></div></div>
+<div class="module-item" style="opacity:.8"><span class="mono" style="font-size:10px;color:var(--purple);opacity:.6">05</span><div><p style="font-size:12px">La Reinstalación</p><p style="font-size:9px;color:var(--t3)">Sombra</p></div></div>
+<div class="module-item" style="opacity:.8"><span class="mono" style="font-size:10px;color:var(--purple);opacity:.6">06</span><div><p style="font-size:12px">El Mapa</p><p style="font-size:9px;color:var(--t3)">Visión</p></div></div>
+<div class="module-item" style="opacity:.7"><span class="mono" style="font-size:10px;color:var(--purple);opacity:.6">07</span><div><p style="font-size:12px">El Motor</p><p style="font-size:9px;color:var(--t3)">Método</p></div></div>
+<div class="module-item" style="opacity:.7"><span class="mono" style="font-size:10px;color:var(--purple);opacity:.6">08</span><div><p style="font-size:12px">Primer Cliente</p><p style="font-size:9px;color:var(--t3)">Audiencia</p></div></div>
+<div class="module-item" style="opacity:.6"><span class="mono" style="font-size:10px;color:var(--purple);opacity:.6">09</span><div><p style="font-size:12px">Reglas del Juego</p><p style="font-size:9px;color:var(--t3)">Método</p></div></div>
+<div class="module-item" style="opacity:.6"><span class="mono" style="font-size:10px;color:var(--purple);opacity:.6">10</span><div><p style="font-size:12px">Sistema Operativo</p><p style="font-size:9px;color:var(--t3)">Voz</p></div></div>
+</div>
+</div>
+<!-- Lungs SVG -->
+<svg viewBox="0 0 200 180" fill="none" class="ftpaa-lungs illus">
+<path d="M100 10L100 80" stroke="#A8B78E" stroke-width=".8" opacity=".4"/>
+<path d="M100 40L85 50Q45 70 35 110Q30 140 50 160Q70 175 90 165Q100 158 100 140" stroke="#A8B78E" stroke-width="1" opacity=".5"/>
+<path d="M100 40L115 50Q155 70 165 110Q170 140 150 160Q130 175 110 165Q100 158 100 140" stroke="#A8B78E" stroke-width="1" opacity=".5"/>
+<path d="M85 50Q75 65 68 85" stroke="#A8B78E" stroke-width=".4" opacity=".25"/>
+<path d="M85 50Q78 75 72 100" stroke="#A8B78E" stroke-width=".4" opacity=".25"/>
+<path d="M115 50Q125 65 132 85" stroke="#A8B78E" stroke-width=".4" opacity=".25"/>
+<path d="M115 50Q122 75 128 100" stroke="#A8B78E" stroke-width=".4" opacity=".25"/>
+<circle cx="100" cy="40" r="2" fill="#A8B78E" opacity=".3"/>
+</svg>
+</div>
+</div>
+</section>
+
+<!-- ═══ PRICING ═══ -->
+<section id="pricing">
+<div class="wrap reveal" id="r5">
+<div style="text-align:center;margin-bottom:36px">
+<p class="label" style="color:var(--olive);margin-bottom:8px">Planes</p>
+<h2 class="syne" style="font-size:clamp(28px,4vw,40px);letter-spacing:-.03em">Elige tu nivel de operación</h2>
+</div>
+
+<div class="g3">
+<!-- Autopilot -->
+<div class="tier glass" style="border-color:rgba(168,183,142,.08)">
+<p class="label" style="color:var(--t3);margin-bottom:6px">Tier 1</p>
+<p class="syne" style="font-size:22px;color:var(--olive);margin-bottom:4px">Autopilot</p>
+<p style="font-size:12px;color:var(--t3);margin-bottom:16px">El sistema trabaja para ti</p>
+<p class="syne" style="font-size:32px;margin-bottom:2px">$47<span style="font-size:14px;font-weight:400;color:var(--t3)">/mes</span></p>
+<p style="font-size:10px;color:var(--t3);margin-bottom:20px">7 días gratis · Cancela cuando quieras</p>
+<div class="tier-feature"><span class="tier-check" style="color:var(--olive)">✓</span><span style="font-size:12px;color:var(--t2)">Panel completo (El Espejo)</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--olive)">✓</span><span style="font-size:12px;color:var(--t2)">Journal diario con IA</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--olive)">✓</span><span style="font-size:12px;color:var(--t2)">3 noticias del nicho por día</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--olive)">✓</span><span style="font-size:12px;color:var(--t2)">Ideas con scoring automático</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--olive)">✓</span><span style="font-size:12px;color:var(--t2)">Calendario de contenido</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--olive)">✓</span><span style="font-size:12px;color:var(--t2)">Copy IA en tu voz</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--olive)">✓</span><span style="font-size:12px;color:var(--t2)">Onboarding Jungiano (7 preguntas)</span></div>
+<a href="#" class="tier-cta" style="font-size:12px;background:rgba(168,183,142,.1);color:var(--olive);border:.5px solid rgba(168,183,142,.12)">Comenzar gratis →</a>
+</div>
+
+<!-- Operator -->
+<div class="tier glass" style="border-width:1.5px;border-color:rgba(168,183,142,.15)">
+<div class="tier-badge">Recomendado</div>
+<p class="label" style="color:var(--olive);margin-bottom:6px">Tier 2</p>
+<p class="syne" style="font-size:22px;margin-bottom:4px">Operator</p>
+<p style="font-size:12px;color:var(--t3);margin-bottom:16px">El sistema aprende quién eres</p>
+<p class="syne" style="font-size:32px;margin-bottom:2px">$150<span style="font-size:14px;font-weight:400;color:var(--t3)">/mes</span></p>
+<p style="font-size:10px;color:var(--t3);margin-bottom:20px">ROI: se paga con 1 cliente nuevo</p>
+<p class="mono" style="font-size:9px;color:var(--olive);letter-spacing:.06em;margin-bottom:6px">TODO DE AUTOPILOT +</p>
+<div class="tier-feature"><span class="tier-check" style="color:var(--olive)">✓</span><span style="font-size:12px;color:var(--t1);font-weight:600">FTPaa completo (10 módulos)</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--olive)">✓</span><span style="font-size:12px;color:var(--t2)">Temperatura viva</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--olive)">✓</span><span style="font-size:12px;color:var(--t2)">Knowledge Base evolutivo</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--olive)">✓</span><span style="font-size:12px;color:var(--t2)">Compiled prompt semanal</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--olive)">✓</span><span style="font-size:12px;color:var(--t2)">Recon de competidores</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--olive)">✓</span><span style="font-size:12px;color:var(--t2)">15 ideas rankeadas por módulo</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--olive)">✓</span><span style="font-size:12px;color:var(--t2)">Analytics + funnel</span></div>
+<a href="#" class="tier-cta" style="font-size:13px;background:var(--olive);color:var(--black)">Comenzar ahora →</a>
+</div>
+
+<!-- Full Stack -->
+<div class="tier glass" style="border-color:rgba(196,69,58,.12)">
+<p class="label" style="color:var(--red);margin-bottom:6px">Tier 3</p>
+<p class="syne" style="font-size:22px;color:var(--red);margin-bottom:4px">Full Stack</p>
+<p style="font-size:12px;color:var(--t3);margin-bottom:16px">Tu presencia digital completa</p>
+<p class="syne" style="font-size:32px;margin-bottom:0">$500 <span style="font-size:12px;font-weight:400;color:var(--t3)">setup</span></p>
+<p class="syne" style="font-size:22px;margin-bottom:2px">+ $290<span style="font-size:12px;font-weight:400;color:var(--t3)">/mes</span></p>
+<p style="font-size:10px;color:var(--t3);margin-bottom:16px">Landing + hosting + operador humano</p>
+<p class="mono" style="font-size:8px;color:var(--red);letter-spacing:.06em;margin-bottom:4px">SETUP ($500)</p>
+<div class="tier-feature"><span class="tier-check" style="color:var(--red)">✓</span><span style="font-size:11px;color:var(--t1);font-weight:500">Landing page profesional</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--red)">✓</span><span style="font-size:11px;color:var(--t2)">Web app personalizada</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--red)">✓</span><span style="font-size:11px;color:var(--t2)">Hosting + dominio propio</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--red)">✓</span><span style="font-size:11px;color:var(--t2)">SEO + Google Business</span></div>
+<p class="mono" style="font-size:8px;color:var(--red);letter-spacing:.06em;margin:10px 0 4px">MENSUAL ($290)</p>
+<div class="tier-feature"><span class="tier-check" style="color:var(--red)">✓</span><span style="font-size:11px;color:var(--t1);font-weight:500">Operador humano dedicado</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--red)">✓</span><span style="font-size:11px;color:var(--t2)">12 posts/mes escritos</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--red)">✓</span><span style="font-size:11px;color:var(--t2)">Calendario curado semanal</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--red)">✓</span><span style="font-size:11px;color:var(--t2)">Reporte semanal de métricas</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--red)">✓</span><span style="font-size:11px;color:var(--t2)">1 call estratégico/mes</span></div>
+<div class="tier-feature"><span class="tier-check" style="color:var(--red)">✓</span><span style="font-size:11px;color:var(--t2)">Humanizer anti-IA</span></div>
+<a href="#" class="tier-cta btn-red" style="font-size:13px">Agendar call →</a>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ═══ CTA FINAL ═══ -->
+<section style="text-align:center;padding-bottom:100px">
+<div class="wrap">
+<!-- Human figure SVG -->
+<svg viewBox="0 0 120 300" fill="none" style="max-width:80px;margin:0 auto 24px;display:block">
+<circle cx="60" cy="30" r="18" stroke="#A8B78E" stroke-width=".8" opacity=".4"/>
+<line x1="60" y1="48" x2="60" y2="60" stroke="#A8B78E" stroke-width=".6" opacity=".3"/>
+<path d="M25 70Q40 60 60 60Q80 60 95 70" stroke="#A8B78E" stroke-width=".8" opacity=".4"/>
+<path d="M35 70Q33 110 38 150Q42 170 60 175Q78 170 82 150Q87 110 85 70" stroke="#A8B78E" stroke-width=".8" opacity=".4"/>
+<path d="M25 70Q18 100 15 130Q13 150 20 160" stroke="#A8B78E" stroke-width=".6" opacity=".3"/>
+<path d="M95 70Q102 100 105 130Q107 150 100 160" stroke="#A8B78E" stroke-width=".6" opacity=".3"/>
+<path d="M48 175Q42 210 40 250Q39 270 42 290" stroke="#A8B78E" stroke-width=".6" opacity=".3"/>
+<path d="M72 175Q78 210 80 250Q81 270 78 290" stroke="#A8B78E" stroke-width=".6" opacity=".3"/>
+<circle cx="60" cy="80" r="2" fill="#C4453A" opacity=".3"/>
+<circle cx="60" cy="110" r="2" fill="#A8B78E" opacity=".3"/>
+<circle cx="60" cy="140" r="2" fill="#9B7EB8" opacity=".3"/>
+</svg>
+<h2 class="syne" style="font-size:clamp(24px,3.5vw,36px);letter-spacing:-.02em;margin-bottom:12px">Tu autoridad merece<br>presencia digital</h2>
+<p class="serif" style="font-size:15px;color:var(--t3);line-height:1.7;margin-bottom:28px;max-width:440px;display:inline-block">"Convertimos tu autoridad en presencia digital que genera clientes mientras entrenas."</p>
+<br>
+<a href="#pricing" class="btn-primary" style="padding:16px 36px;font-size:15px;border-radius:12px">Comenzar ahora →</a>
+</div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer style="position:relative;z-index:1;border-top:.5px solid rgba(168,183,142,.08);padding:20px 0">
+<div class="wrap" style="display:flex;justify-content:space-between;align-items:center">
+<div style="display:flex;align-items:center;gap:6px">
+<span style="font-size:12px;font-weight:700">FTP</span>
+<span class="mono" style="font-size:8px;color:var(--t3);letter-spacing:.1em">BY LLVR</span>
+</div>
+<p style="font-size:10px;color:var(--t3)">Living Like a Virtuous Rebel · 2026</p>
+</div>
+</footer>
+
+<script>
+// Nav scroll effect
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 50);
+}, { passive: true });
+
+// Reveal on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLVR Anatomical Library — 20 Organs</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#5B5F53;color:#f0ede6;font-family:'DM Sans',system-ui,sans-serif;min-height:100vh}
+.pattern{position:fixed;inset:0;opacity:.04;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2220%22 height=%2220%22><text x=%225%22 y=%2214%22 font-size=%2210%22 fill=%22white%22>+</text></svg>');pointer-events:none;z-index:0}
+.wrap{max-width:1200px;margin:0 auto;padding:48px 28px;position:relative;z-index:1}
+.header{text-align:center;margin-bottom:48px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.card{background:rgba(0,0,0,.18);backdrop-filter:blur(4px);border-radius:16px;padding:20px;border:.5px solid rgba(168,183,142,.08);text-align:center;transition:border-color .3s,background .3s}
+.card:hover{border-color:rgba(168,183,142,.2);background:rgba(0,0,0,.25)}
+.card svg{width:100%;max-width:140px;height:140px;margin:0 auto 12px;display:block}
+.card-name{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;letter-spacing:-.01em;margin-bottom:2px}
+.card-latin{font-size:9px;color:#a5a39d;font-family:'Space Mono',monospace;letter-spacing:.08em;font-style:italic}
+.card-system{font-size:8px;color:#A8B78E;font-family:'Space Mono',monospace;letter-spacing:.12em;text-transform:uppercase;margin-top:6px}
+.divider{grid-column:1/-1;padding:20px 0 8px;display:flex;align-items:center;gap:12px}
+.divider span{font-size:9px;letter-spacing:.2em;text-transform:uppercase;font-family:'Space Mono',monospace;color:#a5a39d;white-space:nowrap}
+.divider::after{content:'';flex:1;height:.5px;background:linear-gradient(90deg,rgba(168,183,142,.12),transparent)}
+@media(max-width:900px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="pattern"></div>
+<div class="wrap">
+
+<div class="header">
+<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px">
+<div style="width:28px;height:28px;border-radius:8px;background:#A8B78E;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#1A1A1A">F</div>
+<span style="font-size:14px;font-weight:700">FTP</span>
+<span style="font-size:9px;color:#a5a39d;font-family:'Space Mono',monospace;letter-spacing:.1em">BY LLVR</span>
+</div>
+<h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(28px,4vw,42px);letter-spacing:-.03em;margin-bottom:8px">Anatomical Library</h1>
+<p style="font-size:13px;color:#a5a39d;font-style:italic;font-family:Georgia,serif">20 órganos del ser humano · Trazo fino · Identidad LLVR Dark</p>
+<p style="font-size:10px;color:#a5a39d;font-family:'Space Mono',monospace;margin-top:6px;letter-spacing:.08em">OLIVE #A8B78E · RED #C4453A · PURPLE #9B7EB8 · BLUE #6B8CBA</p>
+</div>
+
+<div class="grid">
+
+<!-- ═══ SISTEMA NERVIOSO ═══ -->
+<div class="divider"><span>01 — Sistema nervioso</span></div>
+
+<!-- 1. CEREBRO -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M70 120C70 120 38 112 30 88C22 64 35 48 35 48C27 40 23 28 31 16C39 4 55 0 70 4C85 0 101 4 109 16C117 28 113 40 105 48C105 48 118 64 110 88C102 112 70 120 70 120Z" stroke="#A8B78E" stroke-width=".8" opacity=".6"/>
+<path d="M70 4L70 120" stroke="#A8B78E" stroke-width=".4" opacity=".25" stroke-dasharray="2 3"/>
+<path d="M48 30C52 26 60 24 70 26C80 24 88 26 92 30" stroke="#A8B78E" stroke-width=".6" opacity=".35"/>
+<path d="M42 50C50 46 62 44 70 46C78 44 90 46 98 50" stroke="#A8B78E" stroke-width=".6" opacity=".35"/>
+<path d="M38 72C48 64 60 62 70 64C80 62 92 64 102 72" stroke="#A8B78E" stroke-width=".6" opacity=".3"/>
+<path d="M52 22Q56 36 52 50" stroke="#A8B78E" stroke-width=".4" opacity=".2"/>
+<path d="M88 22Q84 36 88 50" stroke="#A8B78E" stroke-width=".4" opacity=".2"/>
+<circle cx="58" cy="38" r="1.5" fill="#A8B78E" opacity=".3"/>
+<circle cx="82" cy="38" r="1.5" fill="#A8B78E" opacity=".3"/>
+<circle cx="70" cy="58" r="1.5" fill="#A8B78E" opacity=".3"/>
+<circle cx="70" cy="78" r="1.5" fill="#C4453A" opacity=".25"/>
+</svg>
+<p class="card-name">Cerebro</p>
+<p class="card-latin">Cerebrum</p>
+<p class="card-system">Nervioso central</p>
+</div>
+
+<!-- 2. OJO -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M10 70Q40 25 70 25Q100 25 130 70Q100 115 70 115Q40 115 10 70Z" stroke="#A8B78E" stroke-width=".8" opacity=".5"/>
+<circle cx="70" cy="70" r="24" stroke="#A8B78E" stroke-width=".7" opacity=".5"/>
+<circle cx="70" cy="70" r="12" stroke="#A8B78E" stroke-width=".8" opacity=".6"/>
+<circle cx="70" cy="70" r="4.5" fill="#A8B78E" opacity=".3"/>
+<path d="M46 70Q58 58 70 56" stroke="#A8B78E" stroke-width=".35" opacity=".2"/>
+<path d="M94 70Q82 82 70 84" stroke="#A8B78E" stroke-width=".35" opacity=".2"/>
+<line x1="46" y1="70" x2="20" y2="70" stroke="#A8B78E" stroke-width=".3" opacity=".12" stroke-dasharray="2 4"/>
+<line x1="94" y1="70" x2="120" y2="70" stroke="#A8B78E" stroke-width=".3" opacity=".12" stroke-dasharray="2 4"/>
+<circle cx="64" cy="62" r="2" fill="#A8B78E" opacity=".12"/>
+</svg>
+<p class="card-name">Ojo</p>
+<p class="card-latin">Oculus</p>
+<p class="card-system">Nervioso sensorial</p>
+</div>
+
+<!-- 3. MÉDULA ESPINAL -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M70 8Q72 28 68 48Q66 68 72 88Q74 108 70 128" stroke="#A8B78E" stroke-width="1" opacity=".5"/>
+<ellipse cx="70" cy="20" rx="14" ry="6" stroke="#A8B78E" stroke-width=".5" opacity=".35"/>
+<ellipse cx="70" cy="40" rx="13" ry="5.5" stroke="#A8B78E" stroke-width=".5" opacity=".3"/>
+<ellipse cx="70" cy="60" rx="12" ry="5" stroke="#A8B78E" stroke-width=".5" opacity=".28"/>
+<ellipse cx="70" cy="80" rx="11" ry="5" stroke="#A8B78E" stroke-width=".5" opacity=".25"/>
+<ellipse cx="70" cy="100" rx="10" ry="4.5" stroke="#A8B78E" stroke-width=".5" opacity=".2"/>
+<ellipse cx="70" cy="118" rx="8" ry="4" stroke="#A8B78E" stroke-width=".5" opacity=".15"/>
+<line x1="56" y1="20" x2="30" y2="12" stroke="#A8B78E" stroke-width=".35" opacity=".18"/>
+<line x1="84" y1="20" x2="110" y2="12" stroke="#A8B78E" stroke-width=".35" opacity=".18"/>
+<line x1="57" y1="40" x2="32" y2="34" stroke="#A8B78E" stroke-width=".35" opacity=".15"/>
+<line x1="83" y1="40" x2="108" y2="34" stroke="#A8B78E" stroke-width=".35" opacity=".15"/>
+<line x1="58" y1="60" x2="34" y2="56" stroke="#A8B78E" stroke-width=".3" opacity=".12"/>
+<line x1="82" y1="60" x2="106" y2="56" stroke="#A8B78E" stroke-width=".3" opacity=".12"/>
+<line x1="59" y1="80" x2="38" y2="78" stroke="#A8B78E" stroke-width=".3" opacity=".1"/>
+<line x1="81" y1="80" x2="102" y2="78" stroke="#A8B78E" stroke-width=".3" opacity=".1"/>
+<circle cx="70" cy="20" r="2" fill="#9B7EB8" opacity=".25"/>
+<circle cx="70" cy="60" r="1.5" fill="#A8B78E" opacity=".2"/>
+<circle cx="70" cy="100" r="1.5" fill="#A8B78E" opacity=".15"/>
+</svg>
+<p class="card-name">Médula espinal</p>
+<p class="card-latin">Medulla spinalis</p>
+<p class="card-system">Nervioso central</p>
+</div>
+
+<!-- 4. OÍDO INTERNO -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M55 40Q55 20 75 20Q95 20 95 40Q95 55 80 58" stroke="#9B7EB8" stroke-width=".7" opacity=".5"/>
+<path d="M80 58Q68 60 60 70Q52 80 55 95Q58 110 70 115Q82 118 90 108Q95 100 92 88" stroke="#9B7EB8" stroke-width=".7" opacity=".5"/>
+<circle cx="72" cy="75" r="12" stroke="#9B7EB8" stroke-width=".6" opacity=".4"/>
+<path d="M72 63Q80 55 88 58" stroke="#9B7EB8" stroke-width=".4" opacity=".3"/>
+<path d="M60 75Q52 68 48 58" stroke="#9B7EB8" stroke-width=".4" opacity=".25"/>
+<path d="M48 58Q42 48 42 38Q42 28 52 25" stroke="#9B7EB8" stroke-width=".35" opacity=".2"/>
+<ellipse cx="72" cy="75" rx="4" ry="4" fill="#9B7EB8" opacity=".15"/>
+<circle cx="48" cy="58" r="1.5" fill="#9B7EB8" opacity=".2"/>
+<circle cx="92" cy="88" r="1.5" fill="#9B7EB8" opacity=".2"/>
+</svg>
+<p class="card-name">Oído interno</p>
+<p class="card-latin">Auris interna</p>
+<p class="card-system">Nervioso sensorial</p>
+</div>
+
+<!-- ═══ SISTEMA CARDIOVASCULAR ═══ -->
+<div class="divider"><span>02 — Sistema cardiovascular</span></div>
+
+<!-- 5. CORAZÓN -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M70 125C70 125 15 82 15 45C15 20 35 8 52 12C64 15 70 30 70 30C70 30 76 15 88 12C105 8 125 20 125 45C125 82 70 125 70 125Z" stroke="#C4453A" stroke-width=".9" opacity=".6"/>
+<path d="M40 32C44 28 52 30 56 36" stroke="#C4453A" stroke-width=".4" opacity=".25"/>
+<path d="M70 30L70 58L52 70" stroke="#C4453A" stroke-width=".6" opacity=".4"/>
+<path d="M70 30L70 58L88 70" stroke="#C4453A" stroke-width=".6" opacity=".4"/>
+<path d="M70 58L70 95" stroke="#C4453A" stroke-width=".6" opacity=".35"/>
+<path d="M52 70Q42 82 38 95" stroke="#C4453A" stroke-width=".4" opacity=".25"/>
+<path d="M88 70Q98 82 102 95" stroke="#C4453A" stroke-width=".4" opacity=".25"/>
+<circle cx="70" cy="58" r="2.5" fill="#C4453A" opacity=".3"/>
+<circle cx="52" cy="70" r="1.5" fill="#C4453A" opacity=".2"/>
+<circle cx="88" cy="70" r="1.5" fill="#C4453A" opacity=".2"/>
+</svg>
+<p class="card-name">Corazón</p>
+<p class="card-latin">Cor</p>
+<p class="card-system">Cardiovascular</p>
+</div>
+
+<!-- 6. ARTERIAS -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M70 10L70 130" stroke="#C4453A" stroke-width="1" opacity=".5"/>
+<path d="M70 25L40 15" stroke="#C4453A" stroke-width=".6" opacity=".35"/>
+<path d="M70 25L100 15" stroke="#C4453A" stroke-width=".6" opacity=".35"/>
+<path d="M70 45L35 35Q20 50 18 70" stroke="#C4453A" stroke-width=".5" opacity=".3"/>
+<path d="M70 45L105 35Q120 50 122 70" stroke="#C4453A" stroke-width=".5" opacity=".3"/>
+<path d="M70 70L45 65Q30 80 28 100" stroke="#C4453A" stroke-width=".4" opacity=".25"/>
+<path d="M70 70L95 65Q110 80 112 100" stroke="#C4453A" stroke-width=".4" opacity=".25"/>
+<path d="M70 100L50 110Q45 125 48 135" stroke="#C4453A" stroke-width=".35" opacity=".2"/>
+<path d="M70 100L90 110Q95 125 92 135" stroke="#C4453A" stroke-width=".35" opacity=".2"/>
+<circle cx="70" cy="25" r="2" fill="#C4453A" opacity=".3"/>
+<circle cx="70" cy="70" r="2" fill="#C4453A" opacity=".25"/>
+<circle cx="70" cy="100" r="1.5" fill="#C4453A" opacity=".2"/>
+</svg>
+<p class="card-name">Arterias</p>
+<p class="card-latin">Arteriae</p>
+<p class="card-system">Cardiovascular</p>
+</div>
+
+<!-- ═══ SISTEMA RESPIRATORIO ═══ -->
+<div class="divider"><span>03 — Sistema respiratorio</span></div>
+
+<!-- 7. PULMONES -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M70 12L70 65" stroke="#A8B78E" stroke-width=".7" opacity=".4"/>
+<path d="M70 30L58 38Q25 55 18 88Q14 108 32 122Q48 132 62 124Q70 118 70 104" stroke="#A8B78E" stroke-width=".9" opacity=".5"/>
+<path d="M70 30L82 38Q115 55 122 88Q126 108 108 122Q92 132 78 124Q70 118 70 104" stroke="#A8B78E" stroke-width=".9" opacity=".5"/>
+<path d="M58 38Q50 50 44 65" stroke="#A8B78E" stroke-width=".35" opacity=".2"/>
+<path d="M58 38Q52 58 48 78" stroke="#A8B78E" stroke-width=".35" opacity=".2"/>
+<path d="M82 38Q90 50 96 65" stroke="#A8B78E" stroke-width=".35" opacity=".2"/>
+<path d="M82 38Q88 58 92 78" stroke="#A8B78E" stroke-width=".35" opacity=".2"/>
+<circle cx="70" cy="30" r="2" fill="#A8B78E" opacity=".3"/>
+<circle cx="44" cy="85" r="1.5" fill="#A8B78E" opacity=".15"/>
+<circle cx="96" cy="85" r="1.5" fill="#A8B78E" opacity=".15"/>
+</svg>
+<p class="card-name">Pulmones</p>
+<p class="card-latin">Pulmones</p>
+<p class="card-system">Respiratorio</p>
+</div>
+
+<!-- 8. TRÁQUEA -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M60 15L60 90Q55 100 40 110" stroke="#A8B78E" stroke-width=".7" opacity=".45"/>
+<path d="M80 15L80 90Q85 100 100 110" stroke="#A8B78E" stroke-width=".7" opacity=".45"/>
+<line x1="60" y1="25" x2="80" y2="25" stroke="#A8B78E" stroke-width=".5" opacity=".3"/>
+<line x1="60" y1="35" x2="80" y2="35" stroke="#A8B78E" stroke-width=".5" opacity=".28"/>
+<line x1="60" y1="45" x2="80" y2="45" stroke="#A8B78E" stroke-width=".5" opacity=".26"/>
+<line x1="60" y1="55" x2="80" y2="55" stroke="#A8B78E" stroke-width=".5" opacity=".24"/>
+<line x1="60" y1="65" x2="80" y2="65" stroke="#A8B78E" stroke-width=".5" opacity=".22"/>
+<line x1="60" y1="75" x2="80" y2="75" stroke="#A8B78E" stroke-width=".5" opacity=".2"/>
+<line x1="60" y1="85" x2="80" y2="85" stroke="#A8B78E" stroke-width=".5" opacity=".18"/>
+<path d="M40 110Q30 118 25 130" stroke="#A8B78E" stroke-width=".4" opacity=".2"/>
+<path d="M100 110Q110 118 115 130" stroke="#A8B78E" stroke-width=".4" opacity=".2"/>
+<ellipse cx="70" cy="12" rx="12" ry="5" stroke="#A8B78E" stroke-width=".5" opacity=".3"/>
+<circle cx="70" cy="50" r="1.5" fill="#A8B78E" opacity=".2"/>
+</svg>
+<p class="card-name">Tráquea</p>
+<p class="card-latin">Trachea</p>
+<p class="card-system">Respiratorio</p>
+</div>
+
+<!-- ═══ SISTEMA DIGESTIVO ═══ -->
+<div class="divider"><span>04 — Sistema digestivo</span></div>
+
+<!-- 9. ESTÓMAGO -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M55 20Q45 20 38 30Q28 45 30 65Q32 85 45 100Q55 110 70 112Q90 112 100 95Q108 80 105 60Q102 40 90 30Q82 22 70 20" stroke="#A8B78E" stroke-width=".8" opacity=".5"/>
+<path d="M55 20L45 10" stroke="#A8B78E" stroke-width=".6" opacity=".3"/>
+<path d="M90 30Q95 35 105 32" stroke="#A8B78E" stroke-width=".5" opacity=".25"/>
+<path d="M38 55Q50 52 62 58Q74 64 86 58" stroke="#A8B78E" stroke-width=".4" opacity=".2"/>
+<path d="M35 75Q48 72 60 78Q72 84 85 78" stroke="#A8B78E" stroke-width=".35" opacity=".18"/>
+<circle cx="55" cy="65" r="1.5" fill="#A8B78E" opacity=".2"/>
+<circle cx="75" cy="85" r="1.5" fill="#A8B78E" opacity=".15"/>
+</svg>
+<p class="card-name">Estómago</p>
+<p class="card-latin">Ventriculus</p>
+<p class="card-system">Digestivo</p>
+</div>
+
+<!-- 10. HÍGADO -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M20 55Q20 35 40 30Q60 25 80 28Q100 30 115 40Q125 50 120 65Q115 80 95 90Q75 98 55 95Q35 92 25 80Q20 70 20 55Z" stroke="#C4453A" stroke-width=".8" opacity=".5"/>
+<path d="M70 28L70 95" stroke="#C4453A" stroke-width=".4" opacity=".2" stroke-dasharray="2 3"/>
+<path d="M40 45Q55 40 70 42Q85 44 100 48" stroke="#C4453A" stroke-width=".4" opacity=".2"/>
+<path d="M30 65Q50 58 70 62Q90 66 110 62" stroke="#C4453A" stroke-width=".35" opacity=".18"/>
+<path d="M70 95L70 115Q68 125 65 130" stroke="#C4453A" stroke-width=".5" opacity=".3"/>
+<circle cx="50" cy="55" r="1.5" fill="#C4453A" opacity=".2"/>
+<circle cx="90" cy="55" r="1.5" fill="#C4453A" opacity=".2"/>
+<circle cx="70" cy="72" r="2" fill="#C4453A" opacity=".15"/>
+</svg>
+<p class="card-name">Hígado</p>
+<p class="card-latin">Hepar</p>
+<p class="card-system">Digestivo</p>
+</div>
+
+<!-- 11. INTESTINO -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M30 25Q30 15 45 15L95 15Q110 15 110 25L110 45Q110 55 95 55L45 55Q30 55 30 65L30 75Q30 85 45 85L95 85Q110 85 110 95L110 105Q110 115 95 115L45 115Q30 115 30 125" stroke="#A8B78E" stroke-width=".7" opacity=".45"/>
+<circle cx="45" cy="15" r="1" fill="#A8B78E" opacity=".2"/>
+<circle cx="95" cy="55" r="1" fill="#A8B78E" opacity=".18"/>
+<circle cx="45" cy="85" r="1" fill="#A8B78E" opacity=".15"/>
+<circle cx="95" cy="115" r="1" fill="#A8B78E" opacity=".12"/>
+<path d="M25 25L18 20" stroke="#A8B78E" stroke-width=".4" opacity=".2"/>
+<path d="M30 125L25 132" stroke="#A8B78E" stroke-width=".4" opacity=".2"/>
+</svg>
+<p class="card-name">Intestino</p>
+<p class="card-latin">Intestinum</p>
+<p class="card-system">Digestivo</p>
+</div>
+
+<!-- 12. PÁNCREAS -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M25 70Q30 55 45 52Q60 50 70 55Q80 60 95 58Q110 55 120 62Q128 68 125 78Q120 88 105 90Q90 92 80 85Q70 78 55 80Q40 82 30 78Q25 75 25 70Z" stroke="#A8B78E" stroke-width=".7" opacity=".45"/>
+<path d="M45 58Q50 65 55 68" stroke="#A8B78E" stroke-width=".35" opacity=".2"/>
+<path d="M95 62Q92 70 88 74" stroke="#A8B78E" stroke-width=".35" opacity=".2"/>
+<path d="M70 55L70 42Q72 35 78 30" stroke="#A8B78E" stroke-width=".5" opacity=".3"/>
+<circle cx="70" cy="55" r="2" fill="#A8B78E" opacity=".2"/>
+<circle cx="45" cy="65" r="1.5" fill="#A8B78E" opacity=".15"/>
+<circle cx="105" cy="75" r="1.5" fill="#A8B78E" opacity=".15"/>
+</svg>
+<p class="card-name">Páncreas</p>
+<p class="card-latin">Pancreas</p>
+<p class="card-system">Digestivo · Endocrino</p>
+</div>
+
+<!-- ═══ SISTEMA URINARIO ═══ -->
+<div class="divider"><span>05 — Sistema urinario y reproductivo</span></div>
+
+<!-- 13. RIÑÓN -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M50 20Q30 25 22 50Q18 70 22 90Q28 115 50 120Q65 122 75 110Q82 100 80 70Q82 40 75 30Q68 18 50 20Z" stroke="#C4453A" stroke-width=".8" opacity=".5"/>
+<path d="M50 20Q58 30 55 50Q52 70 55 90Q58 110 50 120" stroke="#C4453A" stroke-width=".4" opacity=".25"/>
+<path d="M80 70L100 65Q110 62 120 65" stroke="#C4453A" stroke-width=".5" opacity=".3"/>
+<path d="M38 45Q45 42 52 48" stroke="#C4453A" stroke-width=".35" opacity=".2"/>
+<path d="M35 70Q42 65 50 70Q58 75 52 82" stroke="#C4453A" stroke-width=".35" opacity=".18"/>
+<circle cx="50" cy="70" r="2" fill="#C4453A" opacity=".2"/>
+<circle cx="80" cy="70" r="1.5" fill="#C4453A" opacity=".15"/>
+</svg>
+<p class="card-name">Riñón</p>
+<p class="card-latin">Ren</p>
+<p class="card-system">Urinario</p>
+</div>
+
+<!-- 14. VEJIGA -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M70 25Q40 25 30 55Q25 80 35 100Q45 115 70 118Q95 115 105 100Q115 80 110 55Q100 25 70 25Z" stroke="#6B8CBA" stroke-width=".8" opacity=".5"/>
+<path d="M50 30L45 15" stroke="#6B8CBA" stroke-width=".5" opacity=".3"/>
+<path d="M90 30L95 15" stroke="#6B8CBA" stroke-width=".5" opacity=".3"/>
+<path d="M70 118L70 135" stroke="#6B8CBA" stroke-width=".6" opacity=".35"/>
+<path d="M42 60Q55 55 70 58Q85 55 98 60" stroke="#6B8CBA" stroke-width=".35" opacity=".2"/>
+<path d="M38 82Q55 75 70 80Q85 75 102 82" stroke="#6B8CBA" stroke-width=".35" opacity=".18"/>
+<circle cx="70" cy="70" r="2" fill="#6B8CBA" opacity=".2"/>
+</svg>
+<p class="card-name">Vejiga</p>
+<p class="card-latin">Vesica urinaria</p>
+<p class="card-system">Urinario</p>
+</div>
+
+<!-- 15. ÚTERO -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M70 45Q50 45 45 60Q40 75 45 95Q50 110 70 115Q90 110 95 95Q100 75 95 60Q90 45 70 45Z" stroke="#9B7EB8" stroke-width=".8" opacity=".5"/>
+<path d="M45 60Q35 50 22 48Q15 48 12 55" stroke="#9B7EB8" stroke-width=".5" opacity=".35"/>
+<path d="M95 60Q105 50 118 48Q125 48 128 55" stroke="#9B7EB8" stroke-width=".5" opacity=".35"/>
+<circle cx="12" cy="55" r="6" stroke="#9B7EB8" stroke-width=".5" opacity=".3"/>
+<circle cx="128" cy="55" r="6" stroke="#9B7EB8" stroke-width=".5" opacity=".3"/>
+<path d="M70 115L70 132" stroke="#9B7EB8" stroke-width=".5" opacity=".3"/>
+<path d="M55 72Q62 68 70 70Q78 68 85 72" stroke="#9B7EB8" stroke-width=".35" opacity=".2"/>
+<circle cx="70" cy="80" r="2" fill="#9B7EB8" opacity=".2"/>
+</svg>
+<p class="card-name">Útero</p>
+<p class="card-latin">Uterus</p>
+<p class="card-system">Reproductivo</p>
+</div>
+
+<!-- ═══ SISTEMA ENDOCRINO ═══ -->
+<div class="divider"><span>06 — Sistema endocrino y linfático</span></div>
+
+<!-- 16. TIROIDES -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M70 35L70 110" stroke="#C8AA50" stroke-width=".6" opacity=".3"/>
+<path d="M70 50Q50 48 38 58Q28 68 32 82Q38 95 55 95Q65 92 70 82" stroke="#C8AA50" stroke-width=".8" opacity=".5"/>
+<path d="M70 50Q90 48 102 58Q112 68 108 82Q102 95 85 95Q75 92 70 82" stroke="#C8AA50" stroke-width=".8" opacity=".5"/>
+<circle cx="48" cy="72" r="3" stroke="#C8AA50" stroke-width=".4" opacity=".25"/>
+<circle cx="92" cy="72" r="3" stroke="#C8AA50" stroke-width=".4" opacity=".25"/>
+<circle cx="70" cy="65" r="1.5" fill="#C8AA50" opacity=".2"/>
+<ellipse cx="70" cy="40" rx="6" ry="3" stroke="#C8AA50" stroke-width=".4" opacity=".2"/>
+</svg>
+<p class="card-name">Tiroides</p>
+<p class="card-latin">Glandula thyroidea</p>
+<p class="card-system">Endocrino</p>
+</div>
+
+<!-- 17. GLÁNDULAS SUPRARRENALES -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M35 65Q25 70 20 85Q18 100 25 112Q35 122 50 118Q58 115 60 105Q62 90 55 78Q48 65 35 65Z" stroke="#C8AA50" stroke-width=".7" opacity=".45"/>
+<path d="M105 65Q115 70 120 85Q122 100 115 112Q105 122 90 118Q82 115 80 105Q78 90 85 78Q92 65 105 65Z" stroke="#C8AA50" stroke-width=".7" opacity=".45"/>
+<path d="M30 55Q35 48 45 50Q50 52 48 60" stroke="#C8AA50" stroke-width=".5" opacity=".35"/>
+<path d="M110 55Q105 48 95 50Q90 52 92 60" stroke="#C8AA50" stroke-width=".5" opacity=".35"/>
+<circle cx="42" cy="90" r="2" fill="#C8AA50" opacity=".2"/>
+<circle cx="98" cy="90" r="2" fill="#C8AA50" opacity=".2"/>
+<line x1="60" y1="95" x2="80" y2="95" stroke="#C8AA50" stroke-width=".3" opacity=".12" stroke-dasharray="2 4"/>
+</svg>
+<p class="card-name">Suprarrenales</p>
+<p class="card-latin">Glandulae suprarenales</p>
+<p class="card-system">Endocrino</p>
+</div>
+
+<!-- 18. BAZO -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M45 30Q30 35 22 55Q18 75 25 95Q35 115 55 118Q72 120 85 108Q95 95 92 72Q88 50 78 38Q68 28 45 30Z" stroke="#9B7EB8" stroke-width=".8" opacity=".5"/>
+<path d="M45 30Q50 40 48 55Q46 70 50 85Q54 100 55 118" stroke="#9B7EB8" stroke-width=".4" opacity=".2"/>
+<path d="M32 55Q42 50 52 55" stroke="#9B7EB8" stroke-width=".35" opacity=".18"/>
+<path d="M28 78Q40 72 52 78" stroke="#9B7EB8" stroke-width=".35" opacity=".15"/>
+<path d="M92 72L110 68Q118 66 125 70" stroke="#9B7EB8" stroke-width=".4" opacity=".25"/>
+<circle cx="55" cy="70" r="2" fill="#9B7EB8" opacity=".2"/>
+<circle cx="40" cy="90" r="1.5" fill="#9B7EB8" opacity=".15"/>
+</svg>
+<p class="card-name">Bazo</p>
+<p class="card-latin">Lien</p>
+<p class="card-system">Linfático</p>
+</div>
+
+<!-- ═══ SISTEMA MUSCULOESQUELÉTICO ═══ -->
+<div class="divider"><span>07 — Sistema musculoesquelético y tegumentario</span></div>
+
+<!-- 19. HUESO (fémur) -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M55 15Q48 15 45 22Q42 30 48 35Q52 38 55 35" stroke="#A8B78E" stroke-width=".7" opacity=".45"/>
+<path d="M85 15Q92 15 95 22Q98 30 92 35Q88 38 85 35" stroke="#A8B78E" stroke-width=".7" opacity=".45"/>
+<path d="M55 35Q60 32 70 30Q80 32 85 35" stroke="#A8B78E" stroke-width=".7" opacity=".45"/>
+<path d="M62 30L60 105" stroke="#A8B78E" stroke-width=".8" opacity=".5"/>
+<path d="M78 30L80 105" stroke="#A8B78E" stroke-width=".8" opacity=".5"/>
+<path d="M60 105Q55 108 50 118Q48 125 52 130" stroke="#A8B78E" stroke-width=".6" opacity=".4"/>
+<path d="M80 105Q85 108 90 118Q92 125 88 130" stroke="#A8B78E" stroke-width=".6" opacity=".4"/>
+<path d="M52 130Q60 128 70 130Q80 128 88 130" stroke="#A8B78E" stroke-width=".5" opacity=".35"/>
+<line x1="60" y1="50" x2="80" y2="50" stroke="#A8B78E" stroke-width=".3" opacity=".1"/>
+<line x1="60" y1="70" x2="80" y2="70" stroke="#A8B78E" stroke-width=".3" opacity=".1"/>
+<line x1="60" y1="90" x2="80" y2="90" stroke="#A8B78E" stroke-width=".3" opacity=".1"/>
+<circle cx="70" cy="30" r="1.5" fill="#A8B78E" opacity=".2"/>
+<circle cx="70" cy="130" r="1.5" fill="#A8B78E" opacity=".15"/>
+</svg>
+<p class="card-name">Fémur</p>
+<p class="card-latin">Os femoris</p>
+<p class="card-system">Esquelético</p>
+</div>
+
+<!-- 20. PIEL (sección) -->
+<div class="card">
+<svg viewBox="0 0 140 140" fill="none">
+<path d="M15 30Q45 25 70 28Q95 25 125 30" stroke="#A8B78E" stroke-width=".8" opacity=".5"/>
+<path d="M15 30L15 50" stroke="#A8B78E" stroke-width=".5" opacity=".3"/>
+<path d="M125 30L125 50" stroke="#A8B78E" stroke-width=".5" opacity=".3"/>
+<path d="M15 50Q45 45 70 48Q95 45 125 50" stroke="#A8B78E" stroke-width=".6" opacity=".35"/>
+<path d="M15 50L15 80" stroke="#A8B78E" stroke-width=".4" opacity=".25"/>
+<path d="M125 50L125 80" stroke="#A8B78E" stroke-width=".4" opacity=".25"/>
+<path d="M15 80Q45 75 70 78Q95 75 125 80" stroke="#A8B78E" stroke-width=".5" opacity=".25"/>
+<path d="M15 80L15 115Q45 110 70 112Q95 110 125 115L125 80" stroke="#A8B78E" stroke-width=".35" opacity=".18"/>
+<path d="M40 30L40 50" stroke="#C4453A" stroke-width=".4" opacity=".2"/>
+<circle cx="40" cy="40" r="2" stroke="#C4453A" stroke-width=".3" opacity=".2"/>
+<path d="M70 50L70 80" stroke="#C4453A" stroke-width=".35" opacity=".15"/>
+<path d="M70 68Q62 72 60 80" stroke="#C4453A" stroke-width=".3" opacity=".12"/>
+<path d="M70 68Q78 72 80 80" stroke="#C4453A" stroke-width=".3" opacity=".12"/>
+<path d="M100 30L100 50" stroke="#C4453A" stroke-width=".4" opacity=".2"/>
+<circle cx="100" cy="40" r="2" stroke="#C4453A" stroke-width=".3" opacity=".2"/>
+<path d="M55 85Q55 95 50 105" stroke="#A8B78E" stroke-width=".3" opacity=".12"/>
+<path d="M85 85Q85 95 90 105" stroke="#A8B78E" stroke-width=".3" opacity=".12"/>
+<circle cx="55" cy="95" r="3" fill="#A8B78E" opacity=".06"/>
+<circle cx="85" cy="95" r="3" fill="#A8B78E" opacity=".06"/>
+<text x="70" y="40" font-size="6" fill="#a5a39d" text-anchor="middle" font-family="Space Mono,monospace" opacity=".4">epidermis</text>
+<text x="70" y="65" font-size="6" fill="#a5a39d" text-anchor="middle" font-family="Space Mono,monospace" opacity=".35">dermis</text>
+<text x="70" y="100" font-size="6" fill="#a5a39d" text-anchor="middle" font-family="Space Mono,monospace" opacity=".3">hipodermis</text>
+</svg>
+<p class="card-name">Piel</p>
+<p class="card-latin">Cutis</p>
+<p class="card-system">Tegumentario</p>
+</div>
+
+</div>
+
+<!-- Footer -->
+<div style="text-align:center;margin-top:48px;padding-top:20px;border-top:.5px solid rgba(168,183,142,.06)">
+<p style="font-size:10px;color:#a5a39d;font-family:'Space Mono',monospace;letter-spacing:.08em">LLVR ANATOMICAL LIBRARY · 20 ORGANS · FINE LINE CONTOUR · 2026</p>
+<p style="font-size:9px;color:#a5a39d;margin-top:4px;opacity:.5">Olive #A8B78E · Red #C4453A · Purple #9B7EB8 · Blue #6B8CBA · Amber #C8AA50</p>
+</div>
+
+</div>
+</body>
+</html>
