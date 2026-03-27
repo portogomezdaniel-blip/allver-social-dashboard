@@ -23,11 +23,12 @@ interface WeekDetailProps {
   onClose: () => void;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
+  onSelectDate: (date: string) => void;
 }
 
 const FORMATS = ["reel", "carousel", "story", "single"] as const;
 
-export default function WeekDetail({ weekDays, ideas, posts, weekLabel, weekRange, onClose, onApprove, onReject }: WeekDetailProps) {
+export default function WeekDetail({ weekDays, ideas, posts, weekLabel, weekRange, onClose, onApprove, onReject, onSelectDate }: WeekDetailProps) {
   const [expandedBlock, setExpandedBlock] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -109,7 +110,8 @@ export default function WeekDetail({ weekDays, ideas, posts, weekLabel, weekRang
           return (
             <div
               key={day.date}
-              className="rounded-[10px] p-[8px_6px]"
+              onClick={() => day.inMonth && onSelectDate(day.date)}
+              className="rounded-[10px] p-[8px_6px] cursor-pointer group transition-colors hover:bg-[rgba(0,0,0,0.14)]"
               style={{
                 background: "rgba(0,0,0,0.08)",
                 border: day.isToday
@@ -170,6 +172,15 @@ export default function WeekDetail({ weekDays, ideas, posts, weekLabel, weekRang
                       />
                     );
                   })}
+                </div>
+              )}
+
+              {/* "Ver día" hint on hover */}
+              {day.inMonth && (
+                <div className="mt-auto pt-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-[8px]" style={{ fontFamily: "var(--font-mono)", color: "var(--text-ghost)" }}>
+                    Ver dia →
+                  </span>
                 </div>
               )}
             </div>

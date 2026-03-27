@@ -74,6 +74,32 @@ export async function fetchTopNews(): Promise<DailyNews | null> {
   return data as DailyNews | null;
 }
 
+// Noticias del día (con fallback a las 3 más recientes)
+export async function fetchDayNews(date: string): Promise<DailyNews[]> {
+  const supabase = createClient();
+  const { data: user } = await supabase.auth.getUser();
+  if (!user.user) return [];
+
+  const { data: dayData } = await supabase
+    .from("daily_news")
+    .select("*")
+    .eq("user_id", user.user.id)
+    .eq("news_date", date)
+    .order("created_at", { ascending: true });
+
+  if (dayData && dayData.length > 0) return dayData as DailyNews[];
+
+  // Fallback: 3 most recent
+  const { data: recent } = await supabase
+    .from("daily_news")
+    .select("*")
+    .eq("user_id", user.user.id)
+    .order("news_date", { ascending: false })
+    .limit(3);
+
+  return (recent || []) as DailyNews[];
+}
+
 // Aprobar idea
 export async function approveIdea(ideaId: string): Promise<void> {
   const supabase = createClient();
