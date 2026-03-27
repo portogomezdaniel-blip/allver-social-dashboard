@@ -1,155 +1,170 @@
 "use client";
 
 import { useState } from "react";
+import GlassCard from "@/components/mirror/GlassCard";
 import type { ScoredIdea } from "@/lib/supabase/program-output";
 
 interface IdeaCardProps {
   idea: ScoredIdea;
+  color: string;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
-  onEdit: (id: string, updates: { hook?: string; description?: string }) => void;
+  onCreatePost: (idea: ScoredIdea) => void;
+  assignLabel?: string;
+  onAssign?: (id: string) => void;
 }
 
-function scoreClass(score: number): string {
-  if (score >= 8.5) return "score-high";
-  if (score >= 7) return "score-mid";
-  if (score >= 5) return "score-low";
-  return "score-ghost";
+function scoreOpacity(score: number): number {
+  if (score >= 8.5) return 1;
+  if (score >= 7) return 0.88;
+  if (score >= 5) return 0.7;
+  return 0.45;
 }
 
 function platformLabel(format: string): string {
   switch (format) {
-    case "reel": return "IG REEL";
-    case "carousel": return "IG CARRUSEL";
-    case "story": return "IG STORY";
-    case "single": return "IG POST";
+    case "reel": return "REEL";
+    case "carousel": return "CARRUSEL";
+    case "story": return "STORY";
+    case "single": return "POST";
     default: return format.toUpperCase();
   }
 }
 
-export default function IdeaCard({ idea, onApprove, onReject, onEdit }: IdeaCardProps) {
-  const [editing, setEditing] = useState(false);
-  const [hookText, setHookText] = useState(idea.hook);
-  const [descText, setDescText] = useState(idea.description);
-  const [approved, setApproved] = useState(idea.status === "approved" || idea.status === "scheduled");
+export default function IdeaCard({ idea, color, onApprove, onReject, onCreatePost, assignLabel, onAssign }: IdeaCardProps) {
   const [fading, setFading] = useState(false);
-
-  function handleApprove() {
-    setApproved(true);
-    onApprove(idea.id);
-  }
 
   function handleReject() {
     setFading(true);
     setTimeout(() => onReject(idea.id), 300);
   }
 
-  function handleSaveEdit() {
-    onEdit(idea.id, { hook: hookText, description: descText });
-    setEditing(false);
-  }
+  const status = idea.status;
 
   return (
-    <div
-      className={`${scoreClass(idea.total_score)} p-3 rounded-[var(--radius-md)] transition-all duration-300 ${fading ? "opacity-0 scale-95" : ""}`}
-      style={{ background: "rgba(0,0,0,0.12)", border: "0.5px solid var(--border-subtle)" }}
+    <GlassCard
+      intensity="ghost"
+      className={`p-3 transition-all duration-300 hover:brightness-105 ${fading ? "opacity-0 scale-95" : ""}`}
     >
-      {/* Platform tag */}
-      <span
-        className="text-[8px] tracking-[0.15em] uppercase font-mono"
-        style={{ color: "var(--text-muted)" }}
-      >
-        {platformLabel(idea.format)}
-      </span>
+      <div style={{ opacity: assignLabel ? 0.55 : scoreOpacity(idea.total_score) }}>
+        {/* Row 1: platform + score */}
+        <div className="flex items-center justify-between">
+          <span
+            className="text-[8px] tracking-[0.15em] uppercase"
+            style={{ fontFamily: "var(--font-mono)", color }}
+          >
+            {platformLabel(idea.format)}
+          </span>
+          <span
+            className="text-[16px] font-[800]"
+            style={{ fontFamily: "var(--font-display)", color, lineHeight: 1 }}
+          >
+            {idea.total_score.toFixed(1)}
+          </span>
+        </div>
 
-      {/* Hook */}
-      {editing ? (
-        <textarea
-          value={hookText}
-          onChange={(e) => setHookText(e.target.value)}
-          className="w-full mt-1 p-2 text-[13px] rounded-md bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-primary)] resize-none"
-          style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}
-          rows={2}
-        />
-      ) : (
+        {/* Row 2: hook */}
         <p
-          className="text-[13px] mt-1 leading-[1.4]"
-          style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "var(--text-primary)" }}
+          className="text-[13px] mt-1.5 leading-[1.4]"
+          style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "var(--text-secondary)" }}
         >
           &ldquo;{idea.hook}&rdquo;
         </p>
-      )}
 
-      {/* Description (edit mode) */}
-      {editing && (
-        <textarea
-          value={descText}
-          onChange={(e) => setDescText(e.target.value)}
-          className="w-full mt-2 p-2 text-[11px] rounded-md bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-secondary)] resize-none"
-          rows={2}
-        />
-      )}
+        {/* Row 3: description */}
+        {idea.description && (
+          <p
+            className="text-[11px] mt-1 leading-[1.4] font-light"
+            style={{ color: "var(--text-muted)" }}
+          >
+            {idea.description}
+          </p>
+        )}
 
-      {/* Score + Actions row */}
-      <div className="flex items-center justify-between mt-2">
-        <span
-          className="text-[18px] font-[800]"
-          style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)", lineHeight: 1 }}
-        >
-          {idea.total_score.toFixed(1)}
-        </span>
-
-        <div className="flex items-center gap-1.5">
-          {editing ? (
-            <>
-              <button
-                onClick={handleSaveEdit}
-                className="text-[9px] px-2 py-1 rounded-md transition-colors"
-                style={{ background: "rgba(168,183,142,0.15)", color: "var(--middle)" }}
-              >
-                Guardar
-              </button>
-              <button
-                onClick={() => { setEditing(false); setHookText(idea.hook); setDescText(idea.description); }}
-                className="text-[9px] px-2 py-1 rounded-md text-[var(--text-muted)]"
-              >
-                Cancelar
-              </button>
-            </>
-          ) : approved ? (
-            <span
-              className="text-[9px] px-2 py-1 rounded-md"
-              style={{ background: "rgba(168,183,142,0.15)", color: "var(--middle)" }}
+        {/* Row 4: actions */}
+        <div className="flex items-center gap-1.5 mt-2.5">
+          {assignLabel && onAssign ? (
+            <button
+              onClick={() => onAssign(idea.id)}
+              className="text-[8px] tracking-[0.08em] uppercase px-3.5 py-[5px] rounded-[8px] transition-colors"
+              style={{
+                fontFamily: "var(--font-mono)",
+                background: "rgba(168,183,142,0.12)",
+                color: "var(--middle)",
+                border: "0.5px solid rgba(168,183,142,0.2)",
+              }}
             >
-              ✓ Aprobado
-            </span>
-          ) : (
+              {assignLabel}
+            </button>
+          ) : status === "suggested" ? (
             <>
               <button
-                onClick={handleApprove}
-                className="text-[9px] px-2 py-1 rounded-md transition-colors hover:brightness-110"
-                style={{ background: "rgba(168,183,142,0.15)", color: "var(--middle)" }}
+                onClick={() => onApprove(idea.id)}
+                className="text-[8px] tracking-[0.08em] uppercase px-3.5 py-[5px] rounded-[8px] transition-colors"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  background: "rgba(168,183,142,0.12)",
+                  color: "var(--middle)",
+                  border: "0.5px solid rgba(168,183,142,0.2)",
+                }}
               >
                 Aprobar
               </button>
               <button
-                onClick={() => setEditing(true)}
-                className="text-[9px] px-2 py-1 rounded-md transition-colors hover:brightness-110"
-                style={{ background: "rgba(107,140,186,0.15)", color: "var(--conversion)" }}
-              >
-                Editar
-              </button>
-              <button
                 onClick={handleReject}
-                className="text-[9px] px-1.5 py-1 rounded-md transition-colors hover:brightness-110 text-[var(--text-muted)]"
-                style={{ background: "rgba(0,0,0,0.1)" }}
+                className="text-[8px] tracking-[0.08em] uppercase px-3.5 py-[5px] rounded-[8px] transition-colors hover:text-[var(--surface)]"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  background: "rgba(255,255,255,0.03)",
+                  color: "var(--text-muted)",
+                  border: "0.5px solid transparent",
+                }}
               >
                 ✕
               </button>
             </>
+          ) : status === "approved" ? (
+            <>
+              <span
+                className="text-[8px] tracking-[0.08em] uppercase px-3.5 py-[5px] rounded-[8px]"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  background: "rgba(168,183,142,0.12)",
+                  color: "var(--middle)",
+                  border: "0.5px solid rgba(168,183,142,0.2)",
+                  opacity: 0.6,
+                }}
+              >
+                ✓ Aprobado
+              </span>
+              <button
+                onClick={() => onCreatePost(idea)}
+                className="text-[8px] tracking-[0.08em] uppercase px-3.5 py-[5px] rounded-[8px] transition-colors"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  background: "rgba(107,140,186,0.12)",
+                  color: "var(--conversion)",
+                  border: "0.5px solid rgba(107,140,186,0.15)",
+                }}
+              >
+                Crear post
+              </button>
+            </>
+          ) : (
+            <span
+              className="text-[8px] tracking-[0.08em] uppercase px-3.5 py-[5px] rounded-[8px]"
+              style={{
+                fontFamily: "var(--font-mono)",
+                background: "rgba(168,183,142,0.08)",
+                color: "var(--middle)",
+                opacity: 0.5,
+              }}
+            >
+              ✓ Programado
+            </span>
           )}
         </div>
       </div>
-    </div>
+    </GlassCard>
   );
 }

@@ -1,153 +1,156 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocale } from "@/lib/locale-context";
-import TemperatureOrb from "@/components/mirror/TemperatureOrb";
+import { fetchWeekIdeas, fetchWeekPosts, fetchWeekTopNews, approveIdea, assignIdeaToDay } from "@/lib/supabase/cockpit";
+import { fetchLatestOutput, updateIdeaStatus } from "@/lib/supabase/program-output";
+import { createPost } from "@/lib/supabase/posts";
 import CommandDeck from "@/components/calendar/CommandDeck";
 import DayDetail from "@/components/calendar/DayDetail";
-import MoodEspejo from "@/components/calendar/MoodEspejo";
-import YouTubeMission from "@/components/calendar/YouTubeMission";
 import GlassCard from "@/components/mirror/GlassCard";
-import { fetchWeekIdeas, fetchWeekJournals, fetchWeekTopNews, fetchWeekPosts, assignIdeaToDay, updateIdeaContent } from "@/lib/supabase/cockpit";
-import { fetchLatestOutput, updateIdeaStatus } from "@/lib/supabase/program-output";
 import type { ScoredIdea } from "@/lib/supabase/program-output";
-import type { JournalEntry } from "@/lib/supabase/journal";
-import type { DailyNews } from "@/lib/supabase/daily-news";
 import type { DbPost } from "@/lib/supabase/posts";
+import type { DailyNews } from "@/lib/supabase/daily-news";
 
-// ─── Week helpers ──────────────────────────────────────────
-function getWeekRange(offset: number): { start: string; end: string; days: { date: string; dayNum: number; dayName: string; isToday: boolean }[] } {
+// ─── Week calculation ──────────────────────────────────────
+function getWeekDates(offset: number) {
   const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const dayOfWeek = today.getDay();
-  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-  const monday = new Date(today);
-  monday.setDate(today.getDate() + mondayOffset + offset * 7);
+  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dow = monday.getDay();
+  monday.setDate(monday.getDate() - (dow === 0 ? 6 : dow - 1) + offset * 7);
 
-  const todayStr = today.toLocaleDateString("en-CA");
-  const days: { date: string; dayNum: number; dayName: string; isToday: boolean }[] = [];
+  const todayStr = new Date().toLocaleDateString("en-CA");
+  const dayNames = ["LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB", "DOM"];
 
-  for (let i = 0; i < 7; i++) {
+  const days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
     const dateStr = d.toLocaleDateString("en-CA");
-    days.push({
+    return {
       date: dateStr,
-      dayNum: d.getDate(),
-      dayName: ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"][d.getDay()],
+      name: dayNames[i],
+      num: d.getDate(),
+      label: d.toLocaleDateString("es", { month: "short", day: "numeric" }),
       isToday: dateStr === todayStr,
-    });
-  }
+    };
+  });
 
-  return { start: days[0].date, end: days[6].date, days };
+  return {
+    start: days[0].date,
+    end: days[6].date,
+    days,
+  };
 }
 
-function formatWeekLabel(start: string, end: string): string {
-  const s = new Date(start + "T12:00:00");
-  const e = new Date(end + "T12:00:00");
-  const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-  if (s.getMonth() === e.getMonth()) {
-    return `${s.getDate()} – ${e.getDate()} ${months[s.getMonth()]} ${s.getFullYear()}`;
-  }
-  return `${s.getDate()} ${months[s.getMonth()]} – ${e.getDate()} ${months[e.getMonth()]} ${e.getFullYear()}`;
+function getWeekNumber(dateStr: string): number {
+  const d = new Date(dateStr + "T12:00:00");
+  const start = new Date(d.getFullYear(), 0, 1);
+  const diff = d.getTime() - start.getTime();
+  return Math.ceil((diff / 86400000 + start.getDay() + 1) / 7);
 }
 
 // ─── Main Component ────────────────────────────────────────
-export default function ContentCockpit() {
+export default function ContentCalendar() {
   const { t } = useLocale();
 
-  // State
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
-  const [weekIdeas, setWeekIdeas] = useState<ScoredIdea[]>([]);
-  const [weekJournals, setWeekJournals] = useState<JournalEntry[]>([]);
-  const [weekPosts, setWeekPosts] = useState<DbPost[]>([]);
+  const [ideas, setIdeas] = useState<ScoredIdea[]>([]);
+  const [posts, setPosts] = useState<DbPost[]>([]);
   const [topNews, setTopNews] = useState<DailyNews | null>(null);
   const [temperature, setTemperature] = useState(5);
   const [loading, setLoading] = useState(true);
 
-  // Computed week
-  const week = useMemo(() => getWeekRange(weekOffset), [weekOffset]);
-  const weekLabel = useMemo(() => formatWeekLabel(week.start, week.end), [week.start, week.end]);
+  const week = useMemo(() => getWeekDates(weekOffset), [weekOffset]);
+  const weekLabel = `Semana ${getWeekNumber(week.start)}`;
+  const tempLabel = temperature >= 7 ? "En llamas" : temperature >= 4 ? "Estable" : "Reflexivo";
 
-  // Fetch data
-  const loadData = useCallback(async () => {
+  // Fetch data on week change
+  useEffect(() => {
+    let cancelled = false;
     setLoading(true);
-    try {
-      const [ideas, journals, news, posts, output] = await Promise.all([
-        fetchWeekIdeas(week.start, week.end),
-        fetchWeekJournals(week.start, week.end),
-        fetchWeekTopNews(),
-        fetchWeekPosts(week.start, week.end),
-        fetchLatestOutput(),
-      ]);
-      setWeekIdeas(ideas);
-      setWeekJournals(journals);
-      setTopNews(news);
-      setWeekPosts(posts);
-      setTemperature(output?.temperature_score ?? 5);
-    } catch {
-      // Fallbacks already set
-    } finally {
+
+    Promise.all([
+      fetchWeekIdeas(week.start, week.end),
+      fetchWeekPosts(week.start, week.end),
+      fetchWeekTopNews(),
+      fetchLatestOutput().catch(() => null),
+    ]).then(([i, p, n, o]) => {
+      if (cancelled) return;
+      setIdeas(i);
+      setPosts(p);
+      setTopNews(n);
+      if (o?.temperature_score) setTemperature(o.temperature_score);
       setLoading(false);
-    }
+    });
+
+    return () => { cancelled = true; };
   }, [week.start, week.end]);
 
-  useEffect(() => { loadData(); }, [loadData]);
-
-  // Derived data for selected day
-  const selectedDayIdeas = useMemo(
-    () => selectedDay ? weekIdeas.filter((i) => i.scheduled_date === selectedDay) : [],
-    [selectedDay, weekIdeas]
+  // Computed: ideas for selected day
+  const dayIdeas = useMemo(
+    () => selectedDay ? ideas.filter((i) => i.scheduled_date === selectedDay) : [],
+    [selectedDay, ideas]
   );
-  const selectedDayJournal = useMemo(
-    () => selectedDay ? weekJournals.find((j) => j.entry_date === selectedDay) ?? null : null,
-    [selectedDay, weekJournals]
-  );
-  const selectedDayPosts = useMemo(
-    () => selectedDay ? weekPosts.filter((p) => p.scheduled_date === selectedDay) : [],
-    [selectedDay, weekPosts]
-  );
-  const backlogIdeas = useMemo(
-    () => weekIdeas.filter((i) => !i.scheduled_date && i.status === "suggested"),
-    [weekIdeas]
+  const unassigned = useMemo(
+    () => ideas.filter((i) => !i.scheduled_date && i.status === "suggested"),
+    [ideas]
   );
 
-  // Latest journal for mood
-  const latestJournal = useMemo(
-    () => weekJournals.length > 0 ? weekJournals[weekJournals.length - 1] : null,
-    [weekJournals]
+  // Computed: deck days with format buckets
+  const deckDays = useMemo(
+    () => week.days.map((d) => {
+      const di = ideas.filter((i) => i.scheduled_date === d.date);
+      return {
+        ...d,
+        reels: di.filter((i) => i.format === "reel"),
+        carousels: di.filter((i) => i.format === "carousel"),
+        stories: di.filter((i) => i.format === "story" || i.format === "single"),
+      };
+    }),
+    [week.days, ideas]
   );
 
-  // Week progress
-  const weekProgress = useMemo(() => {
-    const scheduled = weekIdeas.filter((i) => i.scheduled_date && i.status === "scheduled").length;
-    const total = weekIdeas.filter((i) => i.scheduled_date).length;
-    return { scheduled, total, pct: total > 0 ? Math.round((scheduled / total) * 100) : 0 };
-  }, [weekIdeas]);
+  // Selected day metadata
+  const selectedDayInfo = useMemo(
+    () => week.days.find((d) => d.date === selectedDay),
+    [week.days, selectedDay]
+  );
 
-  // ─── Actions ─────────────────────────────────────────────
-  function handleApproveIdea(ideaId: string) {
+  // ─── Handlers ──────────────────────────────────────────
+  async function handleApprove(id: string) {
+    setIdeas((prev) => prev.map((i) => i.id === id ? { ...i, status: "approved" } : i));
+    await approveIdea(id);
+  }
+
+  async function handleReject(id: string) {
+    setIdeas((prev) => prev.filter((i) => i.id !== id));
+    await updateIdeaStatus(id, "rejected");
+  }
+
+  async function handleCreatePost(idea: ScoredIdea) {
+    const date = idea.scheduled_date || selectedDay || new Date().toLocaleDateString("en-CA");
+    const postType = idea.format === "carousel" ? "carousel" : idea.format === "story" ? "story" : idea.format === "single" ? "single" : "reel";
+
+    setIdeas((prev) => prev.map((i) => i.id === idea.id ? { ...i, status: "scheduled" } : i));
+
+    await createPost({
+      caption: idea.hook + "\n\n" + (idea.description || ""),
+      post_type: postType as "carousel" | "reel" | "single" | "story",
+      status: "scheduled",
+      scheduled_date: date,
+      platform: "instagram",
+    });
+    await updateIdeaStatus(idea.id, "scheduled", date);
+  }
+
+  async function handleAssign(id: string) {
     if (!selectedDay) return;
-    assignIdeaToDay(ideaId, selectedDay);
-    setWeekIdeas((prev) =>
-      prev.map((i) => i.id === ideaId ? { ...i, status: "approved", scheduled_date: selectedDay } : i)
-    );
+    setIdeas((prev) => prev.map((i) => i.id === id ? { ...i, scheduled_date: selectedDay, status: "approved" } : i));
+    await assignIdeaToDay(id, selectedDay);
   }
 
-  function handleRejectIdea(ideaId: string) {
-    updateIdeaStatus(ideaId, "rejected");
-    setWeekIdeas((prev) => prev.filter((i) => i.id !== ideaId));
-  }
-
-  function handleEditIdea(ideaId: string, updates: { hook?: string; description?: string }) {
-    updateIdeaContent(ideaId, updates);
-    setWeekIdeas((prev) =>
-      prev.map((i) => i.id === ideaId ? { ...i, ...updates } : i)
-    );
-  }
-
-  // ─── Loading ─────────────────────────────────────────────
+  // ─── Loading ─────────────────────────────────────────
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -156,91 +159,124 @@ export default function ContentCockpit() {
     );
   }
 
-  // ─── Render ──────────────────────────────────────────────
+  // ─── Render ──────────────────────────────────────────
   return (
-    <div className="pb-[180px] space-y-5">
+    <div className="pb-[160px]">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-5">
         <div>
           <h1
-            className="text-[24px] font-[800] tracking-[-0.03em]"
+            className="text-[22px] font-[800] tracking-[-0.02em]"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            {t("cockpit.title")}
+            {weekLabel}
           </h1>
-          <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
-            {t("cockpit.subtitle")}
+          <p
+            className="text-[10px] mt-0.5"
+            style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}
+          >
+            {week.days[0].label} – {week.days[6].label}
           </p>
         </div>
-        <TemperatureOrb temperature={temperature} size="sm" />
+
+        <div className="flex items-center gap-2.5">
+          <span
+            className="text-[9px] px-2.5 py-1 rounded-xl"
+            style={{
+              fontFamily: "var(--font-mono)",
+              background: "rgba(168,183,142,0.08)",
+              border: "0.5px solid rgba(168,183,142,0.15)",
+              color: "var(--middle)",
+            }}
+          >
+            {temperature.toFixed(1)} · {tempLabel}
+          </span>
+          <button
+            onClick={() => setWeekOffset((o) => o - 1)}
+            className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors text-[12px] px-1.5 py-1"
+          >
+            ←
+          </button>
+          <button
+            onClick={() => setWeekOffset((o) => o + 1)}
+            className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors text-[12px] px-1.5 py-1"
+          >
+            →
+          </button>
+          <button
+            onClick={() => setWeekOffset(0)}
+            className="text-[9px] px-2 py-1 rounded-md transition-colors"
+            style={{
+              fontFamily: "var(--font-mono)",
+              color: "var(--text-muted)",
+              border: "0.5px solid var(--border)",
+            }}
+          >
+            Hoy
+          </button>
+        </div>
       </div>
 
-      {/* Mood Espejo */}
-      <MoodEspejo
-        temperature={temperature}
-        mood={latestJournal?.mood ?? null}
-      />
+      {/* YouTube suggestion */}
+      {topNews && (
+        <GlassCard intensity="ghost" className="p-3 mb-4">
+          <div className="flex items-center gap-2.5">
+            <div
+              className="w-5 h-4 rounded-[2px] flex items-center justify-center flex-shrink-0"
+              style={{ background: "#C4453A" }}
+            >
+              <div
+                className="w-0 h-0"
+                style={{ borderLeft: "5px solid white", borderTop: "3px solid transparent", borderBottom: "3px solid transparent" }}
+              />
+            </div>
+            <span className="text-[12px] flex-1 min-w-0" style={{ color: "var(--text-secondary)" }}>
+              <strong>YouTube esta semana:</strong> {topNews.title}
+            </span>
+            <span
+              className="text-[8px] px-2 py-0.5 rounded-full flex-shrink-0"
+              style={{ fontFamily: "var(--font-mono)", background: "rgba(196,69,58,0.12)", color: "var(--surface)" }}
+            >
+              pendiente
+            </span>
+          </div>
+        </GlassCard>
+      )}
 
-      {/* YouTube Mission */}
-      <YouTubeMission
-        topNews={topNews}
-        temperature={temperature}
-        journalMood={latestJournal?.mood ?? null}
-        journalThemes={latestJournal?.themes ?? null}
-      />
-
-      {/* Week progress bar */}
-      <GlassCard intensity="ghost" className="p-3">
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[9px] tracking-[0.1em] uppercase font-mono" style={{ color: "var(--text-muted)" }}>
-            {t("cockpit.week_progress")}
-          </span>
-          <span className="text-[10px] font-mono" style={{ color: "var(--text-secondary)" }}>
-            {weekProgress.scheduled}/{weekProgress.total} · {weekProgress.pct}%
-          </span>
-        </div>
-        <div className="w-full h-[4px] rounded-full" style={{ background: "rgba(0,0,0,0.15)" }}>
-          <div
-            className="h-full rounded-full transition-all duration-500"
-            style={{ width: `${weekProgress.pct}%`, background: "var(--middle)" }}
-          />
-        </div>
-      </GlassCard>
-
-      {/* Day Detail or empty state */}
-      {selectedDay ? (
+      {/* Day detail or empty state */}
+      {selectedDay && selectedDayInfo ? (
         <DayDetail
           date={selectedDay}
-          ideas={selectedDayIdeas}
-          journal={selectedDayJournal}
-          posts={selectedDayPosts}
-          backlogIdeas={backlogIdeas}
+          dayName={selectedDayInfo.name}
+          dayNum={selectedDayInfo.num}
+          dateLabel={selectedDayInfo.label}
+          ideas={dayIdeas}
+          unassigned={unassigned}
           onClose={() => setSelectedDay(null)}
-          onApprove={handleApproveIdea}
-          onReject={handleRejectIdea}
-          onEdit={handleEditIdea}
+          onApprove={handleApprove}
+          onReject={handleReject}
+          onCreatePost={handleCreatePost}
+          onAssign={handleAssign}
         />
       ) : (
-        <GlassCard intensity="ghost" className="py-12 text-center">
-          <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
-            {t("cockpit.select_day")}
+        <div className="text-center py-16">
+          <p
+            className="text-[16px] font-[800]"
+            style={{ fontFamily: "var(--font-display)", color: "var(--text-muted)" }}
+          >
+            Tu semana
           </p>
-          <p className="text-[10px] mt-1" style={{ color: "var(--text-ghost)" }}>
-            {t("cockpit.select_day_hint")}
+          <p className="text-[12px] mt-1" style={{ color: "var(--text-ghost)" }}>
+            Selecciona un dia abajo para ver que publicar
           </p>
-        </GlassCard>
+        </div>
       )}
 
       {/* Command Deck */}
       <CommandDeck
-        weekDays={week.days}
+        days={deckDays}
         selectedDay={selectedDay}
-        onSelectDay={setSelectedDay}
-        weekIdeas={weekIdeas}
-        weekPosts={weekPosts}
-        onPrevWeek={() => setWeekOffset((o) => o - 1)}
-        onNextWeek={() => setWeekOffset((o) => o + 1)}
-        weekLabel={weekLabel}
+        onSelectDay={(date) => setSelectedDay(date)}
       />
     </div>
   );

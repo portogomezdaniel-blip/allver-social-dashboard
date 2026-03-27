@@ -1,122 +1,192 @@
 "use client";
 
-import { useMemo } from "react";
-import JournalMirror from "./JournalMirror";
-import FunnelLane from "./FunnelLane";
+import { useEffect, useRef } from "react";
+import IdeaCard from "./IdeaCard";
+import GlassCard from "@/components/mirror/GlassCard";
 import type { ScoredIdea } from "@/lib/supabase/program-output";
-import type { JournalEntry } from "@/lib/supabase/journal";
-import type { DbPost } from "@/lib/supabase/posts";
 
 interface DayDetailProps {
-  date: string; // YYYY-MM-DD
+  date: string;
+  dayName: string;
+  dayNum: number;
+  dateLabel: string;
   ideas: ScoredIdea[];
-  journal: JournalEntry | null;
-  posts: DbPost[];
-  backlogIdeas: ScoredIdea[];
+  unassigned: ScoredIdea[];
   onClose: () => void;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
-  onEdit: (id: string, updates: { hook?: string; description?: string }) => void;
+  onCreatePost: (idea: ScoredIdea) => void;
+  onAssign: (id: string) => void;
 }
 
-const DAY_NAMES = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
+const FORMAT_CONFIG: { key: string; label: string; color: string; match: (f: string) => boolean }[] = [
+  { key: "reel", label: "REEL", color: "var(--surface)", match: (f) => f === "reel" },
+  { key: "carousel", label: "CARRUSEL", color: "var(--middle)", match: (f) => f === "carousel" },
+  { key: "story", label: "STORIES", color: "var(--conversion)", match: (f) => f === "story" },
+  { key: "single", label: "POST", color: "var(--depth)", match: (f) => f === "single" },
+];
 
-function formatDate(dateStr: string): { dayName: string; display: string; isSunday: boolean } {
-  const d = new Date(dateStr + "T12:00:00");
-  const dayIdx = d.getDay();
-  return {
-    dayName: DAY_NAMES[dayIdx],
-    display: `${d.getDate()} ${["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"][d.getMonth()]} ${d.getFullYear()}`,
-    isSunday: dayIdx === 0,
-  };
-}
+export default function DayDetail({ date, dayName, dayNum, dateLabel, ideas, unassigned, onClose, onApprove, onReject, onCreatePost, onAssign }: DayDetailProps) {
+  const ref = useRef<HTMLDivElement>(null);
 
-export default function DayDetail({ date, ideas, journal, posts, backlogIdeas, onClose, onApprove, onReject, onEdit }: DayDetailProps) {
-  const { dayName, display, isSunday } = formatDate(date);
+  useEffect(() => {
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [date]);
 
-  const filterIdeas = useMemo(() => ideas.filter((i) => i.format === "reel"), [ideas]);
-  const authorityIdeas = useMemo(() => ideas.filter((i) => i.format === "carousel"), [ideas]);
-  const conversionIdeas = useMemo(() => ideas.filter((i) => i.format === "story" || i.format === "single"), [ideas]);
-
-  const totalItems = ideas.length + posts.length;
-  const completedItems = ideas.filter((i) => i.status === "scheduled").length + posts.filter((p) => p.status === "published").length;
-  const pendingItems = totalItems - completedItems;
-
-  // Sunday rest day
-  if (isSunday) {
-    return (
-      <div className="space-y-4">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-[28px] font-[800] tracking-[-0.03em]" style={{ fontFamily: "var(--font-display)" }}>{dayName}</h2>
-            <p className="text-[10px] font-mono" style={{ color: "var(--text-muted)" }}>{display}</p>
-          </div>
-          <button onClick={onClose} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors text-[18px] p-2">✕</button>
-        </div>
-
-        <div className="flex items-center justify-center py-16">
-          <p className="text-[48px] font-[800] tracking-[-0.03em]" style={{ fontFamily: "var(--font-display)", color: "var(--text-ghost)", opacity: 0.3 }}>
-            REST DAY
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const scheduled = ideas.filter((i) => i.status === "scheduled").length;
+  const approved = ideas.filter((i) => i.status === "approved").length;
+  const pending = ideas.filter((i) => i.status === "suggested").length;
+  const dayHooks = ideas.map((i) => i.hook).filter(Boolean);
+  const isEmpty = ideas.length === 0;
 
   return (
-    <div className="space-y-4">
+    <div ref={ref} className="animate-[fadeUp_0.3s_ease-out]">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-[28px] font-[800] tracking-[-0.03em]" style={{ fontFamily: "var(--font-display)" }}>{dayName}</h2>
-          <p className="text-[10px] font-mono" style={{ color: "var(--text-muted)" }}>{display}</p>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-baseline gap-2">
+          <h2
+            className="text-[24px] font-[800] tracking-[-0.02em]"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            {dayName} {dayNum}
+          </h2>
+          <span className="text-[10px]" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
+            {dateLabel}
+          </span>
         </div>
-        <button onClick={onClose} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors text-[18px] p-2">✕</button>
+        <button
+          onClick={onClose}
+          className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors text-[16px] p-2"
+        >
+          ✕
+        </button>
       </div>
 
-      {/* Journal Mirror */}
-      <JournalMirror journal={journal} />
-
-      {/* Funnel Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <FunnelLane lane="filter" ideas={filterIdeas} onApprove={onApprove} onReject={onReject} onEdit={onEdit} />
-        <FunnelLane lane="authority" ideas={authorityIdeas} onApprove={onApprove} onReject={onReject} onEdit={onEdit} />
-        <FunnelLane lane="conversion" ideas={conversionIdeas} onApprove={onApprove} onReject={onReject} onEdit={onEdit} />
-      </div>
-
-      {/* Backlog suggestions if day is empty */}
-      {ideas.length === 0 && backlogIdeas.length > 0 && (
-        <div className="mt-2">
-          <p className="text-[9px] font-mono mb-2" style={{ color: "var(--text-muted)" }}>
-            IDEAS SIN ASIGNAR · ARRASTRA O APRUEBA PARA ESTE DIA
+      {/* Empty day */}
+      {isEmpty && unassigned.length === 0 && (
+        <div className="text-center py-12">
+          <p
+            className="text-[16px] font-[800]"
+            style={{ fontFamily: "var(--font-display)", color: "var(--text-muted)" }}
+          >
+            Dia libre
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            {backlogIdeas.slice(0, 6).map((idea) => (
-              <div key={idea.id} className="p-2 rounded-[var(--radius-md)]" style={{ background: "rgba(0,0,0,0.08)", border: "1px dashed var(--border)" }}>
-                <span className="text-[8px] font-mono uppercase" style={{ color: "var(--text-muted)" }}>{idea.format}</span>
-                <p className="text-[11px] mt-0.5" style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}>
-                  &ldquo;{idea.hook}&rdquo;
-                </p>
-                <button
-                  onClick={() => onApprove(idea.id)}
-                  className="text-[8px] mt-1 px-2 py-0.5 rounded-md transition-colors"
-                  style={{ background: "rgba(168,183,142,0.15)", color: "var(--middle)" }}
-                >
-                  + Asignar aqui
-                </button>
-              </div>
+          <p className="text-[12px] mt-1" style={{ color: "var(--text-ghost)" }}>
+            Sin contenido programado
+          </p>
+        </div>
+      )}
+
+      {/* Format sections */}
+      {FORMAT_CONFIG.map(({ key, label, color, match }) => {
+        const sectionIdeas = ideas.filter((i) => match(i.format));
+        if (sectionIdeas.length === 0) return null;
+
+        return (
+          <div key={key} className="mb-5">
+            {/* Section label */}
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-[6px] h-[6px] rounded-full" style={{ background: color }} />
+              <span
+                className="text-[9px] tracking-[0.15em] uppercase"
+                style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}
+              >
+                {label}
+              </span>
+            </div>
+            <div className="border-b mb-3" style={{ borderColor: "var(--border)" }} />
+
+            {/* Ideas */}
+            <div className="space-y-2">
+              {sectionIdeas.map((idea) => (
+                <IdeaCard
+                  key={idea.id}
+                  idea={idea}
+                  color={color}
+                  onApprove={onApprove}
+                  onReject={onReject}
+                  onCreatePost={onCreatePost}
+                />
+              ))}
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Twitter / X hooks */}
+      {dayHooks.length > 0 && (
+        <div className="mb-5">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-[6px] h-[6px] rounded-full" style={{ background: "var(--text-muted)" }} />
+            <span
+              className="text-[9px] tracking-[0.15em] uppercase"
+              style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}
+            >
+              TWITTER / X
+            </span>
+          </div>
+          <div className="border-b mb-3" style={{ borderColor: "var(--border)" }} />
+
+          <div className="flex flex-wrap gap-2">
+            {dayHooks.map((hook, i) => (
+              <span
+                key={i}
+                className="text-[11px] px-3 py-1.5 rounded-[20px] inline-block"
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontStyle: "italic",
+                  color: "var(--text-secondary)",
+                  background: "rgba(0,0,0,0.1)",
+                  borderLeft: "2px solid var(--text-muted)",
+                }}
+              >
+                {hook}
+              </span>
             ))}
           </div>
         </div>
       )}
 
       {/* Status bar */}
-      <div className="flex items-center justify-center gap-2 py-2">
-        <span className="text-[10px] font-mono" style={{ color: "var(--text-muted)" }}>
-          {completedItems} de {totalItems} completadas · {pendingItems} pendientes
-        </span>
-      </div>
+      {ideas.length > 0 && (
+        <GlassCard intensity="ghost" className="p-2.5 mb-4">
+          <p className="text-center text-[9px]" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
+            {scheduled} programados · {approved} aprobados · {pending} pendientes
+          </p>
+        </GlassCard>
+      )}
+
+      {/* Unassigned ideas */}
+      {unassigned.length > 0 && (
+        <div className="mt-2">
+          <div className="border-t pt-4 mb-3" style={{ borderColor: "var(--border)" }}>
+            <span
+              className="text-[8px] tracking-[0.15em] uppercase"
+              style={{ fontFamily: "var(--font-mono)", color: "var(--text-ghost)" }}
+            >
+              IDEAS DISPONIBLES SIN ASIGNAR
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            {unassigned.slice(0, 5).map((idea) => {
+              const cfg = FORMAT_CONFIG.find((f) => f.match(idea.format)) || FORMAT_CONFIG[0];
+              return (
+                <IdeaCard
+                  key={idea.id}
+                  idea={idea}
+                  color={cfg.color}
+                  onApprove={onApprove}
+                  onReject={onReject}
+                  onCreatePost={onCreatePost}
+                  assignLabel={`Asignar a ${dayName}`}
+                  onAssign={onAssign}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
