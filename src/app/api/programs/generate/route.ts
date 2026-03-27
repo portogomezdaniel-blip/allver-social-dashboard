@@ -25,7 +25,31 @@ export async function POST(req: NextRequest) {
 
     const userMessage = `ACCIÓN: new_program. DATOS DEL CLIENTE: Nivel: ${level}. Números: Squat ${numbers.squat}kg, Bench ${numbers.bench}kg, Deadlift ${numbers.deadlift}kg. Meta: ${goal}. Lesiones: ninguna reportada. Sesiones disponibles: ${sessions} por semana. Genera el assessment inicial + bloque 1 completo (4 semanas con deload en semana 4). IMPORTANTE: Responde SOLO con el JSON de <program_output>, sin texto adicional.`;
 
-    const result = await callClaude(promptData.system_prompt, userMessage, 4000);
+    const MAX_RETRIES = 3;
+    const RETRY_DELAYS = [2000, 4000, 8000];
+    let result;
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        result = await callClaude(promptData.system_prompt, userMessage, 4000);
+        break;
+      } catch (err: unknown) {
+        const isOverloaded =
+          err instanceof Error &&
+          (err.message.includes("529") || err.message.includes("overloaded"));
+        if (isOverloaded && attempt < MAX_RETRIES) {
+          await new Promise((r) => setTimeout(r, RETRY_DELAYS[attempt]));
+          continue;
+        }
+        throw err;
+      }
+    }
+
+    if (!result) {
+      return NextResponse.json(
+        { error: "Servidor ocupado, reintentando... No se pudo completar después de varios intentos." },
+        { status: 529 }
+      );
+    }
 
     // Extract JSON from <program_output> tags or raw JSON
     let programJson;
@@ -56,6 +80,15 @@ export async function POST(req: NextRequest) {
       durationMs: result.durationMs,
     });
   } catch (error) {
+    const isOverloaded =
+      error instanceof Error &&
+      (error.message.includes("529") || error.message.includes("overloaded"));
+    if (isOverloaded) {
+      return NextResponse.json(
+        { error: "Servidor ocupado, reintentando... No se pudo completar después de varios intentos." },
+        { status: 529 }
+      );
+    }
     const message = error instanceof Error ? error.message : "Error desconocido";
     return NextResponse.json({ error: message }, { status: 500 });
   }
