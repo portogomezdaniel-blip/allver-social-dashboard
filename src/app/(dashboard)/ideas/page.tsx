@@ -8,14 +8,12 @@ import { fetchSessions, type IdeaSession } from "@/lib/supabase/idea-sessions";
 import { createHook } from "@/lib/supabase/hooks";
 import { createPost } from "@/lib/supabase/posts";
 import { fetchScoredIdeas, updateIdeaStatus, type ScoredIdea } from "@/lib/supabase/program-output";
-import GlassCard from "@/components/mirror/GlassCard";
-import LayerLabel from "@/components/mirror/LayerLabel";
-import LayerDivider from "@/components/mirror/LayerDivider";
-import ScoreCard from "@/components/mirror/ScoreCard";
+import GlassCardNew from "@/components/ui/GlassCardNew";
 
-const fmtColors: Record<string, string> = { reel: "var(--filter)", carousel: "var(--authority)", story: "var(--conversion)", single: "var(--brand)" };
-const fmtLabels: Record<string, string> = { reel: "REEL", carousel: "CARRUSEL", story: "STORY", single: "SINGLE" };
-const srcIcons: Record<string, string> = { journal: "\uD83D\uDCD4", program: "\uD83C\uDFAF", ideas_bar: "\uD83D\uDCA1", intel: "\uD83D\uDCF0", daily_suggestion: "\u2728" };
+const fmtColors: Record<string, string> = { reel: "var(--red)", carousel: "var(--olive)", story: "var(--blue)", single: "var(--purple)" };
+const fmtLabels: Record<string, string> = { reel: "Reel", carousel: "Carrusel", story: "Stories", single: "Post" };
+const fmtBg: Record<string, string> = { reel: "var(--red-bg)", carousel: "var(--olive-bg)", story: "var(--blue-bg)", single: "var(--purple-bg)" };
+const srcIcons: Record<string, string> = { journal: "📓", program: "🎯", ideas_bar: "💡", intel: "📰", daily_suggestion: "✨" };
 const srcLabels: Record<string, string> = { journal: "Journal", program: "Programa", ideas_bar: "Ideas", intel: "Intel", daily_suggestion: "Daily" };
 
 export default function IdeasPage() {
@@ -77,160 +75,203 @@ export default function IdeasPage() {
     .filter(i => formatFilter === "all" || i.format === formatFilter);
 
   return (
-    <div className="max-w-[900px] mx-auto space-y-6">
+    <div className="space-y-5">
       {/* Header */}
-      <div className="text-center">
-        <h1 className="text-[24px] font-[800] tracking-[-0.03em]" style={{ fontFamily: "var(--font-display)" }}>Tus ideas</h1>
-        <p className="text-[11px] text-[var(--text-muted)] mt-1">
-          {scoredIdeas.length} ideas de {sources.length - 1} fuentes &middot; Ordenadas por potencial
+      <div>
+        <h1 className="text-[22px]" style={{ fontFamily: "var(--font-display)" }}>Ideas</h1>
+        <p className="text-[12px] mt-1" style={{ color: "var(--text-secondary)" }}>
+          Escribe una idea y genera 4 angulos. {scoredIdeas.length} ideas de {sources.length - 1} fuentes.
         </p>
       </div>
 
-      {/* Input */}
-      <div className="max-w-[600px] mx-auto">
-        <GlassCard intensity="medium" className="p-4">
-          <div className="flex gap-2">
-            <span className="text-[16px] mt-1.5 shrink-0 opacity-40">{"\u25CE"}</span>
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Que esta pasando por tu mente?"
-              className="flex-1 bg-transparent text-[13px] text-[var(--text-primary)] placeholder:text-[var(--text-ghost)] focus:outline-none"
-              onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
-            />
-            <button onClick={handleGenerate} disabled={!input.trim() || generating} className="px-4 py-1.5 rounded-lg text-[12px] font-medium" style={{ background: "var(--middle)", color: "var(--black)" }}>
-              {generating ? <Loader2 size={14} className="animate-spin" /> : "Generar \u2192"}
-            </button>
-          </div>
-        </GlassCard>
-      </div>
+      {/* Input bar */}
+      <GlassCardNew intensity="strong" className="p-3">
+        <div className="flex gap-2 items-center">
+          <span className="text-[14px] shrink-0" style={{ color: "var(--text-ghost)" }}>✎</span>
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Que esta pasando por tu mente?"
+            className="flex-1 bg-transparent text-[13px] text-white placeholder:text-[var(--text-ghost)] focus:outline-none"
+            onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
+          />
+          <button
+            onClick={handleGenerate}
+            disabled={!input.trim() || generating}
+            className="px-4 py-1.5 rounded-[8px] text-white transition-opacity"
+            style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase" as const, background: "var(--olive-dark)", opacity: !input.trim() ? 0.4 : 1 }}
+          >
+            {generating ? <Loader2 size={14} className="animate-spin" /> : "Generar"}
+          </button>
+        </div>
+      </GlassCardNew>
 
       {/* Generated result */}
       {currentResult && (
-        <GlassCard intensity="subtle" className="p-5 max-w-[600px] mx-auto">
-          <p className="text-[10px] text-[var(--text-muted)] mb-3">Ideas de: &ldquo;{input.slice(0, 50)}...&rdquo;</p>
+        <GlassCardNew intensity="subtle" className="p-4">
+          <p className="text-[10px] mb-3" style={{ fontFamily: "var(--font-mono)", color: "var(--text-ghost)" }}>
+            De: &ldquo;{input.slice(0, 50)}...&rdquo;
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <span className="text-[8px] tracking-[0.2em] uppercase font-mono text-[var(--text-muted)]">HOOKS</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "var(--text-ghost)" }}>HOOKS</span>
               {currentResult.hooks.map((h, i) => (
-                <p key={i} className="text-[12px] text-[var(--text-secondary)]">&middot; {h.text}
-                  <button onClick={() => { navigator.clipboard.writeText(h.text); showToast("Copiado"); }} className="text-[9px] text-[var(--text-muted)] ml-2 hover:text-[var(--text-secondary)]">copiar</button>
+                <p key={i} className="text-[12px]" style={{ color: "var(--text-secondary)" }}>· {h.text}
+                  <button onClick={() => { navigator.clipboard.writeText(h.text); showToast("Copiado"); }} className="text-[9px] ml-2 hover:text-white" style={{ color: "var(--text-ghost)" }}>copiar</button>
                   <button onClick={async () => { await createHook({ text: h.text, source: "idea_session", category: h.category }); showToast("Guardado"); }} className="text-[9px] text-[var(--olive)] ml-1">guardar</button>
                 </p>
               ))}
             </div>
             <div className="space-y-1.5">
-              <span className="text-[8px] tracking-[0.2em] uppercase font-mono text-[var(--text-muted)]">IDEAS</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "var(--text-ghost)" }}>IDEAS</span>
               {currentResult.ideas.map((idea, i) => (
-                <div key={i} className="text-[12px] text-[var(--text-secondary)]">
-                  <span className="text-[8px] font-mono" style={{ color: fmtColors[idea.format] || "var(--olive)" }}>{fmtLabels[idea.format] || idea.format}</span> {idea.title}
-                  <button onClick={async () => { const tm = new Date(); tm.setDate(tm.getDate() + 1); await createPost({ caption: `${idea.title}\n\n${idea.description}`, post_type: idea.format as "reel" | "carousel" | "single" | "story", status: "scheduled", scheduled_date: tm.toLocaleDateString("en-CA"), platform: "instagram" }); showToast("Post creado"); }} className="text-[9px] text-[var(--olive)] ml-2">crear &rarr;</button>
+                <div key={i} className="text-[12px]" style={{ color: "var(--text-secondary)" }}>
+                  <span className="text-[8px] rounded-[5px] px-1.5 py-0.5 mr-1" style={{ fontFamily: "var(--font-mono)", background: fmtBg[idea.format] || "var(--olive-bg)", color: fmtColors[idea.format] || "var(--olive)" }}>{fmtLabels[idea.format] || idea.format}</span>
+                  {idea.title}
                 </div>
               ))}
             </div>
           </div>
-        </GlassCard>
+        </GlassCardNew>
       )}
 
-      <LayerDivider />
-      <LayerLabel layer="middle" label="IDEAS RANKEADAS POR POTENCIAL" />
+      {/* Filter tabs */}
+      <div className="flex gap-1 overflow-x-auto border-b" style={{ borderColor: "var(--border)" }}>
+        {["all", "reel", "carousel", "story", "single"].map(fmt => (
+          <button
+            key={fmt}
+            onClick={() => setFormatFilter(fmt)}
+            className="shrink-0 px-3 py-2 text-[9px] transition-colors"
+            style={{
+              fontFamily: "var(--font-mono)",
+              letterSpacing: "0.08em",
+              textTransform: "uppercase" as const,
+              color: formatFilter === fmt ? "var(--olive)" : "var(--text-muted)",
+              borderBottom: formatFilter === fmt ? "2px solid var(--olive)" : "2px solid transparent",
+            }}
+          >
+            {fmt === "all" ? "Todas" : fmtLabels[fmt] || fmt}
+          </button>
+        ))}
+      </div>
 
-      {/* Source filters */}
-      <div className="flex flex-wrap gap-1.5 justify-center">
+      {/* Source sub-filters */}
+      <div className="flex flex-wrap gap-1.5">
         {sources.map(src => {
           const count = src === "all" ? scoredIdeas.length : scoredIdeas.filter(i => i.source === src).length;
           return (
-            <button key={src} onClick={() => setSourceFilter(src)} className="text-[10px] px-2.5 py-1 rounded-lg transition-all" style={{ background: sourceFilter === src ? "var(--middle-bg)" : "rgba(0,0,0,0.12)", color: sourceFilter === src ? "var(--olive)" : "var(--text-muted)" }}>
+            <button key={src} onClick={() => setSourceFilter(src)} className="text-[9px] px-2.5 py-1 rounded-[5px] transition-all" style={{ fontFamily: "var(--font-mono)", background: sourceFilter === src ? "var(--olive-bg)" : "rgba(255,255,255,0.04)", color: sourceFilter === src ? "var(--olive)" : "var(--text-muted)" }}>
               {src === "all" ? "Todas" : `${srcIcons[src] || ""} ${srcLabels[src] || src}`} ({count})
             </button>
           );
         })}
       </div>
 
-      {/* Format sub-filters */}
-      <div className="flex flex-wrap gap-1 justify-center">
-        {formats.map(fmt => (
-          <button key={fmt} onClick={() => setFormatFilter(fmt)} className="text-[9px] px-2 py-0.5 rounded-md transition-all" style={{ background: formatFilter === fmt ? `${fmtColors[fmt] || "var(--olive)"}15` : "transparent", color: formatFilter === fmt ? (fmtColors[fmt] || "var(--olive)") : "var(--text-muted)" }}>
-            {fmt === "all" ? "Todos" : fmtLabels[fmt] || fmt}
-          </button>
-        ))}
-      </div>
+      {/* Ideas list */}
+      <div className="space-y-0">
+        {filtered.slice(0, 20).map((idea, idx) => {
+          const opacity = idea.total_score >= 8 ? 1 : idea.total_score >= 7 ? 0.9 : idea.total_score >= 5 ? 0.75 : 0.5;
+          return (
+            <div
+              key={idea.id}
+              className="flex items-start gap-3 px-3 py-3 transition-colors hover:bg-[rgba(255,255,255,0.06)] group"
+              style={{ opacity, borderBottom: "1px solid rgba(255,255,255,0.04)" }}
+            >
+              {/* Score */}
+              <span className="text-[14px] min-w-[28px] text-center flex-shrink-0 pt-0.5" style={{ fontFamily: "var(--font-display)", color: "var(--olive)" }}>
+                {idea.total_score.toFixed(1)}
+              </span>
 
-      {/* Scored ideas grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {filtered.slice(0, 12).map((idea, idx) => (
-          <div key={idea.id}>
-            <ScoreCard score={idea.total_score} hook={idea.hook} format={idea.format} funnelRole={idea.funnel_role} source={idea.source || "program"}>
-              {/* Actions for top ideas */}
-              {generatedCopies[idea.id] && <div className="p-2.5 rounded-[12px] bg-[rgba(0,0,0,0.08)] border border-[var(--border-ghost)] text-[11px] text-[var(--text-secondary)] whitespace-pre-line mt-2 leading-relaxed">{generatedCopies[idea.id]}</div>}
-              {idx < 6 && (
-                <div className="flex gap-1.5 mt-2.5">
-                  <button onClick={async () => {
+              {/* Idea content */}
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-[500] text-white truncate">{idea.hook}</p>
+                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                  <span className="text-[10px]" style={{ color: "var(--text-muted)" }}>{srcIcons[idea.source] || "·"} {srcLabels[idea.source] || idea.source}</span>
+                  {idea.scheduled_date && <span className="text-[10px]" style={{ color: "var(--text-ghost)" }}>· {new Date(idea.scheduled_date + "T12:00:00").toLocaleDateString("es", { day: "numeric", month: "short" })}</span>}
+                </div>
+              </div>
+
+              {/* Format tag */}
+              <span className="text-[8px] px-2 py-0.5 rounded-[5px] flex-shrink-0 mt-1" style={{ fontFamily: "var(--font-mono)", background: fmtBg[idea.format] || "var(--olive-bg)", color: fmtColors[idea.format] || "var(--olive)" }}>
+                {fmtLabels[idea.format] || idea.format}
+              </span>
+
+              {/* Actions */}
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5">
+                <button
+                  onClick={async () => {
                     const tm = new Date(); tm.setDate(tm.getDate() + 1);
                     const ds = tm.toLocaleDateString("en-CA");
                     await updateIdeaStatus(idea.id, "scheduled", ds);
                     await createPost({ caption: idea.hook + "\n\n" + (idea.description || ""), post_type: (idea.format === "carousel" ? "carousel" : idea.format === "story" ? "story" : idea.format === "single" ? "single" : "reel") as "reel" | "carousel" | "single" | "story", status: "scheduled", scheduled_date: ds, platform: "instagram" });
                     setScoredIdeas(prev => prev.filter(i => i.id !== idea.id));
                     showToast("Programado");
-                  }} className="text-[9px] px-2.5 py-1 rounded-md" style={{ background: "rgba(168,183,142,0.12)", color: "var(--olive)" }}>Programar</button>
-                  <button onClick={() => handleWriteCopy(idea.id, idea.hook, idea.format)} disabled={writingCopy === idea.id} className="text-[9px] px-2.5 py-1 rounded-md" style={{ background: "rgba(155,126,184,0.1)", color: "var(--depth)" }}>
-                    {writingCopy === idea.id ? "..." : "Copy IA"}
-                  </button>
-                  <button onClick={async () => { await updateIdeaStatus(idea.id, "rejected"); setScoredIdeas(prev => prev.filter(i => i.id !== idea.id)); }} className="text-[9px] px-1.5 py-1 rounded-md text-[var(--text-muted)] hover:text-[var(--text-secondary)]">&times;</button>
-                </div>
-              )}
-            </ScoreCard>
-          </div>
-        ))}
+                  }}
+                  className="w-7 h-7 rounded-[6px] flex items-center justify-center text-[12px] transition-colors hover:text-[var(--olive)]"
+                  style={{ background: "var(--glass-subtle)", border: "1px solid var(--glass-border)", color: "var(--text-ghost)", backdropFilter: "blur(8px)" }}
+                  title="Aprobar"
+                >✓</button>
+                <button
+                  onClick={async () => { await updateIdeaStatus(idea.id, "rejected"); setScoredIdeas(prev => prev.filter(i => i.id !== idea.id)); }}
+                  className="w-7 h-7 rounded-[6px] flex items-center justify-center text-[12px] transition-colors hover:text-[var(--red)]"
+                  style={{ background: "var(--glass-subtle)", border: "1px solid var(--glass-border)", color: "var(--text-ghost)", backdropFilter: "blur(8px)" }}
+                  title="Rechazar"
+                >×</button>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {filtered.length > 12 && (
-        <p className="text-center text-[10px] text-[var(--text-muted)]">+{filtered.length - 12} ideas mas</p>
+      {filtered.length > 20 && (
+        <p className="text-center text-[10px]" style={{ color: "var(--text-ghost)" }}>+{filtered.length - 20} ideas mas</p>
       )}
       {filtered.length === 0 && (
-        <GlassCard intensity="ghost" className="p-8 text-center">
-          <p className="text-[12px] text-[var(--text-muted)]">Genera ideas desde el input arriba o desde el Journal</p>
-        </GlassCard>
+        <GlassCardNew intensity="ghost" className="p-8 text-center">
+          <p className="text-[12px]" style={{ color: "var(--text-muted)" }}>Genera ideas desde el input arriba o desde el Journal</p>
+        </GlassCardNew>
       )}
 
       {/* History */}
       {sessions.length > 0 && (
         <>
-          <LayerDivider />
-          <p className="text-center text-[10px] tracking-[0.2em] uppercase font-mono text-[var(--text-muted)]">SESIONES ANTERIORES</p>
+          <div className="border-t pt-4 mt-2" style={{ borderColor: "var(--border)" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "var(--text-ghost)" }}>SESIONES ANTERIORES</span>
+          </div>
           <div className="space-y-2">
             {sessions.map((s) => (
-              <GlassCard key={s.id} intensity="ghost" className="overflow-hidden cursor-pointer" onClick={() => setExpandedId(expandedId === s.id ? null : s.id)}>
+              <GlassCardNew key={s.id} intensity="ghost" className="overflow-hidden cursor-pointer" onClick={() => setExpandedId(expandedId === s.id ? null : s.id)}>
                 <div className="px-4 py-3">
-                  <p className="text-[12px] text-[var(--text-secondary)]">&ldquo;{s.input_text.slice(0, 80)}{s.input_text.length > 80 ? "..." : ""}&rdquo;</p>
-                  <p className="text-[9px] font-mono text-[var(--text-muted)] mt-0.5">
-                    {new Date(s.created_at).toLocaleDateString("es")} &middot; {s.generated_hooks.length} hooks &middot; {s.generated_ideas.length} ideas
+                  <p className="text-[12px]" style={{ color: "var(--text-secondary)" }}>&ldquo;{s.input_text.slice(0, 80)}{s.input_text.length > 80 ? "..." : ""}&rdquo;</p>
+                  <p className="text-[9px] mt-0.5" style={{ fontFamily: "var(--font-mono)", color: "var(--text-ghost)" }}>
+                    {new Date(s.created_at).toLocaleDateString("es")} · {s.generated_hooks.length} hooks · {s.generated_ideas.length} ideas
                   </p>
                 </div>
                 {expandedId === s.id && (
-                  <div className="px-4 pb-3 pt-1 border-t border-[var(--border-subtle)] grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="px-4 pb-3 pt-1 border-t grid grid-cols-1 md:grid-cols-2 gap-3" style={{ borderColor: "var(--border)" }}>
                     <div className="space-y-1">
-                      <span className="text-[8px] tracking-[0.15em] uppercase font-mono text-[var(--text-muted)]">Hooks</span>
-                      {s.generated_hooks.map((h, i) => <p key={i} className="text-[11px] text-[var(--text-secondary)]">&middot; {h.text}</p>)}
+                      <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "var(--text-ghost)" }}>Hooks</span>
+                      {s.generated_hooks.map((h, i) => <p key={i} className="text-[11px]" style={{ color: "var(--text-secondary)" }}>· {h.text}</p>)}
                     </div>
                     <div className="space-y-1">
-                      <span className="text-[8px] tracking-[0.15em] uppercase font-mono text-[var(--text-muted)]">Ideas</span>
+                      <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "var(--text-ghost)" }}>Ideas</span>
                       {s.generated_ideas.map((idea, i) => (
-                        <p key={i} className="text-[11px] text-[var(--text-secondary)]">
-                          <span className="text-[8px] font-mono" style={{ color: fmtColors[idea.format] || "var(--olive)" }}>{fmtLabels[idea.format] || idea.format}</span> {idea.title}
+                        <p key={i} className="text-[11px]" style={{ color: "var(--text-secondary)" }}>
+                          <span className="text-[8px] rounded-[5px] px-1 py-0.5 mr-1" style={{ fontFamily: "var(--font-mono)", background: fmtBg[idea.format] || "var(--olive-bg)", color: fmtColors[idea.format] || "var(--olive)" }}>{fmtLabels[idea.format] || idea.format}</span>
+                          {idea.title}
                         </p>
                       ))}
                     </div>
                   </div>
                 )}
-              </GlassCard>
+              </GlassCardNew>
             ))}
           </div>
         </>
       )}
 
       {toastMsg && (
-        <div className="fixed bottom-20 md:bottom-6 right-6 backdrop-blur-sm rounded-lg px-4 py-2.5 text-[12px] font-medium z-50" style={{ background: "rgba(0,0,0,0.3)", border: "0.5px solid var(--glass-border)", color: "var(--text-primary)" }}>
+        <div className="fixed bottom-20 md:bottom-6 right-6 rounded-[8px] px-4 py-2.5 text-[12px] font-medium z-50" style={{ background: "rgba(255,255,255,0.1)", backdropFilter: "blur(20px)", border: "1px solid var(--glass-border)", color: "white" }}>
           {toastMsg}
         </div>
       )}

@@ -20,8 +20,8 @@ import GlassCard from "@/components/mirror/GlassCard";
 const dayNames = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
 const monthNames = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 
-const fmtColors: Record<string, string> = { reel: "var(--filter)", carousel: "var(--authority)", story: "var(--conversion)", single: "var(--brand)" };
-const fmtLabels: Record<string, string> = { reel: "REEL", carousel: "CARRUSEL", story: "STORY", single: "SINGLE" };
+const fmtColors: Record<string, string> = { reel: "var(--red)", carousel: "var(--olive)", story: "var(--blue)", single: "var(--purple)" };
+const fmtLabels: Record<string, string> = { reel: "Reel", carousel: "Carrusel", story: "Stories", single: "Post" };
 const roleLabels: Record<string, string> = { filter: "Filtro", authority: "Autoridad", conversion: "CTA", brand: "Marca" };
 const srcIcons: Record<string, string> = { journal: "\uD83D\uDCD4", program: "\uD83C\uDFAF", ideas_bar: "\uD83D\uDCA1", intel: "\uD83D\uDCF0", daily_suggestion: "\u2728" };
 const moodEmojis: Record<string, string> = { reflective: "\uD83E\uDE9E", fired_up: "\uD83D\uDD25", frustrated: "\uD83D\uDE24", grateful: "\uD83D\uDE4F", philosophical: "\uD83C\uDF0C", determined: "\uD83D\uDCAA", vulnerable: "\uD83E\uDEE3" };

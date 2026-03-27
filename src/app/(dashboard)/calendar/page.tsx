@@ -192,58 +192,44 @@ export default function ContentCalendar() {
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h1
-            className="text-[24px] font-[800] tracking-[-0.02em]"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
+          <h1 className="text-[18px]" style={{ fontFamily: "var(--font-display)" }}>
             {monthNames[month]} {year}
           </h1>
-          <p
-            className="text-[10px] mt-0.5"
-            style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}
-          >
+          <p className="text-[9px] mt-0.5" style={{ fontFamily: "var(--font-mono)", color: "var(--text-ghost)" }}>
             Q{Math.ceil((month + 1) / 3)}
           </p>
         </div>
-
         <div className="flex items-center gap-2">
-          <button onClick={prevMonth} className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors text-[12px] px-1.5 py-1">←</button>
-          <button onClick={nextMonth} className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors text-[12px] px-1.5 py-1">→</button>
-          <button
-            onClick={goToday}
-            className="text-[9px] px-2 py-1 rounded-md transition-colors"
-            style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)", border: "0.5px solid var(--border)" }}
-          >
+          <button onClick={prevMonth} className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] transition-colors hover:bg-[rgba(255,255,255,0.08)]" style={{ color: "var(--text-muted)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--glass-border)" }}>←</button>
+          <button onClick={nextMonth} className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] transition-colors hover:bg-[rgba(255,255,255,0.08)]" style={{ color: "var(--text-muted)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--glass-border)" }}>→</button>
+          <button onClick={goToday} className="text-[9px] px-2.5 py-1 rounded-full transition-colors hover:bg-[rgba(255,255,255,0.08)]" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--glass-border)" }}>
             {t("calendar.today")}
           </button>
         </div>
       </div>
 
       {/* Legend */}
-      <div
-        className="flex gap-4 flex-wrap mb-4 p-2.5 px-4 rounded-xl"
-        style={{ background: "rgba(0,0,0,0.06)", backdropFilter: "blur(8px)", border: "0.5px solid rgba(168,183,142,0.08)" }}
-      >
+      <div className="flex gap-4 flex-wrap mb-4 p-2.5 px-4 rounded-[8px] overflow-x-auto" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--glass-border)" }}>
         {[
-          { color: "#C4453A", label: "Reel" },
-          { color: "#A8B78E", label: "Carrusel" },
-          { color: "#6B8CBA", label: "Stories" },
-          { color: "#9B7EB8", label: "Post" },
+          { color: "var(--red)", label: "Reel" },
+          { color: "var(--olive)", label: "Carrusel" },
+          { color: "var(--blue)", label: "Stories" },
+          { color: "var(--purple)", label: "Post" },
         ].map((f) => (
           <div key={f.label} className="flex items-center gap-1.5">
             <div className="w-[8px] h-[4px] rounded-[2px]" style={{ background: f.color }} />
-            <span className="text-[8px]" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>{f.label}</span>
+            <span className="text-[7px]" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>{f.label}</span>
           </div>
         ))}
-        <span className="text-[8px] mx-1" style={{ color: "var(--border)" }}>|</span>
+        <span className="text-[7px] mx-1" style={{ color: "var(--border)" }}>|</span>
         {[
-          { color: "#A8B78E", label: t("calendar.done") || "Hecho" },
-          { color: "#C8AA50", label: t("calendar.approved") || "Aprobado" },
-          { color: "rgba(165,163,157,0.5)", label: t("calendar.pending") || "Pendiente" },
+          { color: "var(--olive)", label: t("calendar.done") || "Hecho" },
+          { color: "var(--amber)", label: t("calendar.approved") || "Aprobado" },
+          { color: "var(--text-ghost)", label: t("calendar.pending") || "Pendiente" },
         ].map((s) => (
           <div key={s.label} className="flex items-center gap-1.5">
             <div className="w-[5px] h-[5px] rounded-full" style={{ background: s.color }} />
-            <span className="text-[8px]" style={{ fontFamily: "var(--font-mono)", color: "var(--text-ghost)" }}>{s.label}</span>
+            <span className="text-[7px]" style={{ fontFamily: "var(--font-mono)", color: "var(--text-ghost)" }}>{s.label}</span>
           </div>
         ))}
       </div>
@@ -281,17 +267,14 @@ export default function ContentCalendar() {
 
       {/* YouTube suggestion */}
       {topNews && (
-        <div
-          className="mt-4 flex items-center gap-2.5 p-3 px-4 rounded-xl"
-          style={{ background: "rgba(0,0,0,0.06)", border: "0.5px solid rgba(168,183,142,0.08)" }}
-        >
-          <div className="w-5 h-4 rounded-[2px] flex items-center justify-center flex-shrink-0" style={{ background: "#C4453A" }}>
+        <div className="mt-4 flex items-center gap-2.5 p-3 px-4 rounded-[8px]" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--glass-border)", borderLeft: "3px solid var(--red)" }}>
+          <div className="w-5 h-4 rounded-[2px] flex items-center justify-center flex-shrink-0" style={{ background: "var(--red)" }}>
             <div className="w-0 h-0" style={{ borderLeft: "5px solid white", borderTop: "3px solid transparent", borderBottom: "3px solid transparent" }} />
           </div>
           <span className="text-[12px] flex-1 min-w-0" style={{ color: "var(--text-secondary)" }}>
             <strong>{t("calendar.yt_week") || "YouTube esta semana"}:</strong> {topNews.title}
           </span>
-          <span className="text-[8px] px-2 py-0.5 rounded-full flex-shrink-0" style={{ fontFamily: "var(--font-mono)", background: "rgba(196,69,58,0.12)", color: "#C4453A" }}>
+          <span className="text-[8px] px-2 py-0.5 rounded-[5px] flex-shrink-0" style={{ fontFamily: "var(--font-mono)", background: "var(--red-bg)", color: "var(--red)" }}>
             pendiente
           </span>
         </div>
