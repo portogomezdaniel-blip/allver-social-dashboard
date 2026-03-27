@@ -29,7 +29,7 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const publicPaths = ["/login", "/register"];
+  const publicPaths = ["/login", "/register", "/r/"];
   const isApiRoute = request.nextUrl.pathname.startsWith("/api/");
   const isPublic = isApiRoute || publicPaths.some((p) =>
     request.nextUrl.pathname.startsWith(p)
@@ -41,7 +41,8 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && isPublic) {
+  const isPublicRoute = request.nextUrl.pathname.startsWith("/r/");
+  if (user && isPublic && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
