@@ -28,6 +28,7 @@ interface IdeaActionPanelProps {
   onCopy: (text: string) => void;
   onKeep: (ideaId: string) => void;
   onReject: (ideaId: string) => void;
+  onViewDetail?: (ideaId: string) => void;
   daysWithContent?: string[];
 }
 
@@ -46,7 +47,7 @@ function build14Days() {
   });
 }
 
-export default function IdeaActionPanel({ idea, isExpanded, onToggle, onAssignToDay, onChangeFormat, onMarkRecordToday, onCopy, onKeep, onReject, daysWithContent = [] }: IdeaActionPanelProps) {
+export default function IdeaActionPanel({ idea, isExpanded, onToggle, onAssignToDay, onChangeFormat, onMarkRecordToday, onCopy, onKeep, onReject, onViewDetail, daysWithContent = [] }: IdeaActionPanelProps) {
   const [showCalPicker, setShowCalPicker] = useState(false);
   const [showFormatChanger, setShowFormatChanger] = useState(false);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
@@ -261,10 +262,19 @@ export default function IdeaActionPanel({ idea, isExpanded, onToggle, onAssignTo
 
           {/* Quick actions */}
           <div className="flex items-center gap-2">
+            {onViewDetail && (
+              <button
+                onClick={() => onViewDetail(idea.id)}
+                className="text-[7px] px-3 py-1.5 rounded-[6px] transition-colors"
+                style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.08em", textTransform: "uppercase" as const, background: "var(--olive-bg)", color: "var(--olive)" }}
+              >
+                Ver detalle →
+              </button>
+            )}
             <button
               onClick={() => onKeep(idea.id)}
               className="text-[7px] px-3 py-1.5 rounded-[6px] transition-colors"
-              style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.08em", textTransform: "uppercase" as const, background: "var(--olive-bg)", color: "var(--olive)" }}
+              style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.08em", textTransform: "uppercase" as const, background: onViewDetail ? "rgba(255,255,255,0.06)" : "var(--olive-bg)", color: onViewDetail ? "var(--text-muted)" : "var(--olive)" }}
             >
               Guardar
             </button>

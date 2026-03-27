@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useLocale } from "@/lib/locale-context";
@@ -31,6 +32,7 @@ export default function IdeasPage() {
   const [expandedIdeaId, setExpandedIdeaId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
+  const router = useRouter();
   const handleToastDone = useCallback(() => setToast(null), []);
 
   useEffect(() => {
@@ -215,6 +217,7 @@ export default function IdeasPage() {
             onCopy={handleCopy}
             onKeep={handleKeep}
             onReject={handleReject}
+            onViewDetail={(id) => router.push(`/ideas/${id}`)}
             daysWithContent={daysWithContent}
           />
         ))}

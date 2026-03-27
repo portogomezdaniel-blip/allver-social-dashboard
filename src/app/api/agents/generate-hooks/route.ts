@@ -1,98 +1,61 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { callClaude } from "../_shared/call-claude";
-import { getIdentity, getCreatorTemperature, buildTemperatureContext } from "../_shared/get-identity";
+import { getIdentity, getKnowledgeContext, getCreatorTemperature, buildTemperatureContext } from "../_shared/get-identity";
 import { logAgentRun } from "../_shared/log-run";
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, hookText, engagementScore, originalCaption } =
-      await req.json();
+    const body = await req.json();
+    const userId = body.userId;
+    // Support both old (hookText) and new (hook + ideaId) interfaces
+    const hookText = body.hook || body.hookText;
+    const ideaId = body.ideaId;
 
     if (!userId || !hookText) {
-      return NextResponse.json(
-        { error: "userId and hookText required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "userId and hook/hookText required" }, { status: 400 });
     }
 
     const identity = await getIdentity(userId);
-    if (!identity || !identity.compiled_prompt) {
-      return NextResponse.json(
-        { error: "Creator identity not found." },
-        { status: 404 }
-      );
-    }
-
-    const niche = identity.niche || "fitness";
+    const knowledgeCtx = await getKnowledgeContext(userId);
     const temperature = await getCreatorTemperature(userId);
     const tempCtx = buildTemperatureContext(temperature);
 
-    const systemPrompt = `Eres el copywriter de ${niche} en ${identity.city || "Medellin"}.
+    const systemPrompt = `Eres el copywriter de un creador de contenido fitness.\n\n${identity?.compiled_prompt || "Genera contenido autentico y directo."}${knowledgeCtx}${tempCtx}\n\nGenera 5 VARIACIONES del hook dado. Cada variacion debe:\n1. Mantener la misma idea central pero con estructura diferente\n2. Variar entre: pregunta, afirmacion, dato, historia, provocacion\n3. Ser scroll-stoppers — la primera linea debe atrapar\n4. Sonar como el creador, no como IA`;
 
-${identity.compiled_prompt}${tempCtx}`;
+    const userPrompt = `Hook original: "${hookText}"\n\nGenera 5 variaciones. Responde SOLO en JSON valido, sin markdown:\n{ "hooks": ["variacion 1", "variacion 2", "variacion 3", "variacion 4", "variacion 5"] }`;
 
-    const userMessage = `Hook original que funciono bien${engagementScore ? ` (engagement: ${engagementScore})` : ""}:
-"${hookText}"
-
-${originalCaption ? `Contexto del post original: ${originalCaption.slice(0, 500)}` : ""}
-
-Genera 5 variaciones de este hook para DIFERENTES temas de ${niche}.
-Cada variacion debe:
-1. Mantener la misma estructura/patron del hook original
-2. Aplicarse a un tema diferente dentro del nicho
-3. Sonar 100% como el creador
-4. Provocar la misma reaccion (curiosidad/controversia/sorpresa)
-
-Responde SOLO en JSON valido, sin markdown:
-{
-  "variations": [
-    {"hook": "", "suggested_topic": "", "format": "reel|carousel|single"}
-  ]
-}`;
-
-    const { text, tokensUsed, durationMs } = await callClaude(
-      systemPrompt,
-      userMessage
-    );
+    const { text, tokensUsed, durationMs } = await callClaude(systemPrompt, userPrompt, 1500);
 
     let parsed;
-    try {
-      parsed = JSON.parse(text);
-    } catch {
-      parsed = { variations: [] };
+    try { parsed = JSON.parse(text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()); }
+    catch { parsed = { hooks: [] }; }
+
+    const hooks: string[] = parsed.hooks || [];
+
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+
+    // If called from idea detail, save to idea outline
+    if (ideaId) {
+      const { data: ideaData } = await supabase.from("scored_content_ideas").select("outline").eq("id", ideaId).maybeSingle();
+      const currentOutline = (ideaData?.outline as Record<string, unknown>) || {};
+      await supabase.from("scored_content_ideas").update({ outline: { ...currentOutline, generated_hooks: hooks } }).eq("id", ideaId);
     }
 
-    // Save generated hooks to DB
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-
-    if (parsed.variations && parsed.variations.length > 0) {
-      const hookRows = parsed.variations.map(
-        (v: { hook: string; suggested_topic: string }) => ({
-          user_id: userId,
-          text: v.hook,
-          source: "ai_generated",
-          category: "variation",
-        })
-      );
+    // Also save as hook bank entries
+    if (hooks.length > 0) {
+      const hookRows = hooks.map((h: string) => ({ user_id: userId, text: h, source: "ai_generated", category: "variation" }));
       await supabase.from("hooks").insert(hookRows);
     }
 
-    await logAgentRun({
-      userId,
-      agentName: "generate-hooks",
-      inputSummary: `Variaciones de: "${hookText.slice(0, 50)}..."`,
-      outputData: parsed,
-      tokensUsed,
-      durationMs,
-    });
+    await logAgentRun({ userId, agentName: "generate-hooks", inputSummary: `Hooks para: "${hookText.slice(0, 50)}"`, outputData: { count: hooks.length }, tokensUsed, durationMs });
 
-    return NextResponse.json(parsed);
+    // Return both formats for backward compat
+    return NextResponse.json({
+      hooks,
+      variations: hooks.map((h: string) => ({ hook: h, suggested_topic: "", format: "reel" })),
+    });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Internal error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Error" }, { status: 500 });
   }
 }

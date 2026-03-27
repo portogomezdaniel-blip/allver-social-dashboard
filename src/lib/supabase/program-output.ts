@@ -129,3 +129,48 @@ export async function getProgramProgress(): Promise<{
     avgTemperature: Math.round(avgTemp * 10) / 10,
   };
 }
+
+// ─── Idea detail functions ─────────────────────────────────
+
+export async function fetchIdeaById(id: string): Promise<ScoredIdea | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("scored_content_ideas")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateIdeaFormat(id: string, format: string, funnel_role: string): Promise<void> {
+  const supabase = createClient();
+  await supabase.from("scored_content_ideas").update({ format, funnel_role }).eq("id", id);
+}
+
+async function mergeOutline(id: string, patch: Record<string, unknown>): Promise<void> {
+  const supabase = createClient();
+  const { data } = await supabase.from("scored_content_ideas").select("outline").eq("id", id).maybeSingle();
+  const current = (data?.outline as Record<string, unknown>) || {};
+  await supabase.from("scored_content_ideas").update({ outline: { ...current, ...patch } }).eq("id", id);
+}
+
+export async function saveIdeaNotes(id: string, notes: string): Promise<void> {
+  await mergeOutline(id, { creator_notes: notes });
+}
+
+export async function saveIdeaHooks(id: string, hooks: string[]): Promise<void> {
+  await mergeOutline(id, { generated_hooks: hooks });
+}
+
+export async function saveIdeaCopy(id: string, copy: string): Promise<void> {
+  await mergeOutline(id, { generated_copy: copy });
+}
+
+export async function saveIdeaScript(id: string, script: Array<{ title: string; desc: string; time: string }>): Promise<void> {
+  await mergeOutline(id, { generated_script: script });
+}
+
+export async function saveIdeaSlides(id: string, slides: Array<{ title: string; desc: string }>): Promise<void> {
+  await mergeOutline(id, { generated_slides: slides });
+}
