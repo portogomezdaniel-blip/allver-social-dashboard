@@ -1,215 +1,159 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useLocale } from "@/lib/locale-context";
-import { fetchMonthIdeas, fetchMonthPosts, fetchTopNews, fetchDayNews, approveIdea } from "@/lib/supabase/cockpit";
-import { updateIdeaStatus } from "@/lib/supabase/program-output";
-import MonthGrid from "@/components/calendar/MonthGrid";
-import WeekDetail from "@/components/calendar/WeekDetail";
-import DayView from "@/components/calendar/DayView";
+import { fetchCalendarIdeas, assignIdeaToDay, moveIdeaToDay, unassignIdea, markIdeaDone, fetchTopNews } from "@/lib/supabase/cockpit";
+import IdeaTray from "@/components/calendar/IdeaTray";
+import CalendarGrid from "@/components/calendar/CalendarGrid";
+import DayPanel from "@/components/calendar/DayPanel";
+import { Toast } from "@/components/ui/Toast";
 import type { ScoredIdea } from "@/lib/supabase/program-output";
-import type { DbPost } from "@/lib/supabase/posts";
-import type { DailyNews } from "@/lib/supabase/daily-news";
 
-// ─── Month names ───────────────────────────────────────────
-const MONTH_NAMES_ES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-const MONTH_NAMES_EN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-const DAY_NAMES = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
+const MONTH_NAMES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
-// ─── Week helpers ──────────────────────────────────────────
-function getMondayOfDate(dateStr: string): string {
-  const d = new Date(dateStr + "T12:00:00");
-  const dow = d.getDay();
-  const offset = dow === 0 ? 6 : dow - 1;
-  const monday = new Date(d);
-  monday.setDate(d.getDate() - offset);
-  return monday.toLocaleDateString("en-CA");
-}
-
-function getWeekFromMonday(mondayStr: string, currentMonth: number, currentYear: number) {
-  const monday = new Date(mondayStr + "T12:00:00");
-  const dayNames = ["LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB", "DOM"];
-  const todayStr = new Date().toLocaleDateString("en-CA");
-
-  const days = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    const dateKey = d.toLocaleDateString("en-CA");
-    return {
-      date: dateKey,
-      name: dayNames[i],
-      num: d.getDate(),
-      isToday: dateKey === todayStr,
-      isRest: i === 6,
-      inMonth: d.getMonth() === currentMonth && d.getFullYear() === currentYear,
-    };
-  });
-
-  const startOfYear = new Date(monday.getFullYear(), 0, 1);
-  const weekNum = Math.ceil(((monday.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7);
-  const lastDay = days[6];
-  const range = `${days[0].name} ${days[0].num} – ${lastDay.name} ${lastDay.num}`;
-
-  return { days, label: `Semana ${weekNum}`, range };
-}
-
-// ─── Main Component ────────────────────────────────────────
 export default function ContentCalendar() {
-  const { t, locale } = useLocale();
-  const monthNames = locale === "en" ? MONTH_NAMES_EN : MONTH_NAMES_ES;
-
+  const { t } = useLocale();
   const [year, setYear] = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth());
-  const [selectedWeekStart, setSelectedWeekStart] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [ideas, setIdeas] = useState<ScoredIdea[]>([]);
-  const [posts, setPosts] = useState<DbPost[]>([]);
-  const [topNews, setTopNews] = useState<DailyNews | null>(null);
-  const [dayNews, setDayNews] = useState<DailyNews[]>([]);
+  const [assigned, setAssigned] = useState<ScoredIdea[]>([]);
+  const [unassigned, setUnassigned] = useState<ScoredIdea[]>([]);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [topNews, setTopNews] = useState<{ title: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState<string | null>(null);
+  const [dragActive, setDragActive] = useState(false);
+  const [draggedIdeaId, setDraggedIdeaId] = useState<string | null>(null);
+
+  const handleToastDone = useCallback(() => setToast(null), []);
 
   // Month range
   const monthStart = `${year}-${String(month + 1).padStart(2, "0")}-01`;
   const lastDayNum = new Date(year, month + 1, 0).getDate();
   const monthEnd = `${year}-${String(month + 1).padStart(2, "0")}-${lastDayNum}`;
 
-  // Fetch on month change
+  // Fetch
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-
     Promise.all([
-      fetchMonthIdeas(monthStart, monthEnd),
-      fetchMonthPosts(monthStart, monthEnd),
+      fetchCalendarIdeas(monthStart, monthEnd),
       fetchTopNews(),
-    ]).then(([i, p, n]) => {
+    ]).then(([{ assigned: a, unassigned: u }, news]) => {
       if (cancelled) return;
-      setIdeas(i);
-      setPosts(p);
-      setTopNews(n);
+      setAssigned(a);
+      setUnassigned(u);
+      setTopNews(news);
       setLoading(false);
     }).catch(() => { if (!cancelled) setLoading(false); });
-
     return () => { cancelled = true; };
   }, [monthStart, monthEnd]);
 
-  // Fetch day news when a day is selected
-  useEffect(() => {
-    if (selectedDate) {
-      fetchDayNews(selectedDate).then(setDayNews).catch(() => setDayNews([]));
-    }
-  }, [selectedDate]);
-
-  // Week data for expansion
-  const selectedWeek = useMemo(
-    () => selectedWeekStart ? getWeekFromMonday(selectedWeekStart, month, year) : null,
-    [selectedWeekStart, month, year]
+  // Computed
+  const selectedDayIdeas = useMemo(
+    () => selectedDay ? assigned.filter((i) => i.scheduled_date === selectedDay) : [],
+    [selectedDay, assigned]
   );
 
-  // Day view data
-  const dayViewData = useMemo(() => {
-    if (!selectedDate) return null;
-    const d = new Date(selectedDate + "T12:00:00");
-    return {
-      dayName: DAY_NAMES[d.getDay()],
-      dayNum: d.getDate(),
-      ideas: ideas.filter((i) => i.scheduled_date === selectedDate),
-      posts: posts.filter((p) => p.scheduled_date === selectedDate),
-    };
-  }, [selectedDate, ideas, posts]);
+  const weekProgress = useMemo(() => {
+    if (assigned.length === 0) return 0;
+    const done = assigned.filter((i) => i.status === "scheduled").length;
+    const approved = assigned.filter((i) => i.status === "approved").length;
+    return Math.round(((done + approved * 0.5) / assigned.length) * 100);
+  }, [assigned]);
 
-  // ─── Handlers ──────────────────────────────────────────
-  function handleSelectDay(dateStr: string) {
-    const mondayStr = getMondayOfDate(dateStr);
-    setSelectedWeekStart((prev) => prev === mondayStr ? null : mondayStr);
+  // ─── Drag handlers ────────────────────────────────────
+  function handleDragStart(ideaId: string) {
+    setDraggedIdeaId(ideaId);
+    setDragActive(true);
   }
 
-  function handleSelectDate(dateStr: string) {
-    setSelectedDate(dateStr);
+  function handleDragEnd() {
+    setDraggedIdeaId(null);
+    setDragActive(false);
   }
 
-  function handleBackFromDay() {
-    setSelectedDate(null);
+  function formatDayLabel(dateStr: string): string {
+    const d = new Date(dateStr + "T12:00:00");
+    const days = ["DOM", "LUN", "MAR", "MIE", "JUE", "VIE", "SAB"];
+    return `${days[d.getDay()]} ${d.getDate()}`;
   }
 
-  function prevMonth() {
-    setSelectedWeekStart(null);
-    setSelectedDate(null);
-    if (month === 0) { setMonth(11); setYear((y) => y - 1); }
-    else setMonth((m) => m - 1);
+  async function handleDropIdea(ideaId: string, date: string) {
+    setDragActive(false);
+    setDraggedIdeaId(null);
+
+    const fromUnassigned = unassigned.find((i) => i.id === ideaId);
+    const fromAssigned = assigned.find((i) => i.id === ideaId);
+    const idea = fromUnassigned || fromAssigned;
+    if (!idea) return;
+
+    if (fromUnassigned) {
+      setUnassigned((prev) => prev.filter((i) => i.id !== ideaId));
+      setAssigned((prev) => [...prev, { ...idea, scheduled_date: date, status: "approved" }]);
+      await assignIdeaToDay(ideaId, date);
+      setToast(`Asignada al ${formatDayLabel(date)}`);
+    } else {
+      setAssigned((prev) => prev.map((i) => i.id === ideaId ? { ...i, scheduled_date: date } : i));
+      await moveIdeaToDay(ideaId, date);
+      setToast(`Movida al ${formatDayLabel(date)}`);
+    }
+    setSelectedDay(date);
   }
 
-  function nextMonth() {
-    setSelectedWeekStart(null);
-    setSelectedDate(null);
-    if (month === 11) { setMonth(0); setYear((y) => y + 1); }
-    else setMonth((m) => m + 1);
+  async function handleMarkDone(ideaId: string) {
+    setAssigned((prev) => prev.map((i) => i.id === ideaId ? { ...i, status: "scheduled" } : i));
+    await markIdeaDone(ideaId);
+    setToast("Marcado como hecho");
   }
 
-  function goToday() {
-    const now = new Date();
-    setYear(now.getFullYear());
-    setMonth(now.getMonth());
-    setSelectedWeekStart(null);
-    setSelectedDate(null);
+  async function handleUnassign(ideaId: string) {
+    const idea = assigned.find((i) => i.id === ideaId);
+    if (!idea) return;
+    setAssigned((prev) => prev.filter((i) => i.id !== ideaId));
+    setUnassigned((prev) => [...prev, { ...idea, scheduled_date: null, status: "suggested" }].sort((a, b) => (b.total_score || 0) - (a.total_score || 0)));
+    await unassignIdea(ideaId);
+    setToast("Idea devuelta a la bandeja");
   }
 
-  async function handleApprove(id: string) {
-    setIdeas((prev) => prev.map((i) => i.id === id ? { ...i, status: "approved" } : i));
-    await approveIdea(id);
+  function handleCopy(text: string) {
+    navigator.clipboard.writeText(text).catch(() => {});
+    setToast("Copiado al portapapeles");
   }
 
-  async function handleReject(id: string) {
-    setIdeas((prev) => prev.filter((i) => i.id !== id));
-    await updateIdeaStatus(id, "rejected");
-  }
+  function prevMonth() { setSelectedDay(null); if (month === 0) { setMonth(11); setYear((y) => y - 1); } else setMonth((m) => m - 1); }
+  function nextMonth() { setSelectedDay(null); if (month === 11) { setMonth(0); setYear((y) => y + 1); } else setMonth((m) => m + 1); }
+  function goToday() { setYear(new Date().getFullYear()); setMonth(new Date().getMonth()); setSelectedDay(null); }
 
   // ─── Render ──────────────────────────────────────────
-
-  // DAY VIEW — full day detail
-  if (selectedDate && dayViewData) {
-    return (
-      <div>
-        <DayView
-          date={selectedDate}
-          dayName={dayViewData.dayName}
-          dayNum={dayViewData.dayNum}
-          monthLabel={`${monthNames[month]} ${year}`}
-          ideas={dayViewData.ideas}
-          news={dayNews}
-          posts={dayViewData.posts}
-          onBack={handleBackFromDay}
-          onApprove={handleApprove}
-          onReject={handleReject}
-        />
-      </div>
-    );
-  }
-
-  // MONTH VIEW — grid + week expansion
   return (
-    <div>
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h1 className="text-[18px]" style={{ fontFamily: "var(--font-display)" }}>
-            {monthNames[month]} {year}
-          </h1>
-          <p className="text-[9px] mt-0.5" style={{ fontFamily: "var(--font-mono)", color: "var(--text-ghost)" }}>
-            Q{Math.ceil((month + 1) / 3)}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button onClick={prevMonth} className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] transition-colors hover:bg-[rgba(255,255,255,0.08)]" style={{ color: "var(--text-muted)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--glass-border)" }}>←</button>
-          <button onClick={nextMonth} className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] transition-colors hover:bg-[rgba(255,255,255,0.08)]" style={{ color: "var(--text-muted)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--glass-border)" }}>→</button>
-          <button onClick={goToday} className="text-[9px] px-2.5 py-1 rounded-full transition-colors hover:bg-[rgba(255,255,255,0.08)]" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--glass-border)" }}>
+      <div>
+        <h1 className="text-[22px]" style={{ fontFamily: "var(--font-display)" }}>Calendario</h1>
+        <p className="text-[12px] mt-1" style={{ color: "var(--text-secondary)" }}>
+          Arrastra ideas desde la bandeja o haz click en un dia.
+        </p>
+      </div>
+
+      {/* Idea Tray */}
+      <IdeaTray ideas={unassigned} onDragStart={handleDragStart} onDragEnd={handleDragEnd} />
+
+      {/* Month header + nav */}
+      <div className="flex items-center justify-between">
+        <span style={{ fontFamily: "var(--font-display)", fontSize: 18 }}>
+          {MONTH_NAMES[month]} {year}
+        </span>
+        <div className="flex gap-1">
+          <button onClick={prevMonth} className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] transition-colors hover:bg-[rgba(255,255,255,0.08)]" style={{ color: "var(--text-muted)", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)" }}>←</button>
+          <button onClick={nextMonth} className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] transition-colors hover:bg-[rgba(255,255,255,0.08)]" style={{ color: "var(--text-muted)", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)" }}>→</button>
+          <button onClick={goToday} className="text-[9px] px-2.5 py-1 rounded-full transition-colors hover:bg-[rgba(255,255,255,0.08)]" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)" }}>
             {t("calendar.today")}
           </button>
         </div>
       </div>
 
       {/* Legend */}
-      <div className="flex gap-4 flex-wrap mb-4 p-2.5 px-4 rounded-[8px] overflow-x-auto" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--glass-border)" }}>
+      <div className="flex gap-4 flex-wrap">
         {[
           { color: "var(--red)", label: "Reel" },
           { color: "var(--olive)", label: "Carrusel" },
@@ -218,56 +162,65 @@ export default function ContentCalendar() {
         ].map((f) => (
           <div key={f.label} className="flex items-center gap-1.5">
             <div className="w-[8px] h-[4px] rounded-[2px]" style={{ background: f.color }} />
-            <span className="text-[7px]" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>{f.label}</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, color: "var(--text-muted)" }}>{f.label}</span>
           </div>
         ))}
-        <span className="text-[7px] mx-1" style={{ color: "var(--border)" }}>|</span>
+        <span className="text-[7px] mx-0.5" style={{ color: "rgba(255,255,255,0.08)" }}>|</span>
         {[
-          { color: "var(--olive)", label: t("calendar.done") || "Hecho" },
-          { color: "var(--amber)", label: t("calendar.approved") || "Aprobado" },
-          { color: "var(--text-ghost)", label: t("calendar.pending") || "Pendiente" },
+          { color: "var(--olive)", label: "Hecho" },
+          { color: "var(--amber)", label: "Aprobado" },
+          { color: "var(--text-ghost)", label: "Pendiente" },
         ].map((s) => (
-          <div key={s.label} className="flex items-center gap-1.5">
-            <div className="w-[5px] h-[5px] rounded-full" style={{ background: s.color }} />
-            <span className="text-[7px]" style={{ fontFamily: "var(--font-mono)", color: "var(--text-ghost)" }}>{s.label}</span>
+          <div key={s.label} className="flex items-center gap-1">
+            <div className="w-[4px] h-[4px] rounded-full" style={{ background: s.color }} />
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, color: "var(--text-ghost)" }}>{s.label}</span>
           </div>
         ))}
       </div>
 
-      {/* Month Grid */}
+      {/* Progress bar */}
+      <div className="flex items-center gap-2">
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, color: "var(--text-ghost)" }}>Progreso</span>
+        <div className="flex-1 h-[3px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${weekProgress}%`, background: "linear-gradient(90deg, var(--olive-dark), var(--olive))" }} />
+        </div>
+        <span style={{ fontFamily: "var(--font-display)", fontSize: 12, color: "var(--olive)" }}>{weekProgress}%</span>
+      </div>
+
+      {/* Calendar Grid */}
       {loading ? (
         <div className="flex items-center justify-center h-64">
           <span className="text-[var(--text-muted)] text-sm">{t("calendar.loading")}</span>
         </div>
       ) : (
-        <MonthGrid
+        <CalendarGrid
           year={year}
           month={month}
-          ideas={ideas}
-          posts={posts}
-          selectedWeekStart={selectedWeekStart}
-          onSelectDay={handleSelectDay}
+          ideas={assigned}
+          selectedDay={selectedDay}
+          onSelectDay={setSelectedDay}
+          onDropIdea={handleDropIdea}
+          dragActive={dragActive}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
         />
       )}
 
-      {/* Week Detail */}
-      {selectedWeekStart && selectedWeek && (
-        <WeekDetail
-          weekDays={selectedWeek.days}
-          ideas={ideas}
-          posts={posts}
-          weekLabel={selectedWeek.label}
-          weekRange={selectedWeek.range}
-          onClose={() => setSelectedWeekStart(null)}
-          onApprove={handleApprove}
-          onReject={handleReject}
-          onSelectDate={handleSelectDate}
+      {/* Day Panel */}
+      {selectedDay && (
+        <DayPanel
+          date={selectedDay}
+          ideas={selectedDayIdeas}
+          onClose={() => setSelectedDay(null)}
+          onMarkDone={handleMarkDone}
+          onUnassign={handleUnassign}
+          onCopy={handleCopy}
         />
       )}
 
-      {/* YouTube suggestion */}
+      {/* YouTube bar */}
       {topNews && (
-        <div className="mt-4 flex items-center gap-2.5 p-3 px-4 rounded-[8px]" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--glass-border)", borderLeft: "3px solid var(--red)" }}>
+        <div className="flex items-center gap-2.5 p-3 px-4 rounded-[8px]" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", borderLeft: "3px solid var(--red)" }}>
           <div className="w-5 h-4 rounded-[2px] flex items-center justify-center flex-shrink-0" style={{ background: "var(--red)" }}>
             <div className="w-0 h-0" style={{ borderLeft: "5px solid white", borderTop: "3px solid transparent", borderBottom: "3px solid transparent" }} />
           </div>
@@ -279,6 +232,8 @@ export default function ContentCalendar() {
           </span>
         </div>
       )}
+
+      <Toast message={toast} onDone={handleToastDone} />
     </div>
   );
 }
