@@ -102,8 +102,7 @@ export default function JournalPage() {
   }
 
   async function handleAddToCalendar(caption: string, format: string) {
-    const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
-    await createPost({ caption, post_type: format as "reel" | "carousel" | "single" | "story", status: "scheduled", scheduled_date: tomorrow.toLocaleDateString("en-CA"), platform: "instagram" });
+    await createPost({ caption, post_type: format as "reel" | "carousel" | "single" | "story", status: "draft", scheduled_date: null, platform: "instagram" });
   }
 
   async function handleApplyWeeklyPlan(strategy: Record<string, { format: string; topic: string }>) {
@@ -262,7 +261,7 @@ export default function JournalPage() {
               </p>
               <div className="flex gap-2 mt-3">
                 <button onClick={() => copyText(quote)} className="text-[10px] px-3 py-1.5 rounded-lg border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]"><Copy size={10} className="inline mr-1" />Copiar</button>
-                <button onClick={async () => { const tm = new Date(); tm.setDate(tm.getDate() + 1); await createPost({ caption: quote, post_type: "story", status: "scheduled", scheduled_date: tm.toLocaleDateString("en-CA"), platform: "instagram" }); }} className="text-[10px] px-3 py-1.5 rounded-lg" style={{ background: "var(--depth)", color: "var(--text-primary)" }}>Publicar como story</button>
+                <button onClick={async () => { await createPost({ caption: quote, post_type: "story", status: "draft", scheduled_date: null, platform: "instagram" }); }} className="text-[10px] px-3 py-1.5 rounded-lg" style={{ background: "var(--depth)", color: "var(--text-primary)" }}>Guardar como story</button>
               </div>
             </GlassCardNew>
           )}
