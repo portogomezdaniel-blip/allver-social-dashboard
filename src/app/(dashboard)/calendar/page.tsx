@@ -167,10 +167,12 @@ export default function ContentCalendar() {
       </div>
 
       {/* Progress bar */}
-      <div className="flex items-center gap-2 mb-1">
-        <span className="whitespace-nowrap" style={{ fontFamily: "var(--font-mono)", fontSize: 7, color: "rgba(255,255,255,0.3)" }}>Sem</span>
-        <div className="flex-1 h-[2px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.04)" }}>
-          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${weekProgress}%`, background: "linear-gradient(90deg, var(--olive-dark), var(--olive))" }} />
+      <div className="flex items-center gap-2 mb-2">
+        <span className="whitespace-nowrap" style={{ fontFamily: "var(--font-mono)", fontSize: 7, color: "rgba(255,255,255,0.3)" }}>
+          {assigned.filter((i) => i.status === "scheduled").length}/{assigned.length}
+        </span>
+        <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${weekProgress}%`, background: "linear-gradient(90deg, #5C6B4A, #93A87A)" }} />
         </div>
         <span style={{ fontFamily: "var(--font-display)", fontSize: 10, color: "var(--olive)" }}>{weekProgress}%</span>
       </div>
