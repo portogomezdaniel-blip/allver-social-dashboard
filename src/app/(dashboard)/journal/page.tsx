@@ -153,7 +153,7 @@ export default function JournalPage() {
     <div className="max-w-[680px] mx-auto space-y-6">
       {/* ═══ HEADER ═══ */}
       <div className="mb-2">
-        <h1 className="text-[22px]" style={{ fontFamily: "var(--font-display)" }}>Journal</h1>
+        <h1 className="text-[18px] md:text-[22px]" style={{ fontFamily: "var(--font-display)" }}>Journal</h1>
         <p className="text-[12px] mt-1" style={{ color: "var(--text-secondary)" }}>
           3 preguntas de hoy. Tus respuestas generan ideas de contenido.
         </p>

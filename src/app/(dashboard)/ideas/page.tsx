@@ -114,7 +114,7 @@ export default function IdeasPage() {
     <div className="space-y-5">
       {/* Header */}
       <div>
-        <h1 className="text-[22px]" style={{ fontFamily: "var(--font-display)" }}>Ideas</h1>
+        <h1 className="text-[18px] md:text-[22px]" style={{ fontFamily: "var(--font-display)" }}>Ideas</h1>
         <p className="text-[12px] mt-1" style={{ color: "var(--text-secondary)" }}>
           Escribe una idea y genera 4 angulos. {ideas.length} ideas de {sources.length - 1} fuentes.
         </p>

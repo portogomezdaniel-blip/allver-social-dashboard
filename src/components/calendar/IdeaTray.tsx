@@ -18,7 +18,7 @@ export default function IdeaTray({ ideas, onDragStart, onDragEnd }: IdeaTrayProp
 
   return (
     <div
-      className="mb-4 p-3 rounded-[8px] relative overflow-hidden"
+      className="mb-3 p-2.5 md:p-3 rounded-[8px] relative overflow-hidden"
       style={{ background: "rgba(255,255,255,0.1)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.12)" }}
     >
       {/* Shine */}
@@ -45,7 +45,7 @@ export default function IdeaTray({ ideas, onDragStart, onDragEnd }: IdeaTrayProp
                 onDragStart(idea.id);
               }}
               onDragEnd={onDragEnd}
-              className="flex-shrink-0 min-w-[160px] max-w-[200px] p-[8px_10px] rounded-[6px] cursor-grab active:cursor-grabbing active:opacity-50 transition-transform hover:translate-y-[-2px]"
+              className="flex-shrink-0 min-w-[130px] md:min-w-[160px] max-w-[180px] md:max-w-[200px] p-[6px_8px] md:p-[8px_10px] rounded-[6px] cursor-grab active:cursor-grabbing active:opacity-50 transition-transform hover:translate-y-[-2px]"
               style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.12)" }}
             >
               {/* Score + source */}

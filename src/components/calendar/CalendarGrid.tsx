@@ -93,7 +93,7 @@ export default function CalendarGrid({ year, month, ideas, selectedDay, onSelect
                 const ideaId = e.dataTransfer.getData("text/plain");
                 if (ideaId && cell.date) onDropIdea(ideaId, cell.date);
               }}
-              className="relative min-h-[88px] max-md:min-h-[60px] p-[6px_5px] cursor-pointer transition-colors"
+              className="relative min-h-[48px] md:min-h-[88px] p-[3px_2px] md:p-[6px_5px] cursor-pointer transition-colors"
               style={{
                 background: isDropOver
                   ? "var(--olive-bg)"
@@ -122,10 +122,9 @@ export default function CalendarGrid({ year, month, ideas, selectedDay, onSelect
 
               {/* Number */}
               <span
-                className="relative z-[1] block text-center mb-1 max-md:text-[9px]"
+                className="relative z-[1] block text-center mb-0.5 md:mb-1 text-[10px] md:text-[11px]"
                 style={{
                   fontFamily: cell.isToday ? "var(--font-display)" : undefined,
-                  fontSize: cell.isToday ? 12 : 11,
                   fontWeight: cell.isToday ? 700 : 500,
                   color: cell.isToday ? "var(--red)" : "var(--text-secondary)",
                 }}

@@ -129,8 +129,8 @@ export default function ContentCalendar() {
     <div className="space-y-4">
       {/* Header */}
       <div>
-        <h1 className="text-[22px]" style={{ fontFamily: "var(--font-display)" }}>Calendario</h1>
-        <p className="text-[12px] mt-1" style={{ color: "var(--text-secondary)" }}>
+        <h1 className="text-[18px] md:text-[22px]" style={{ fontFamily: "var(--font-display)" }}>Calendario</h1>
+        <p className="hidden md:block text-[12px] mt-1" style={{ color: "var(--text-secondary)" }}>
           Arrastra ideas desde la bandeja o haz click en un dia.
         </p>
       </div>
@@ -140,7 +140,7 @@ export default function ContentCalendar() {
 
       {/* Month header + nav */}
       <div className="flex items-center justify-between">
-        <span style={{ fontFamily: "var(--font-display)", fontSize: 18 }}>
+        <span className="text-[15px] md:text-[18px]" style={{ fontFamily: "var(--font-display)" }}>
           {MONTH_NAMES[month]} {year}
         </span>
         <div className="flex gap-1">
@@ -153,7 +153,7 @@ export default function ContentCalendar() {
       </div>
 
       {/* Legend */}
-      <div className="flex gap-4 flex-wrap">
+      <div className="flex gap-3 md:gap-4 overflow-x-auto whitespace-nowrap pb-1" style={{ scrollbarWidth: "none" }}>
         {[
           { color: "var(--red)", label: "Reel" },
           { color: "var(--olive)", label: "Carrusel" },

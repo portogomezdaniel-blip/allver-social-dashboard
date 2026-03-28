@@ -8,7 +8,7 @@ const NAV_ITEMS = [
   { href: "/journal", icon: "✎", labelKey: "nav.journal" },
   { href: "/ideas", icon: "★", labelKey: "nav.ideas", badge: true },
   { href: "/calendar", icon: "▣", labelKey: "nav.calendar" },
-  { href: "/", icon: "⚡", labelKey: "nav.home", exact: true },
+  { href: "/", icon: "⚡", labelKey: "nav.crear", exact: true },
 ];
 
 export default function BottomNav() {
