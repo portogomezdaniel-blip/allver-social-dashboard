@@ -18,7 +18,7 @@ export default function IdeaTray({ ideas, onDragStart, onDragEnd }: IdeaTrayProp
 
   return (
     <div
-      className="mb-3 p-2.5 md:p-3 rounded-[8px] relative overflow-hidden"
+      className="mb-2 p-2 md:p-3 rounded-[8px] relative overflow-hidden"
       style={{ background: "rgba(255,255,255,0.1)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.12)" }}
     >
       {/* Shine */}
@@ -45,12 +45,12 @@ export default function IdeaTray({ ideas, onDragStart, onDragEnd }: IdeaTrayProp
                 onDragStart(idea.id);
               }}
               onDragEnd={onDragEnd}
-              className="flex-shrink-0 min-w-[130px] md:min-w-[160px] max-w-[180px] md:max-w-[200px] p-[6px_8px] md:p-[8px_10px] rounded-[6px] cursor-grab active:cursor-grabbing active:opacity-50 transition-transform hover:translate-y-[-2px]"
+              className="flex-shrink-0 min-w-[120px] md:min-w-[160px] max-w-[160px] md:max-w-[200px] p-[5px_7px] md:p-[8px_10px] rounded-[6px] cursor-grab active:cursor-grabbing active:opacity-50 transition-transform hover:translate-y-[-2px]"
               style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.12)" }}
             >
               {/* Score + source */}
               <div className="flex items-center justify-between mb-1">
-                <span style={{ fontFamily: "var(--font-display)", fontSize: 11, color: "var(--olive)" }}>
+                <span style={{ fontFamily: "var(--font-display)", fontSize: 10, color: "var(--olive)" }}>
                   {idea.total_score.toFixed(1)}
                 </span>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 6, color: "var(--text-ghost)" }}>
@@ -59,7 +59,7 @@ export default function IdeaTray({ ideas, onDragStart, onDragEnd }: IdeaTrayProp
               </div>
 
               {/* Hook */}
-              <p className="text-[10px] leading-[1.3] line-clamp-2 mb-1.5" style={{ color: "var(--text-secondary)" }}>
+              <p className="text-[9px] leading-[1.3] line-clamp-2 mb-1" style={{ color: "var(--text-secondary)" }}>
                 {idea.hook}
               </p>
 

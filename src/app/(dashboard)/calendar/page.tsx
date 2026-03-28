@@ -126,10 +126,10 @@ export default function ContentCalendar() {
 
   // ─── Render ──────────────────────────────────────────
   return (
-    <div className="space-y-4">
+    <div className="space-y-2 md:space-y-4">
       {/* Header */}
       <div>
-        <h1 className="text-[18px] md:text-[22px]" style={{ fontFamily: "var(--font-display)" }}>Calendario</h1>
+        <h1 className="text-base md:text-[22px]" style={{ fontFamily: "var(--font-display)" }}>Calendario</h1>
         <p className="hidden md:block text-[12px] mt-1" style={{ color: "var(--text-secondary)" }}>
           Arrastra ideas desde la bandeja o haz click en un dia.
         </p>
@@ -153,38 +153,26 @@ export default function ContentCalendar() {
       </div>
 
       {/* Legend */}
-      <div className="flex gap-3 md:gap-4 overflow-x-auto whitespace-nowrap pb-1" style={{ scrollbarWidth: "none" }}>
+      <div className="flex gap-2 md:gap-4 overflow-x-auto whitespace-nowrap" style={{ scrollbarWidth: "none" }}>
         {[
           { color: "var(--red)", label: "Reel" },
           { color: "var(--olive)", label: "Carrusel" },
           { color: "var(--blue)", label: "Stories" },
           { color: "var(--purple)", label: "Post" },
         ].map((f) => (
-          <div key={f.label} className="flex items-center gap-1.5">
-            <div className="w-[8px] h-[4px] rounded-[2px]" style={{ background: f.color }} />
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, color: "var(--text-muted)" }}>{f.label}</span>
-          </div>
-        ))}
-        <span className="text-[7px] mx-0.5" style={{ color: "rgba(255,255,255,0.08)" }}>|</span>
-        {[
-          { color: "var(--olive)", label: "Hecho" },
-          { color: "var(--amber)", label: "Aprobado" },
-          { color: "var(--text-ghost)", label: "Pendiente" },
-        ].map((s) => (
-          <div key={s.label} className="flex items-center gap-1">
-            <div className="w-[4px] h-[4px] rounded-full" style={{ background: s.color }} />
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, color: "var(--text-ghost)" }}>{s.label}</span>
-          </div>
+          <span key={f.label} className="flex items-center gap-1 whitespace-nowrap" style={{ fontFamily: "var(--font-mono)", fontSize: 7, color: "rgba(255,255,255,0.4)" }}>
+            <span className="w-1.5 h-1.5 rounded-sm" style={{ background: f.color }} /> {f.label}
+          </span>
         ))}
       </div>
 
       {/* Progress bar */}
-      <div className="flex items-center gap-2">
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, color: "var(--text-ghost)" }}>Progreso</span>
-        <div className="flex-1 h-[3px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+      <div className="flex items-center gap-2 mb-1">
+        <span className="whitespace-nowrap" style={{ fontFamily: "var(--font-mono)", fontSize: 7, color: "rgba(255,255,255,0.3)" }}>Sem</span>
+        <div className="flex-1 h-[2px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.04)" }}>
           <div className="h-full rounded-full transition-all duration-500" style={{ width: `${weekProgress}%`, background: "linear-gradient(90deg, var(--olive-dark), var(--olive))" }} />
         </div>
-        <span style={{ fontFamily: "var(--font-display)", fontSize: 12, color: "var(--olive)" }}>{weekProgress}%</span>
+        <span style={{ fontFamily: "var(--font-display)", fontSize: 10, color: "var(--olive)" }}>{weekProgress}%</span>
       </div>
 
       {/* Calendar Grid */}

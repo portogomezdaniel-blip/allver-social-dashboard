@@ -93,7 +93,7 @@ export default function CalendarGrid({ year, month, ideas, selectedDay, onSelect
                 const ideaId = e.dataTransfer.getData("text/plain");
                 if (ideaId && cell.date) onDropIdea(ideaId, cell.date);
               }}
-              className="relative min-h-[48px] md:min-h-[88px] p-[3px_2px] md:p-[6px_5px] cursor-pointer transition-colors"
+              className="relative min-h-[44px] md:min-h-[88px] p-[3px] md:p-[6px_5px] cursor-pointer transition-colors"
               style={{
                 background: isDropOver
                   ? "var(--olive-bg)"
@@ -134,12 +134,12 @@ export default function CalendarGrid({ year, month, ideas, selectedDay, onSelect
 
               {/* Idea blocks */}
               {cellIdeas.length > 0 && (
-                <div className="relative z-[1] flex flex-col gap-[2px]">
-                  {cellIdeas.slice(0, 4).map((idea) => (
+                <div className="relative z-[1] flex flex-col gap-px md:gap-[2px]">
+                  {cellIdeas.slice(0, 3).map((idea) => (
                     <CalendarBlock key={idea.id} idea={idea} onDragStart={onDragStart} onDragEnd={onDragEnd} />
                   ))}
-                  {cellIdeas.length > 4 && (
-                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 6, color: "var(--text-ghost)" }}>+{cellIdeas.length - 4}</span>
+                  {cellIdeas.length > 3 && (
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 5, color: "var(--text-ghost)" }}>+{cellIdeas.length - 3}</span>
                   )}
                 </div>
               )}

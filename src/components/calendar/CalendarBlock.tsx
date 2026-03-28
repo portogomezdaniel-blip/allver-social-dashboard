@@ -23,10 +23,10 @@ export default function CalendarBlock({ idea, onDragStart, onDragEnd }: Calendar
         onDragStart(idea.id);
       }}
       onDragEnd={onDragEnd}
-      className="flex items-center gap-[2px] md:gap-[3px] px-0.5 md:px-1 py-[1px] md:py-[2px] rounded-[2px] md:rounded-[3px] cursor-grab active:cursor-grabbing active:opacity-60"
-      style={{ background: FMT_BG[idea.format] || "var(--olive-bg)" }}
+      className="h-[2px] md:h-auto md:flex md:items-center md:gap-[3px] md:px-1 md:py-[2px] rounded-[1px] md:rounded-[3px] cursor-grab active:cursor-grabbing active:opacity-60"
+      style={{ background: FMT_COLOR[idea.format] || "var(--olive)" }}
     >
-      <div className="w-[3px] h-[3px] md:w-1 md:h-1 rounded-full flex-shrink-0" style={{ background: STATUS_COLOR[idea.status] || "var(--text-ghost)" }} />
+      <div className="hidden md:block w-1 h-1 rounded-full flex-shrink-0" style={{ background: STATUS_COLOR[idea.status] || "var(--text-ghost)" }} />
       <span className="hidden md:inline" style={{ fontFamily: "var(--font-mono)", fontSize: 6, textTransform: "uppercase" as const, color: FMT_COLOR[idea.format] || "var(--olive)" }}>
         {FMT_LABEL[idea.format] || idea.format}
       </span>
