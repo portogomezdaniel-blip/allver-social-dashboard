@@ -25,35 +25,42 @@ const navSections = [
   {
     labelKey: "nav.principal",
     items: [
-      { nameKey: "nav.dashboard", href: "/", icon: LayoutDashboard },
-      { nameKey: "nav.content", href: "/instagram", icon: PenSquare },
+      { nameKey: "nav.journal", href: "/journal", icon: BookOpen },
+      { nameKey: "nav.ideas", href: "/ideas", icon: Sparkles },
       { nameKey: "nav.calendar", href: "/calendar", icon: Calendar },
     ],
   },
   {
     labelKey: "nav.crear",
     items: [
-      { nameKey: "nav.ideas", href: "/ideas", icon: Sparkles },
-      { nameKey: "nav.journal", href: "/journal", icon: BookOpen },
-    ],
-  },
-  {
-    labelKey: "nav.analisis",
-    items: [
-      { nameKey: "nav.intel", href: "/news", icon: Newspaper },
-      { nameKey: "nav.recon", href: "/competitors", icon: Radar },
+      { nameKey: "nav.content", href: "/instagram", icon: PenSquare },
       { nameKey: "nav.hooks", href: "/hooks", icon: Zap },
       { nameKey: "nav.templates", href: "/templates", icon: LayoutTemplate },
-      { nameKey: "nav.analytics", href: "/analytics", icon: BarChart3 },
     ],
   },
-  {
-    labelKey: "nav.sistema",
-    items: [
-      { nameKey: "nav.agents", href: "/agents", icon: Bot },
-      { nameKey: "nav.config", href: "/settings", icon: Settings },
-    ],
-  },
+  // HIDDEN v1.1 — not content-focused
+  // {
+  //   labelKey: "nav.analisis",
+  //   items: [
+  //     { nameKey: "nav.intel", href: "/news", icon: Newspaper },
+  //     { nameKey: "nav.analytics", href: "/analytics", icon: BarChart3 },
+  //     { nameKey: "nav.recon", href: "/competitors", icon: Radar },
+  //   ],
+  // },
+  // {
+  //   labelKey: "nav.operaciones",
+  //   items: [
+  //     { nameKey: "nav.clients", href: "/clients", icon: LayoutDashboard },
+  //     { nameKey: "nav.admin", href: "/admin", icon: Settings },
+  //     { nameKey: "nav.programs", href: "/programs", icon: LayoutTemplate },
+  //   ],
+  // },
+  // {
+  //   labelKey: "nav.sistema",
+  //   items: [
+  //     { nameKey: "nav.agents", href: "/agents", icon: Bot },
+  //   ],
+  // },
 ];
 
 export function Sidebar() {
