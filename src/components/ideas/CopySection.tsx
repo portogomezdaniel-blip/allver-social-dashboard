@@ -4,14 +4,12 @@ import SectionShell from "./SectionShell";
 
 interface CopySectionProps {
   copy: string | null;
-  generating: boolean;
   isExpanded: boolean;
   onToggle: () => void;
-  onGenerate: () => void;
   onCopy: () => void;
 }
 
-export default function CopySection({ copy, generating, isExpanded, onToggle, onGenerate, onCopy }: CopySectionProps) {
+export default function CopySection({ copy, isExpanded, onToggle, onCopy }: CopySectionProps) {
   return (
     <SectionShell
       icon="📝"
@@ -20,10 +18,6 @@ export default function CopySection({ copy, generating, isExpanded, onToggle, on
       count={copy ? "✓" : undefined}
       isExpanded={isExpanded}
       onToggle={onToggle}
-      hasContent={!!copy}
-      generating={generating}
-      generateLabel="📝 Generar caption completo"
-      onGenerate={onGenerate}
     >
       <div>
         <div className="p-3 rounded-[6px] mb-2" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>

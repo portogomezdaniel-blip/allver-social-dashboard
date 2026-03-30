@@ -4,16 +4,21 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { fetchIdeaById, updateIdeaFormat, updateIdeaStatus, saveIdeaNotes, type ScoredIdea } from "@/lib/supabase/program-output";
-import { assignIdeaToDay } from "@/lib/supabase/cockpit";
+import { fetchIdeaById, updateIdeaFormat, updateIdeaStatus, type ScoredIdea } from "@/lib/supabase/program-output";
 import IdeaHero from "@/components/ideas/IdeaHero";
 import FormatSelector from "@/components/ideas/FormatSelector";
 import HooksSection from "@/components/ideas/HooksSection";
 import CopySection from "@/components/ideas/CopySection";
 import ScriptSection from "@/components/ideas/ScriptSection";
 import OutlineSection from "@/components/ideas/OutlineSection";
-import NotesSection from "@/components/ideas/NotesSection";
 import { Toast } from "@/components/ui/Toast";
+import { Loader2 } from "lucide-react";
+
+const LOADING_STEPS = [
+  "Generando hooks...",
+  "Escribiendo copy...",
+  "Creando guiones...",
+];
 
 export default function IdeaDetailPage() {
   const params = useParams();
@@ -31,13 +36,10 @@ export default function IdeaDetailPage() {
   const [copy, setCopy] = useState<string | null>(null);
   const [script, setScript] = useState<Array<{ title: string; desc: string; time: string }> | null>(null);
   const [outline, setOutline] = useState<Array<{ title: string; desc: string }> | null>(null);
-  const [notes, setNotes] = useState("");
 
-  // Generation loading
-  const [genHooks, setGenHooks] = useState(false);
-  const [genCopy, setGenCopy] = useState(false);
-  const [genScript, setGenScript] = useState(false);
-  const [genOutline, setGenOutline] = useState(false);
+  // Generate all state
+  const [generating, setGenerating] = useState(false);
+  const [genStep, setGenStep] = useState(0);
 
   const handleToastDone = useCallback(() => setToast(null), []);
 
@@ -54,64 +56,68 @@ export default function IdeaDetailPage() {
       if (o.generated_copy) setCopy(o.generated_copy as string);
       if (o.generated_script) setScript(o.generated_script as Array<{ title: string; desc: string; time: string }>);
       if (o.generated_slides) setOutline(o.generated_slides as Array<{ title: string; desc: string }>);
-      if (o.creator_notes) setNotes(o.creator_notes as string);
       setLoading(false);
     }).catch(() => router.push("/ideas"));
   }, [ideaId, router]);
 
-  // Auto-save notes
-  useEffect(() => {
-    if (!idea) return;
-    const currentNotes = ((idea.outline as Record<string, unknown>)?.creator_notes as string) || "";
-    if (notes === currentNotes) return;
-    const timer = setTimeout(() => { saveIdeaNotes(idea.id, notes); }, 2000);
-    return () => clearTimeout(timer);
-  }, [notes, idea]);
-
-  // ─── Generation handlers ─────────────────────────────
+  // ─── API caller ──────────────────────────────────────
   async function callAgent(endpoint: string, body: Record<string, unknown>) {
     const res = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     return res.json();
   }
 
-  async function handleGenerateHooks() {
+  // ─── Generate All ────────────────────────────────────
+  async function handleGenerateAll() {
     if (!idea || !userId) return;
-    setGenHooks(true);
-    try {
-      const data = await callAgent("/api/agents/generate-hooks", { userId, ideaId: idea.id, hook: idea.hook });
-      if (data.hooks) { setHooks(data.hooks); setToast("Hooks generados"); }
-    } catch { setToast("Error generando hooks"); }
-    setGenHooks(false);
-  }
+    setGenerating(true);
+    setGenStep(0);
 
-  async function handleGenerateCopy() {
-    if (!idea || !userId) return;
-    setGenCopy(true);
-    try {
-      const data = await callAgent("/api/agents/generate-copy", { userId, ideaId: idea.id, hook: idea.hook, format: idea.format });
-      if (data.copy) { setCopy(data.copy); setToast("Copy generado"); }
-    } catch { setToast("Error generando copy"); }
-    setGenCopy(false);
-  }
+    // Animate loading steps
+    const stepInterval = setInterval(() => {
+      setGenStep((s) => (s < LOADING_STEPS.length - 1 ? s + 1 : s));
+    }, 3000);
 
-  async function handleGenerateScript() {
-    if (!idea || !userId) return;
-    setGenScript(true);
     try {
-      const data = await callAgent("/api/agents/generate-script", { userId, ideaId: idea.id, hook: idea.hook });
-      if (data.script) { setScript(data.script); setToast("Guion generado"); }
-    } catch { setToast("Error generando guion"); }
-    setGenScript(false);
-  }
+      const calls: Promise<unknown>[] = [
+        callAgent("/api/agents/generate-hooks", { userId, ideaId: idea.id, hook: idea.hook }),
+        callAgent("/api/agents/generate-copy", { userId, ideaId: idea.id, hook: idea.hook, format: idea.format }),
+      ];
 
-  async function handleGenerateOutline() {
-    if (!idea || !userId) return;
-    setGenOutline(true);
-    try {
-      const data = await callAgent("/api/agents/generate-outline", { userId, ideaId: idea.id, hook: idea.hook });
-      if (data.slides) { setOutline(data.slides); setToast("Outline generado"); }
-    } catch { setToast("Error generando outline"); }
-    setGenOutline(false);
+      const isReel = idea.format === "reel" || idea.format === "story";
+      const isCarousel = idea.format === "carousel";
+
+      if (isReel) {
+        calls.push(callAgent("/api/agents/generate-script", { userId, ideaId: idea.id, hook: idea.hook }));
+      }
+      if (isCarousel) {
+        calls.push(callAgent("/api/agents/generate-outline", { userId, ideaId: idea.id, hook: idea.hook }));
+      }
+
+      const results = await Promise.all(calls);
+
+      // Parse results
+      const hooksData = results[0] as { hooks?: string[] };
+      const copyData = results[1] as { copy?: string };
+
+      if (hooksData.hooks) setHooks(hooksData.hooks);
+      if (copyData.copy) setCopy(copyData.copy);
+
+      if (isReel) {
+        const scriptData = results[2] as { script?: Array<{ title: string; desc: string; time: string }> };
+        if (scriptData.script) setScript(scriptData.script);
+      }
+      if (isCarousel) {
+        const outlineData = results[2] as { slides?: Array<{ title: string; desc: string }> };
+        if (outlineData.slides) setOutline(outlineData.slides);
+      }
+
+      setToast("Contenido generado");
+    } catch {
+      setToast("Error generando contenido");
+    }
+
+    clearInterval(stepInterval);
+    setGenerating(false);
   }
 
   // ─── Format change ───────────────────────────────────
@@ -120,7 +126,7 @@ export default function IdeaDetailPage() {
     const funnel_role = newFormat === "carousel" ? "authority" : newFormat === "story" ? "conversion" : newFormat === "single" ? "conversion" : "filter";
     await updateIdeaFormat(idea.id, newFormat, funnel_role);
     setIdea((prev) => prev ? { ...prev, format: newFormat, funnel_role } : null);
-    if (newFormat !== "reel") setScript(null);
+    if (newFormat !== "reel" && newFormat !== "story") setScript(null);
     if (newFormat !== "carousel") setOutline(null);
     setToast(`Formato: ${newFormat}`);
   }
@@ -153,8 +159,11 @@ export default function IdeaDetailPage() {
   if (loading) return <div className="flex items-center justify-center h-64 text-[var(--text-muted)] text-sm">...</div>;
   if (!idea) return null;
 
-  const isReel = idea.format === "reel";
+  const isReel = idea.format === "reel" || idea.format === "story";
   const isCarousel = idea.format === "carousel";
+
+  // Check if content has been generated
+  const hasGenerated = !!(hooks && hooks.length > 0 && copy);
 
   return (
     <div className="space-y-1">
@@ -201,20 +210,58 @@ export default function IdeaDetailPage() {
         </button>
       </div>
 
-      {/* Sections */}
-      <HooksSection hooks={hooks} generating={genHooks} isExpanded={expandedSection === "hooks"} onToggle={() => toggleSection("hooks")} onGenerate={handleGenerateHooks} onCopy={handleCopyText} />
-
-      <CopySection copy={copy} generating={genCopy} isExpanded={expandedSection === "copy"} onToggle={() => toggleSection("copy")} onGenerate={handleGenerateCopy} onCopy={() => { if (copy) handleCopyText(copy); }} />
-
-      {isReel && (
-        <ScriptSection script={script} generating={genScript} isExpanded={expandedSection === "script"} onToggle={() => toggleSection("script")} onGenerate={handleGenerateScript} onCopy={() => { if (script) handleCopyText(script.map((b) => `${b.title}\n${b.desc}`).join("\n\n")); }} />
+      {/* GENERATE ALL button — only when no content generated yet */}
+      {!hasGenerated && !generating && (
+        <button
+          onClick={handleGenerateAll}
+          className="w-full py-3.5 rounded-[10px] text-center transition-all hover:brightness-110 active:scale-[0.99] mb-4"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: 13,
+            letterSpacing: "0.04em",
+            color: "white",
+            background: "#8B9A6B",
+            border: "1px solid rgba(255,255,255,0.15)",
+          }}
+        >
+          ⚡ GENERAR TODO
+        </button>
       )}
 
-      {isCarousel && (
-        <OutlineSection outline={outline} generating={genOutline} isExpanded={expandedSection === "outline"} onToggle={() => toggleSection("outline")} onGenerate={handleGenerateOutline} onCopy={() => { if (outline) handleCopyText(outline.map((s, i) => `Slide ${i + 1}: ${s.title}\n${s.desc}`).join("\n\n")); }} />
+      {/* Loading state */}
+      {generating && (
+        <div
+          className="w-full py-4 rounded-[10px] text-center mb-4"
+          style={{
+            background: "rgba(139,154,107,0.15)",
+            border: "1px solid rgba(139,154,107,0.3)",
+          }}
+        >
+          <div className="flex items-center justify-center gap-2">
+            <Loader2 size={16} className="animate-spin" style={{ color: "#8B9A6B" }} />
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "#8B9A6B" }}>
+              {LOADING_STEPS[genStep]}
+            </span>
+          </div>
+        </div>
       )}
 
-      <NotesSection notes={notes} isExpanded={expandedSection === "notes"} onToggle={() => toggleSection("notes")} onChange={setNotes} />
+      {/* Generated content sections — only visible after generation */}
+      {hasGenerated && (
+        <>
+          <HooksSection hooks={hooks} isExpanded={expandedSection === "hooks"} onToggle={() => toggleSection("hooks")} onCopy={handleCopyText} />
+
+          <CopySection copy={copy} isExpanded={expandedSection === "copy"} onToggle={() => toggleSection("copy")} onCopy={() => { if (copy) handleCopyText(copy); }} />
+
+          {isReel && script && script.length > 0 && (
+            <ScriptSection script={script} isExpanded={expandedSection === "script"} onToggle={() => toggleSection("script")} onCopy={() => { if (script) handleCopyText(script.map((b) => `${b.title}\n${b.desc}`).join("\n\n")); }} />
+          )}
+
+          {isCarousel && outline && outline.length > 0 && (
+            <OutlineSection outline={outline} isExpanded={expandedSection === "outline"} onToggle={() => toggleSection("outline")} onCopy={() => { if (outline) handleCopyText(outline.map((s, i) => `Slide ${i + 1}: ${s.title}\n${s.desc}`).join("\n\n")); }} />
+          )}
+        </>
+      )}
 
       <Toast message={toast} onDone={handleToastDone} />
     </div>

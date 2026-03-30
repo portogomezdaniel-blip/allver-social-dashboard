@@ -9,14 +9,12 @@ interface Slide {
 
 interface OutlineSectionProps {
   outline: Slide[] | null;
-  generating: boolean;
   isExpanded: boolean;
   onToggle: () => void;
-  onGenerate: () => void;
   onCopy: () => void;
 }
 
-export default function OutlineSection({ outline, generating, isExpanded, onToggle, onGenerate, onCopy }: OutlineSectionProps) {
+export default function OutlineSection({ outline, isExpanded, onToggle, onCopy }: OutlineSectionProps) {
   return (
     <SectionShell
       icon="📊"
@@ -25,10 +23,6 @@ export default function OutlineSection({ outline, generating, isExpanded, onTogg
       count={outline ? `${outline.length} slides` : undefined}
       isExpanded={isExpanded}
       onToggle={onToggle}
-      hasContent={!!outline && outline.length > 0}
-      generating={generating}
-      generateLabel="📊 Generar outline del carrusel"
-      onGenerate={onGenerate}
     >
       <div className="space-y-1.5">
         {(outline || []).map((slide, i) => (

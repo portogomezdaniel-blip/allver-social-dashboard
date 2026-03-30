@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import type { ScoredIdea } from "@/lib/supabase/program-output";
 
 const FMT_BG: Record<string, string> = { reel: "var(--red-bg)", carousel: "var(--olive-bg)", story: "var(--blue-bg)", single: "var(--purple-bg)" };
@@ -14,6 +15,7 @@ interface IdeaTrayProps {
 }
 
 export default function IdeaTray({ ideas, onDragStart, onDragEnd }: IdeaTrayProps) {
+  const router = useRouter();
   if (ideas.length === 0) return null;
 
   return (
@@ -34,7 +36,8 @@ export default function IdeaTray({ ideas, onDragStart, onDragEnd }: IdeaTrayProp
             draggable
             onDragStart={(e) => { e.dataTransfer.setData("text/plain", idea.id); e.dataTransfer.effectAllowed = "move"; onDragStart(idea.id); }}
             onDragEnd={onDragEnd}
-            className="flex-shrink-0 flex items-center gap-1.5 px-2 py-1 rounded-full cursor-grab active:cursor-grabbing active:opacity-50"
+            onClick={() => router.push(`/ideas/${idea.id}`)}
+            className="flex-shrink-0 flex items-center gap-1.5 px-2 py-1 rounded-full cursor-pointer active:cursor-grabbing active:opacity-50"
             style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", maxWidth: 160 }}
           >
             <span className="w-[5px] h-[5px] rounded-sm flex-shrink-0" style={{ background: FMT_COLOR[idea.format] || "var(--olive)" }} />
@@ -53,7 +56,8 @@ export default function IdeaTray({ ideas, onDragStart, onDragEnd }: IdeaTrayProp
             draggable
             onDragStart={(e) => { e.dataTransfer.setData("text/plain", idea.id); e.dataTransfer.effectAllowed = "move"; onDragStart(idea.id); }}
             onDragEnd={onDragEnd}
-            className="flex-shrink-0 min-w-[160px] max-w-[200px] p-[8px_10px] rounded-[6px] cursor-grab active:cursor-grabbing active:opacity-50 transition-transform hover:translate-y-[-2px]"
+            onClick={() => router.push(`/ideas/${idea.id}`)}
+            className="flex-shrink-0 min-w-[160px] max-w-[200px] p-[8px_10px] rounded-[6px] cursor-pointer active:cursor-grabbing active:opacity-50 transition-all hover:translate-y-[-2px] hover:border-[rgba(255,255,255,0.2)]"
             style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.12)" }}
           >
             <div className="flex items-center justify-between mb-1">

@@ -4,14 +4,12 @@ import SectionShell from "./SectionShell";
 
 interface HooksSectionProps {
   hooks: string[] | null;
-  generating: boolean;
   isExpanded: boolean;
   onToggle: () => void;
-  onGenerate: () => void;
   onCopy: (text: string) => void;
 }
 
-export default function HooksSection({ hooks, generating, isExpanded, onToggle, onGenerate, onCopy }: HooksSectionProps) {
+export default function HooksSection({ hooks, isExpanded, onToggle, onCopy }: HooksSectionProps) {
   return (
     <SectionShell
       icon="⚡"
@@ -20,10 +18,6 @@ export default function HooksSection({ hooks, generating, isExpanded, onToggle, 
       count={hooks ? `${hooks.length}` : undefined}
       isExpanded={isExpanded}
       onToggle={onToggle}
-      hasContent={!!hooks && hooks.length > 0}
-      generating={generating}
-      generateLabel="⚡ Generar 5 variaciones"
-      onGenerate={onGenerate}
     >
       <div className="space-y-1.5">
         {(hooks || []).map((hook, i) => (

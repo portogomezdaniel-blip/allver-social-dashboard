@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import type { ScoredIdea } from "@/lib/supabase/program-output";
 
 const DAY_NAMES = ["DOM", "LUN", "MAR", "MIE", "JUE", "VIE", "SAB"];
@@ -24,6 +25,7 @@ interface DayPanelProps {
 }
 
 export default function DayPanel({ date, ideas, onClose, onMarkDone, onUnassign, onCopy }: DayPanelProps) {
+  const router = useRouter();
   const [menuId, setMenuId] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
   const d = new Date(date + "T12:00:00");
@@ -82,7 +84,7 @@ export default function DayPanel({ date, ideas, onClose, onMarkDone, onUnassign,
                   <div
                     className="flex items-center gap-2 py-1.5 px-2 rounded-md cursor-pointer transition-colors hover:bg-[rgba(255,255,255,0.04)]"
                     style={{ borderLeft: `2px solid ${cfg.color}`, marginLeft: 4 }}
-                    onClick={() => setMenuId(menuId === idea.id ? null : idea.id)}
+                    onClick={() => router.push(`/ideas/${idea.id}`)}
                   >
                     <span className="min-w-[24px] text-center text-[11px]" style={{ fontFamily: "var(--font-display)", color: cfg.color }}>
                       {idea.total_score.toFixed(1)}
