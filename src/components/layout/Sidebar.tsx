@@ -33,28 +33,29 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/templates", icon: "☷", labelKey: "nav.templates" },
     ],
   },
-  {
-    labelKey: "nav.analisis",
-    items: [
-      { href: "/news", icon: "◇", labelKey: "nav.intel" },
-      { href: "/analytics", icon: "◆", labelKey: "nav.analytics" },
-      { href: "/competitors", icon: "◎", labelKey: "nav.recon" },
-    ],
-  },
-  {
-    labelKey: "nav.operaciones",
-    items: [
-      { href: "/clients", icon: "◈", labelKey: "nav.clients" },
-      { href: "/admin", icon: "◆", labelKey: "nav.admin" },
-      { href: "/programs", icon: "▦", labelKey: "nav.programs" },
-    ],
-  },
-  {
-    labelKey: "nav.sistema",
-    items: [
-      { href: "/agents", icon: "●", labelKey: "nav.agents" },
-    ],
-  },
+  // HIDDEN v1.1 — not content-focused
+  // {
+  //   labelKey: "nav.analisis",
+  //   items: [
+  //     { href: "/news", icon: "◇", labelKey: "nav.intel" },
+  //     { href: "/analytics", icon: "◆", labelKey: "nav.analytics" },
+  //     { href: "/competitors", icon: "◎", labelKey: "nav.recon" },
+  //   ],
+  // },
+  // {
+  //   labelKey: "nav.operaciones",
+  //   items: [
+  //     { href: "/clients", icon: "◈", labelKey: "nav.clients" },
+  //     { href: "/admin", icon: "◆", labelKey: "nav.admin" },
+  //     { href: "/programs", icon: "▦", labelKey: "nav.programs" },
+  //   ],
+  // },
+  // {
+  //   labelKey: "nav.sistema",
+  //   items: [
+  //     { href: "/agents", icon: "●", labelKey: "nav.agents" },
+  //   ],
+  // },
 ];
 
 interface SidebarProps {
