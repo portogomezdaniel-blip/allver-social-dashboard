@@ -1,28 +1,31 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Copy, Loader2, ChevronDown, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { type JournalEntry } from "@/lib/supabase/journal";
 import { createHook } from "@/lib/supabase/hooks";
 import { createPost } from "@/lib/supabase/posts";
-import { getTodayQuestions, getQuestionsForDay } from "@/lib/journal-questions";
+import { getTodayQuestions, getQuestionsForDayOfMonth, type QuestionAngle } from "@/data/journal-questions";
 import Link from "next/link";
 import { useLocale } from "@/lib/locale-context";
 import GlassCardNew from "@/components/ui/GlassCardNew";
 
-const domainColors: Record<string, string> = { practice: "var(--green)", clients: "var(--blue)", philosophy: "var(--purple)" };
-const domainLabels: Record<string, string> = { practice: "TU PRACTICA", clients: "TUS CLIENTES", philosophy: "FILOSOFIA" };
+const angleConfig: Record<QuestionAngle, { label: string; color: string; bg: string }> = {
+  experiencial: { label: "EXPERIENCIAL", color: "var(--olive)", bg: "rgba(122,140,101,0.12)" },
+  reflexiva: { label: "REFLEXIVA", color: "var(--text-secondary)", bg: "rgba(255,255,255,0.06)" },
+  contenido: { label: "CONTENIDO", color: "var(--red)", bg: "rgba(212,101,91,0.12)" },
+};
+
 const moodEmojis: Record<string, string> = { reflective: "\uD83E\uDE9E", fired_up: "\uD83D\uDD25", frustrated: "\uD83D\uDE24", grateful: "\uD83D\uDE4F", philosophical: "\uD83C\uDF0C", determined: "\uD83D\uDCAA", vulnerable: "\uD83E\uDEE3" };
-const dayNames = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
-const monthNames = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
-const dayColors: Record<number, string> = { 0: "var(--text-muted)", 1: "var(--green)", 2: "var(--blue)", 3: "var(--purple)", 4: "var(--amber)", 5: "var(--red)", 6: "var(--blue)" };
 const fmtColors: Record<string, string> = { reel: "var(--filter)", carousel: "var(--authority)", story: "var(--conversion)", single: "var(--brand)", story_series: "var(--conversion)" };
+const monthNames = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 
 function copyText(text: string) { navigator.clipboard.writeText(text); }
 function getLocalDateString(): string { return new Date().toLocaleDateString("en-CA"); }
 function formatHistoryDate(dateStr: string): string {
   const [y, m, d] = dateStr.split("-").map(Number);
+  const dayNames = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
   const date = new Date(y, m - 1, d);
   return `${dayNames[date.getDay()]}, ${d} ${monthNames[m - 1]}`;
 }
@@ -31,6 +34,7 @@ export default function JournalPage() {
   const { t } = useLocale();
   const [entry, setEntry] = useState<JournalEntry | null>(null);
   const [history, setHistory] = useState<JournalEntry[]>([]);
+  const [daysAnswered, setDaysAnswered] = useState(0);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
@@ -44,9 +48,8 @@ export default function JournalPage() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const now = new Date();
-  const dayOfWeek = now.getDay();
-  const todayQuestions = getTodayQuestions();
-  const questionStartNum = dayOfWeek * 3 + 1;
+  const dayOfMonth = now.getDate();
+  const todayData = getTodayQuestions();
 
   useEffect(() => {
     const supabase = createClient();
@@ -62,8 +65,17 @@ export default function JournalPage() {
         if (ne) setEntry(ne);
       }
       const { data: hist } = await supabase.from("journal_entries").select("*").eq("user_id", uid).neq("entry_date", todayDate).order("entry_date", { ascending: false }).limit(14);
-      setHistory(hist ?? []); setLoading(false);
+      setHistory(hist ?? []);
+
+      // Count days answered this month
+      const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+      const monthEnd = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()).padStart(2, "0")}`;
+      const { count } = await supabase.from("journal_entries").select("id", { count: "exact", head: true }).eq("user_id", uid).gte("entry_date", monthStart).lte("entry_date", monthEnd).or("answer_1.neq.,answer_2.neq.,answer_3.neq.");
+      setDaysAnswered(count || 0);
+
+      setLoading(false);
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -125,9 +137,9 @@ export default function JournalPage() {
   const isCompleted = entry?.status === "completed" && b;
   const canSubmit = a1.trim().length >= 20 && a2.trim().length >= 20 && a3.trim().length >= 20;
   const qItems = [
-    { q: entry?.question_1 || todayQuestions.questions[0].text, a: a1, set: setA1, domain: todayQuestions.questions[0].domain },
-    { q: entry?.question_2 || todayQuestions.questions[1].text, a: a2, set: setA2, domain: todayQuestions.questions[1].domain },
-    { q: entry?.question_3 || todayQuestions.questions[2].text, a: a3, set: setA3, domain: todayQuestions.questions[2].domain },
+    { q: entry?.question_1 || todayData.questions[0].text, a: a1, set: setA1, angle: todayData.questions[0].angle },
+    { q: entry?.question_2 || todayData.questions[1].text, a: a2, set: setA2, angle: todayData.questions[1].angle },
+    { q: entry?.question_3 || todayData.questions[2].text, a: a3, set: setA3, angle: todayData.questions[2].angle },
   ];
   const hero = (b?.content_plan as Record<string, unknown>)?.hero_post as Record<string, unknown> | null;
   const secondaryPosts = ((b?.content_plan as Record<string, unknown>)?.secondary_posts || []) as Record<string, unknown>[];
@@ -138,6 +150,8 @@ export default function JournalPage() {
   const repurpose = (b?.repurpose_ideas || []) as { from: string; to: string; how: string }[];
   const brandNote = b?.personal_brand_note as string | null;
   const quote = b?.quote_of_the_day as string | null;
+
+  const monthProgress = Math.round((daysAnswered / 31) * 100);
 
   const tabs = [
     { id: "hero", label: "Hero Post" },
@@ -157,10 +171,21 @@ export default function JournalPage() {
         <p className="text-[12px] mt-1" style={{ color: "var(--text-secondary)" }}>
           3 preguntas de hoy. Tus respuestas generan ideas de contenido.
         </p>
-        <div className="flex items-center gap-3 mt-2">
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "var(--text-ghost)" }}>
-            {dayNames[dayOfWeek]} · Preguntas {questionStartNum}–{questionStartNum + 2} de 21
+
+        {/* Week theme */}
+        <div className="mt-3 p-3 rounded-[8px]" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <span className="text-[16px] block" style={{ fontFamily: "var(--font-display)" }}>
+            {todayData.weekName}
           </span>
+          <span className="text-[10px] block mt-0.5" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
+            {todayData.weekSub}
+          </span>
+          <span className="text-[9px] block mt-1" style={{ fontFamily: "var(--font-mono)", color: "var(--text-ghost)" }}>
+            DIA {dayOfMonth} DE 31 · SEMANA {todayData.week}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3 mt-2">
           {autoSaved && <span className="text-[9px] text-[var(--olive)]">Guardado ✓</span>}
           <Link href="/journal/knowledge" className="text-[9px] text-[var(--text-ghost)] hover:text-[var(--text-secondary)] ml-auto">Base de conocimiento →</Link>
         </div>
@@ -177,34 +202,48 @@ export default function JournalPage() {
 
       {!questionsCollapsed && (
         <div className="space-y-4">
-          {qItems.map((item, i) => (
-            <GlassCardNew key={i} intensity="strong" className="p-5" borderLeft={domainColors[item.domain]}>
-              <div>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: domainColors[item.domain] }}>
-                  {domainLabels[item.domain]}
-                </span>
-                <p className="text-[13px] font-[500] mt-2 mb-3" style={{ color: "var(--text-primary)" }}>
-                  {item.q}
-                </p>
-                {isCompleted ? (
-                  <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{item.a}</p>
-                ) : (
-                  <>
-                    <textarea
-                      value={item.a}
-                      onChange={(e) => item.set(e.target.value)}
-                      placeholder="Escribe sin filtro..."
-                      className="w-full border rounded-[6px] px-3 py-2.5 text-[12px] text-white placeholder:text-[var(--text-ghost)] focus:outline-none min-h-[50px] md:min-h-[60px] resize-y"
-                      style={{ background: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.12)" }}
-                      onFocus={(e) => { (e.target as HTMLTextAreaElement).style.borderColor = "var(--olive)"; (e.target as HTMLTextAreaElement).style.background = "rgba(255,255,255,0.12)"; }}
-                      onBlur={(e) => { (e.target as HTMLTextAreaElement).style.borderColor = "rgba(255,255,255,0.12)"; (e.target as HTMLTextAreaElement).style.background = "rgba(255,255,255,0.08)"; }}
-                    />
-                    {item.a.length > 0 && item.a.length < 20 && <p className="text-[9px] text-[var(--text-muted)] mt-1">{20 - item.a.length} caracteres mas</p>}
-                  </>
-                )}
-              </div>
-            </GlassCardNew>
-          ))}
+          {qItems.map((item, i) => {
+            const cfg = angleConfig[item.angle];
+            return (
+              <GlassCardNew key={i} intensity="strong" className="p-5" borderLeft={cfg.color}>
+                <div>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: cfg.color }}>
+                    {cfg.label}
+                  </span>
+                  <p className="text-[13px] font-[500] mt-2 mb-3" style={{ color: "var(--text-primary)" }}>
+                    {item.q}
+                  </p>
+                  {isCompleted ? (
+                    <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{item.a}</p>
+                  ) : (
+                    <>
+                      <textarea
+                        value={item.a}
+                        onChange={(e) => item.set(e.target.value)}
+                        placeholder="Escribe sin filtro..."
+                        className="w-full border rounded-[6px] px-3 py-2.5 text-[12px] text-white placeholder:text-[var(--text-ghost)] focus:outline-none min-h-[50px] md:min-h-[60px] resize-y"
+                        style={{ background: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.12)" }}
+                        onFocus={(e) => { (e.target as HTMLTextAreaElement).style.borderColor = "var(--olive)"; (e.target as HTMLTextAreaElement).style.background = "rgba(255,255,255,0.12)"; }}
+                        onBlur={(e) => { (e.target as HTMLTextAreaElement).style.borderColor = "rgba(255,255,255,0.12)"; (e.target as HTMLTextAreaElement).style.background = "rgba(255,255,255,0.08)"; }}
+                      />
+                      {item.a.length > 0 && item.a.length < 20 && <p className="text-[9px] text-[var(--text-muted)] mt-1">{20 - item.a.length} caracteres mas</p>}
+                    </>
+                  )}
+                </div>
+              </GlassCardNew>
+            );
+          })}
+
+          {/* Month progress */}
+          <div className="flex items-center gap-2">
+            <span className="whitespace-nowrap" style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "rgba(255,255,255,0.4)" }}>
+              {daysAnswered} de 31 dias respondidos
+            </span>
+            <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+              <div className="h-full rounded-full transition-all duration-500" style={{ width: `${monthProgress}%`, background: "linear-gradient(90deg, #5C6B4A, #93A87A)" }} />
+            </div>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: 10, color: "var(--olive)" }}>{monthProgress}%</span>
+          </div>
 
           {!isCompleted && (
             <div className="pt-2">
@@ -367,7 +406,7 @@ export default function JournalPage() {
             <GlassCardNew intensity="medium" className="p-5 space-y-3">
               <p className="text-[14px] font-[800]" style={{ fontFamily: "var(--font-display)" }}>{carousel.title}</p>
               {carousel.slides.map((slide) => (
-                <div key={slide.slide} className="p-3 rounded-[12px]" style={{ background: "rgba(0,0,0,0.1)", border: "0.5px solid var(--border)" }}>
+                <div key={slide.slide} className="p-3 rounded-[12px]" style={{ background: "rgba(0,0,0,0.12)", border: "0.5px solid var(--border)" }}>
                   <span className="text-[9px] font-mono text-[var(--text-muted)]">Slide {slide.slide} &middot; <span className="uppercase">{slide.type}</span></span>
                   <p className="text-[12px] text-[var(--text-secondary)] mt-1">{slide.content}</p>
                 </div>
@@ -432,7 +471,7 @@ export default function JournalPage() {
         </GlassCardNew>
       )}
 
-      {/* ═══ ECOS ANTERIORES ═══ */}
+      {/* ═══ ENTRADAS ANTERIORES ═══ */}
       {history.length > 0 && (
         <>
           <div className="border-t pt-4 mt-2" style={{ borderColor: "var(--border)" }}>
@@ -443,6 +482,8 @@ export default function JournalPage() {
               const isExpanded = expandedHistoryId === h.id;
               const [hy, hm, hd] = h.entry_date.split("-").map(Number);
               const hDay = new Date(hy, hm - 1, hd).getDay();
+              const hDayOfMonth = hd;
+              const hDayData = getQuestionsForDayOfMonth(hDayOfMonth);
               const hContent = h.generated_content as Record<string, unknown> | null;
               const hQuote = hContent?.quote_of_the_day as string | null;
               const hHooksCount = ((hContent?.hooks_bank || []) as unknown[]).length;
@@ -454,9 +495,11 @@ export default function JournalPage() {
                   <div className="px-4 py-3 flex items-center justify-between cursor-pointer" style={{ opacity: fadeOpacity }}>
                     <div className="flex items-center gap-2.5">
                       {isExpanded ? <ChevronDown size={12} className="text-[var(--text-muted)]" /> : <ChevronRight size={12} className="text-[var(--text-muted)]" />}
-                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: dayColors[hDay] }} />
                       <span className="text-[11px] text-[var(--text-secondary)]">{formatHistoryDate(h.entry_date)}</span>
                       {h.mood && <span className="text-[11px]">{moodEmojis[h.mood] || ""}</span>}
+                      <span className="text-[7px] px-1.5 py-0.5 rounded-[4px]" style={{ fontFamily: "var(--font-mono)", background: "rgba(255,255,255,0.06)", color: "var(--text-ghost)" }}>
+                        S{hDayData.week}
+                      </span>
                       {hHooksCount > 0 && <span className="text-[9px] text-[var(--text-muted)]">{hHooksCount} hooks</span>}
                     </div>
                     <span className="text-[9px] px-2 py-0.5 rounded-md" style={{ background: h.status === "completed" ? "rgba(168,183,142,0.12)" : "rgba(200,170,80,0.12)", color: h.status === "completed" ? "var(--olive)" : "var(--amber)" }}>
@@ -466,16 +509,19 @@ export default function JournalPage() {
                   {isExpanded && (
                     <div className="px-4 pb-4 pt-1 border-t border-[var(--border-subtle)] space-y-3">
                       {[
-                        { q: h.question_1, a: h.answer_1, domain: getQuestionsForDay(hDay).questions[0].domain },
-                        { q: h.question_2, a: h.answer_2, domain: getQuestionsForDay(hDay).questions[1].domain },
-                        { q: h.question_3, a: h.answer_3, domain: getQuestionsForDay(hDay).questions[2].domain },
-                      ].map((item, i) => (
-                        <div key={i} style={{ borderLeft: `2px solid ${domainColors[item.domain] || "var(--border)"}`, paddingLeft: "12px" }}>
-                          <span className="text-[8px] tracking-[0.15em] uppercase font-mono" style={{ color: domainColors[item.domain] || "var(--text-muted)" }}>{domainLabels[item.domain] || "REFLEXION"}</span>
-                          <p className="text-[11px] italic text-[var(--text-muted)] mt-0.5">&ldquo;{item.q}&rdquo;</p>
-                          {item.a ? <p className="text-[11px] text-[var(--text-secondary)] mt-1">{item.a}</p> : <p className="text-[9px] text-[var(--text-muted)] italic mt-1">Sin respuesta</p>}
-                        </div>
-                      ))}
+                        { q: h.question_1, a: h.answer_1, angle: hDayData.questions[0].angle },
+                        { q: h.question_2, a: h.answer_2, angle: hDayData.questions[1].angle },
+                        { q: h.question_3, a: h.answer_3, angle: hDayData.questions[2].angle },
+                      ].map((item, i) => {
+                        const cfg = angleConfig[item.angle];
+                        return (
+                          <div key={i} style={{ borderLeft: `2px solid ${cfg.color}`, paddingLeft: "12px" }}>
+                            <span className="text-[8px] tracking-[0.15em] uppercase font-mono" style={{ color: cfg.color }}>{cfg.label}</span>
+                            <p className="text-[11px] italic text-[var(--text-muted)] mt-0.5">&ldquo;{item.q}&rdquo;</p>
+                            {item.a ? <p className="text-[11px] text-[var(--text-secondary)] mt-1">{item.a}</p> : <p className="text-[9px] text-[var(--text-muted)] italic mt-1">Sin respuesta</p>}
+                          </div>
+                        );
+                      })}
                       {h.status === "completed" && hQuote && (
                         <div className="pt-2 border-t border-[var(--border-subtle)]">
                           <span className="text-[8px] text-[var(--amber)] font-mono uppercase">Frase:</span>
