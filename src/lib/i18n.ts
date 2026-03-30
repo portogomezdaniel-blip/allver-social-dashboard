@@ -5,6 +5,9 @@ export const translations = {
     nav: {
       principal: "PRINCIPAL",
       crear: "CREAR",
+      espejo: "TU ESPEJO",
+      arsenal: "TU ARSENAL",
+      ejecucion: "TU EJECUCION",
       analisis: "ANALISIS",
       sistema: "SISTEMA",
       dashboard: "Dashboard",
@@ -451,6 +454,9 @@ export const translations = {
     nav: {
       principal: "MAIN",
       crear: "CREATE",
+      espejo: "YOUR MIRROR",
+      arsenal: "YOUR ARSENAL",
+      ejecucion: "YOUR EXECUTION",
       analisis: "ANALYSIS",
       sistema: "SYSTEM",
       dashboard: "Dashboard",

@@ -18,7 +18,7 @@ interface NavSection {
 
 const NAV_SECTIONS: NavSection[] = [
   {
-    labelKey: "nav.principal",
+    labelKey: "nav.espejo",
     items: [
       { href: "/journal", icon: "✎", labelKey: "nav.journal" },
       { href: "/ideas", icon: "★", labelKey: "nav.ideas", badge: true },
@@ -26,13 +26,19 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    labelKey: "nav.crear",
+    labelKey: "nav.arsenal",
     items: [
-      { href: "/instagram", icon: "⌂", labelKey: "nav.content" },
       { href: "/hooks", icon: "⚡", labelKey: "nav.hooks" },
-      { href: "/templates", icon: "☷", labelKey: "nav.templates" },
     ],
   },
+  {
+    labelKey: "nav.ejecucion",
+    items: [
+      { href: "/instagram", icon: "⌂", labelKey: "nav.content" },
+    ],
+  },
+  // REMOVED v2 — templates eliminated
+  // { href: "/templates", icon: "☷", labelKey: "nav.templates" },
   // HIDDEN v1.1 — not content-focused
   // {
   //   labelKey: "nav.analisis",
@@ -98,7 +104,7 @@ export default function Sidebar({ creatorName = "Creador", temperature = 5 }: Si
           <div key={section.labelKey}>
             <p
               className="px-2 mb-1.5"
-              style={{ fontFamily: "var(--font-mono)", fontSize: 7, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--text-ghost)" }}
+              style={{ fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--text-ghost)" }}
             >
               {t(section.labelKey)}
             </p>

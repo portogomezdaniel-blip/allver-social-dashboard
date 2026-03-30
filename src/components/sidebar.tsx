@@ -23,7 +23,7 @@ import {
 
 const navSections = [
   {
-    labelKey: "nav.principal",
+    labelKey: "nav.espejo",
     items: [
       { nameKey: "nav.journal", href: "/journal", icon: BookOpen },
       { nameKey: "nav.ideas", href: "/ideas", icon: Sparkles },
@@ -31,13 +31,19 @@ const navSections = [
     ],
   },
   {
-    labelKey: "nav.crear",
+    labelKey: "nav.arsenal",
     items: [
-      { nameKey: "nav.content", href: "/instagram", icon: PenSquare },
       { nameKey: "nav.hooks", href: "/hooks", icon: Zap },
-      { nameKey: "nav.templates", href: "/templates", icon: LayoutTemplate },
     ],
   },
+  {
+    labelKey: "nav.ejecucion",
+    items: [
+      { nameKey: "nav.content", href: "/instagram", icon: PenSquare },
+    ],
+  },
+  // REMOVED v2 — templates eliminated
+  // { nameKey: "nav.templates", href: "/templates", icon: LayoutTemplate },
   // HIDDEN v1.1 — not content-focused
   // {
   //   labelKey: "nav.analisis",
@@ -122,7 +128,7 @@ export function Sidebar() {
       <nav className="flex-1 space-y-5">
         {navSections.map((section) => (
           <div key={section.labelKey}>
-            <p className="text-[10px] font-medium tracking-[0.08em] uppercase text-[var(--text-tertiary)] px-6 mb-1.5">
+            <p className="text-[8px] font-medium tracking-[0.2em] uppercase text-[var(--text-tertiary)] px-6 mb-1.5" style={{ fontFamily: "var(--font-mono)" }}>
               {t(section.labelKey)}
             </p>
             <div className="space-y-0.5">
